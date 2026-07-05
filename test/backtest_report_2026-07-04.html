@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ウォークフォワード検証レポート 2026-07-04</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.25rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 20px 4px 8px; border-left: 4px solid #0969da; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .conclusion { background: #fff8c5; border: 1px solid #d4a72c66; }
+  .conclusion b { color: #953800; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 4px; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-red { background: #cf222e; } .b-green { background: #1a7f37; } .b-gray { background: #8c959f; }
+</style>
+</head>
+<body>
+
+<h1>ウォークフォワード検証レポート</h1>
+<p class="note">実施日: 2026-07-04 / スクリプト: src/backtest.py / モデル: LightGBM(場コード+ローリング成績入り)</p>
+
+<div class="card conclusion">
+  <b>結論: 「荒れ注意」レース(予測1位艇の勝率35%未満)だけが期待値プラス。</b><br>
+  5期間すべてで推奨構成の回収率100%超を確認(合計117.9%・的中率44.1%)。
+  堅め・標準レースはどの買い方でも回収率77〜87%で一貫してマイナスのため見送りが正解。
+  この結果を受けてpredict.pyは「勝負/見送り推奨」方式に変更済み。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">検証条件</h2>
+  <table>
+    <tr><td>検証方式</td><td>ウォークフォワード(各期間より前のデータのみで学習し、次期間で検証)</td></tr>
+    <tr><td>検証期間</td><td>2025-12-01 〜 2026-07-04 を5分割(全33,000レース規模)</td></tr>
+    <tr><td>予算</td><td>1レース1,000円(100円単位で均等配分、余りは先頭の目に上乗せ)</td></tr>
+    <tr><td>再投資</td><td>なし(定額運用)</td></tr>
+    <tr><td>バケット定義</td><td>予測1位艇の勝率: 堅め≧50% / 標準35〜50% / 荒れ注意&lt;35%</td></tr>
+    <tr><td>モデル精度</td><td>検証AUC 0.841 / 単勝的中率(予測1位が1着) 56.8%</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0"><span class="badge b-red">荒れ注意</span>期間別の再現性(重要)</h2>
+  <table>
+    <tr><th>期間</th><th class="num">レース数</th><th class="num">3連複軸1流し</th><th class="num">3連単F6点</th><th class="num">穴2点</th><th class="num">推奨構成※</th></tr>
+    <tr><td>fold1 12/01〜1/12</td><td class="num">1,269</td><td class="num pos">109.4%</td><td class="num pos">122.9%</td><td class="num neg">93.3%</td><td class="num pos">103.3%</td></tr>
+    <tr><td>fold2 1/13〜2/24</td><td class="num">1,062</td><td class="num pos">105.0%</td><td class="num pos">114.4%</td><td class="num pos">165.8%</td><td class="num pos">129.7%</td></tr>
+    <tr><td>fold3 2/25〜4/08</td><td class="num">921</td><td class="num pos">109.9%</td><td class="num pos">102.0%</td><td class="num pos">162.9%</td><td class="num pos">129.7%</td></tr>
+    <tr><td>fold4 4/09〜5/21</td><td class="num">972</td><td class="num pos">131.4%</td><td class="num pos">134.7%</td><td class="num pos">120.5%</td><td class="num pos">129.6%</td></tr>
+    <tr><td>fold5 5/22〜7/04</td><td class="num">916</td><td class="num neg">98.6%</td><td class="num pos">118.5%</td><td class="num pos">103.5%</td><td class="num pos">100.2%</td></tr>
+    <tr><th>合計</th><th class="num">5,140</th><th class="num pos">110.8%</th><th class="num pos">118.9%</th><th class="num pos">127.7%</th><th class="num pos">117.9%</th></tr>
+  </table>
+  <p class="note">※推奨構成 = 3連複軸1流し3点×200円(600円)+3連単3,4位頭2点×200円(400円)。
+  推奨構成は5期間すべてで100%以上。7ヶ月合計の損益は+920,140円(投資514万円)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">全fold合計: バケット×買い方別の成績</h2>
+
+  <p><span class="badge b-green">堅め</span>20,386レース — 全戦略マイナス</p>
+  <table>
+    <tr><th>買い方</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2連複1点(1=2位)</td><td class="num">34.6%</td><td class="num neg">84.5%</td><td class="num neg">-3,160,100円</td></tr>
+    <tr><td>3連単1点(1-2-3位)</td><td class="num">11.0%</td><td class="num neg">85.4%</td><td class="num neg">-2,971,500円</td></tr>
+    <tr><td>3連複軸1流し3点</td><td class="num">53.9%</td><td class="num neg">84.3%</td><td class="num neg">-3,191,720円</td></tr>
+    <tr><td>3連単F6点</td><td class="num">40.6%</td><td class="num neg">82.7%</td><td class="num neg">-3,518,840円</td></tr>
+    <tr><td>3連単穴2点(3,4位頭)</td><td class="num">2.3%</td><td class="num neg">65.7%</td><td class="num neg">-6,984,000円</td></tr>
+  </table>
+
+  <p><span class="badge b-gray">標準</span>7,470レース — 全戦略マイナス</p>
+  <table>
+    <tr><th>買い方</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2連複1点(1=2位)</td><td class="num">27.4%</td><td class="num neg">80.7%</td><td class="num neg">-1,438,700円</td></tr>
+    <tr><td>3連単1点(1-2-3位)</td><td class="num">7.2%</td><td class="num neg">80.9%</td><td class="num neg">-1,429,200円</td></tr>
+    <tr><td>3連複軸1流し3点</td><td class="num">47.6%</td><td class="num neg">85.0%</td><td class="num neg">-1,123,560円</td></tr>
+    <tr><td>3連単F6点</td><td class="num">27.3%</td><td class="num neg">82.5%</td><td class="num neg">-1,308,210円</td></tr>
+    <tr><td>3連単穴2点(3,4位頭)</td><td class="num">3.4%</td><td class="num neg">90.2%</td><td class="num neg">-734,050円</td></tr>
+  </table>
+
+  <p><span class="badge b-red">荒れ注意</span>5,140レース — 全戦略プラス</p>
+  <table>
+    <tr><th>買い方</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2連複1点(1=2位)</td><td class="num">23.2%</td><td class="num pos">101.4%</td><td class="num pos">+71,600円</td></tr>
+    <tr><td>3連単1点(1-2-3位)</td><td class="num">5.6%</td><td class="num pos">117.8%</td><td class="num pos">+914,000円</td></tr>
+    <tr><td>3連複軸1流し3点</td><td class="num">44.1%</td><td class="num pos">110.8%</td><td class="num pos">+557,010円</td></tr>
+    <tr><td>3連単F6点</td><td class="num">21.5%</td><td class="num pos">118.9%</td><td class="num pos">+970,140円</td></tr>
+    <tr><td>3連単穴2点(3,4位頭)</td><td class="num">3.8%</td><td class="num pos">127.7%</td><td class="num pos">+1,424,500円</td></tr>
+    <tr><td><b>推奨構成(流し600+穴400)</b></td><td class="num"><b>44.1%</b></td><td class="num pos"><b>117.9%</b></td><td class="num pos"><b>+920,140円</b></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">補足・注意事項</h2>
+  <ul style="font-size:.85rem; padding-left: 1.2em; margin: 4px 0;">
+    <li>払戻はDB記録の公示払戻金(100円あたり)で計算。自分の投票がオッズを動かす影響は含まない</li>
+    <li>全24場のデータでの検証。戸田単独では標本が少ないため、場を絞った検証は今後データ蓄積後に実施</li>
+    <li>「荒れ注意」判定はモデルの予測確率に依存する。<b>再学習のたびに py backtest.py で前提の再確認が必要</b></li>
+    <li>単体テスト28件パス(パーサー・DB・特徴量リーク防止・買い目ロジック・レンダリング)</li>
+  </ul>
+</div>
+
+<p class="note">生成: Claude Code / データ源: BoatraceOpenAPI(非公式) / 舟券の購入は自己責任で</p>
+</body>
+</html>

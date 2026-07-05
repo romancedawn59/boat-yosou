@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ウォークフォワード検証② レース番号特徴量追加版 2026-07-05</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.25rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 20px 4px 8px; border-left: 4px solid #8250df; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .conclusion { background: #ddf4ff; border: 1px solid #54aeff66; }
+  .conclusion b { color: #0550ae; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .up { color: #1a7f37; font-weight: bold; }
+  .down { color: #cf222e; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 4px; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-red { background: #cf222e; } .b-green { background: #1a7f37; } .b-gray { background: #8c959f; }
+  .b-purple { background: #8250df; }
+</style>
+</head>
+<body>
+
+<h1><span class="badge b-purple">検証②</span>ウォークフォワード検証レポート — レース番号特徴量追加版</h1>
+<p class="note">実施日: 2026-07-05 / データ: 2026-07-04確定分まで更新済み / 前回レポート: backtest_report_2026-07-04.html</p>
+
+<div class="card conclusion">
+  <b>結論: レース番号(race_no)の特徴量追加で推奨構成の回収率が117.9% → 122.0%に改善。</b><br>
+  5期間すべてで回収率104%以上(前回は最低100.2%)となり、下振れ期間が消えた。
+  戸田攻略BOOKで判明した「レース番号でイン信頼度が激変する構造」(7R企画=鉄板、3R=荒れ)を
+  モデルが学習し、「荒れ注意」判定の精度が向上(誤検出が減り5,140→4,892レースに絞り込み)。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">今回の変更点</h2>
+  <table>
+    <tr><td>特徴量追加</td><td><b>race_no</b>(レース番号)をカテゴリ特徴量として追加。
+      根拠: 戸田公式攻略BOOKの検証で7R(企画)イン1着率69.3% vs 3R 25.8%と判明</td></tr>
+    <tr><td>データ更新</td><td>2026-07-04の確定結果を追加取得(collect.py)</td></tr>
+    <tr><td>モデル精度</td><td>検証AUC 0.841 → <b>0.845</b> / 単勝的中率 56.8% → <b>56.9%</b></td></tr>
+    <tr><td>検証方式</td><td>前回と同一(5分割ウォークフォワード / 1レース1,000円 / 再投資なし)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">前回との比較(荒れ注意バケット・全fold合計)</h2>
+  <table>
+    <tr><th>指標</th><th class="num">前回(検証①)</th><th class="num">今回(検証②)</th><th class="num">変化</th></tr>
+    <tr><td>対象レース数</td><td class="num">5,140</td><td class="num">4,892</td><td class="num">絞り込み</td></tr>
+    <tr><td><b>推奨構成 回収率</b></td><td class="num">117.9%</td><td class="num pos">122.0%</td><td class="num up">+4.1pt</td></tr>
+    <tr><td>推奨構成 損益</td><td class="num">+920,140円</td><td class="num pos">+1,074,820円</td><td class="num up">+154,680円</td></tr>
+    <tr><td>推奨構成 的中率</td><td class="num">44.1%</td><td class="num">44.2%</td><td class="num">±0</td></tr>
+    <tr><td>fold別最低回収率</td><td class="num">100.2%</td><td class="num pos">104.2%</td><td class="num up">下振れ解消</td></tr>
+    <tr><td>3連複軸1流し 回収率</td><td class="num">110.8%</td><td class="num pos">111.4%</td><td class="num up">+0.6pt</td></tr>
+    <tr><td>3連単穴2点 回収率</td><td class="num">127.7%</td><td class="num pos">136.6%</td><td class="num up">+8.9pt</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0"><span class="badge b-red">荒れ注意</span>期間別の再現性</h2>
+  <table>
+    <tr><th>期間</th><th class="num">レース数</th><th class="num">3連複軸1流し</th><th class="num">3連単F6点</th><th class="num">穴2点</th><th class="num">推奨構成※</th></tr>
+    <tr><td>fold1 12/01〜1/12</td><td class="num">1,194</td><td class="num pos">109.1%</td><td class="num pos">127.1%</td><td class="num neg">95.3%</td><td class="num pos">104.2%</td></tr>
+    <tr><td>fold2 1/13〜2/24</td><td class="num">1,030</td><td class="num pos">100.6%</td><td class="num neg">94.1%</td><td class="num pos">207.5%</td><td class="num pos">143.6%</td></tr>
+    <tr><td>fold3 2/25〜4/08</td><td class="num">888</td><td class="num pos">115.0%</td><td class="num neg">99.6%</td><td class="num pos">189.4%</td><td class="num pos">143.9%</td></tr>
+    <tr><td>fold4 4/09〜5/21</td><td class="num">923</td><td class="num pos">128.5%</td><td class="num pos">121.2%</td><td class="num neg">82.6%</td><td class="num pos">113.2%</td></tr>
+    <tr><td>fold5 5/22〜7/04</td><td class="num">857</td><td class="num pos">105.3%</td><td class="num pos">114.9%</td><td class="num pos">112.4%</td><td class="num pos">107.5%</td></tr>
+    <tr><th>合計</th><th class="num">4,892</th><th class="num pos">111.4%</th><th class="num pos">111.9%</th><th class="num pos">136.6%</th><th class="num pos">122.0%</th></tr>
+  </table>
+  <p class="note">※推奨構成 = 3連複軸1流し3点×200円(600円)+3連単3,4位頭2点×200円(400円)。
+  3連複流しは今回5期間すべてプラス(前回はfold5が98.6%)。穴2点は期間による振れが大きいが、
+  3連複と組み合わせた推奨構成では全期間104%以上に安定。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">全fold合計: バケット×買い方別の成績</h2>
+
+  <p><span class="badge b-green">堅め</span>20,704レース — 全戦略マイナス(変化なし)</p>
+  <table>
+    <tr><th>買い方</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2連複1点(1=2位)</td><td class="num">34.7%</td><td class="num neg">84.2%</td><td class="num neg">-3,260,900円</td></tr>
+    <tr><td>3連単1点(1-2-3位)</td><td class="num">11.2%</td><td class="num neg">84.8%</td><td class="num neg">-3,157,100円</td></tr>
+    <tr><td>3連複軸1流し3点</td><td class="num">54.1%</td><td class="num neg">84.1%</td><td class="num neg">-3,286,970円</td></tr>
+    <tr><td>3連単F6点</td><td class="num">40.5%</td><td class="num neg">82.2%</td><td class="num neg">-3,691,940円</td></tr>
+    <tr><td>3連単穴2点(3,4位頭)</td><td class="num">2.4%</td><td class="num neg">68.7%</td><td class="num neg">-6,484,850円</td></tr>
+  </table>
+
+  <p><span class="badge b-gray">標準</span>7,401レース — 全戦略マイナス(変化なし)</p>
+  <table>
+    <tr><th>買い方</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2連複1点(1=2位)</td><td class="num">27.8%</td><td class="num neg">82.4%</td><td class="num neg">-1,302,200円</td></tr>
+    <tr><td>3連単1点(1-2-3位)</td><td class="num">7.9%</td><td class="num neg">89.7%</td><td class="num neg">-764,600円</td></tr>
+    <tr><td>3連複軸1流し3点</td><td class="num">48.6%</td><td class="num neg">85.4%</td><td class="num neg">-1,080,900円</td></tr>
+    <tr><td>3連単F6点</td><td class="num">27.6%</td><td class="num neg">84.1%</td><td class="num neg">-1,176,820円</td></tr>
+    <tr><td>3連単穴2点(3,4位頭)</td><td class="num">3.6%</td><td class="num neg">84.1%</td><td class="num neg">-1,174,550円</td></tr>
+  </table>
+
+  <p><span class="badge b-red">荒れ注意</span>4,892レース — 全戦略プラス</p>
+  <table>
+    <tr><th>買い方</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2連複1点(1=2位)</td><td class="num">23.6%</td><td class="num pos">102.6%</td><td class="num pos">+126,600円</td></tr>
+    <tr><td>3連単1点(1-2-3位)</td><td class="num">5.0%</td><td class="num pos">130.9%</td><td class="num pos">+1,510,300円</td></tr>
+    <tr><td>3連複軸1流し3点</td><td class="num">44.2%</td><td class="num pos">111.4%</td><td class="num pos">+557,000円</td></tr>
+    <tr><td>3連単F6点</td><td class="num">20.6%</td><td class="num pos">111.9%</td><td class="num pos">+583,310円</td></tr>
+    <tr><td>3連単穴2点(3,4位頭)</td><td class="num">3.7%</td><td class="num pos">136.6%</td><td class="num pos">+1,790,800円</td></tr>
+    <tr><td><b>推奨構成(流し600+穴400)</b></td><td class="num"><b>44.2%</b></td><td class="num pos"><b>122.0%</b></td><td class="num pos"><b>+1,074,820円</b></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">補足・今後の改善候補</h2>
+  <ul style="font-size:.85rem; padding-left: 1.2em; margin: 4px 0;">
+    <li>race_no追加の根拠は戸田公式攻略BOOK(要点: data_raw/kouryakubook_202602_notes.md)。
+        イン1着率がレース番号で25.8%〜69.3%まで変動する構造を自前DBでも確認済み</li>
+    <li>次の改善候補: モーター別ローリング成績の自前計算(8月上旬のモーター交換で公表値がリセットされるため価値が高い)、戸田の当日風予報(追い風=2コース差し/向かい風・強風=万舟増)</li>
+    <li>「荒れ注意」判定はモデル確率依存。<b>再学習のたびに py backtest.py で再確認すること</b></li>
+    <li>単体テスト28件パス。本レポートの本番モデルは全データ(〜2026-07-04)で学習済み</li>
+  </ul>
+</div>
+
+<p class="note">生成: Claude Code / 検証①: backtest_report_2026-07-04.html / 舟券の購入は自己責任で</p>
+</body>
+</html>

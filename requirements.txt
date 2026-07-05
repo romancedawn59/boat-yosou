@@ -1,0 +1,4 @@
+requests>=2.32
+lightgbm>=4.5
+scikit-learn>=1.5
+pandas>=2.2

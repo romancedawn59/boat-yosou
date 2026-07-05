@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証③ 5場構成テスト(2026年5〜7月)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.25rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 20px 4px 8px; border-left: 4px solid #1a7f37; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .conclusion { background: #dafbe1; border: 1px solid #4ac26b66; }
+  .conclusion b { color: #116329; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 4px; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-green { background: #1a7f37; }
+  ul { padding-left: 1.2em; margin: 4px 0; font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<h1><span class="badge b-green">検証③</span>5場構成テスト — 2026年5月〜7月</h1>
+<p class="note">実施日: 2026-07-05 / 対象: 江戸川・平和島・常滑・尼崎・若松 /
+学習: 2026-04-30以前の全場データ(255,997行) / 検証: 2026-05-01〜07-04(7月は4日まで)</p>
+
+<div class="card conclusion">
+  <b>結論: 5場構成は3ヶ月すべてで回収率100%超。合計159.1%(+164,280円/投資278,000円)。</b><br>
+  最大の1発(払戻140,540円)を除いても108.9%とプラス圏を維持しており、
+  まぐれ一発だけに依存した数字ではない。1日あたり平均4.7レース・約5,000円の投資規模。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">月別成績(荒れ注意×推奨構成: 3連複軸1流し600円+3連単穴400円)</h2>
+  <table>
+    <tr><th>月</th><th class="num">勝負レース数</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2026年5月</td><td class="num">119</td><td class="num">42.9%</td><td class="num pos">226.0%</td><td class="num pos">+149,900円</td></tr>
+    <tr><td>2026年6月</td><td class="num">138</td><td class="num">46.4%</td><td class="num pos">106.2%</td><td class="num pos">+8,540円</td></tr>
+    <tr><td>2026年7月(〜4日)</td><td class="num">21</td><td class="num">38.1%</td><td class="num pos">127.8%</td><td class="num pos">+5,840円</td></tr>
+    <tr><th>合計</th><th class="num">278</th><th class="num">44.2%</th><th class="num pos">159.1%</th><th class="num pos">+164,280円</th></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">場別成績</h2>
+  <table>
+    <tr><th>場</th><th class="num">勝負レース数</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>常滑</td><td class="num">81</td><td class="num">33.3%</td><td class="num pos">234.7%</td><td class="num pos">+109,120円</td></tr>
+    <tr><td>平和島</td><td class="num">63</td><td class="num">58.7%</td><td class="num pos">204.6%</td><td class="num pos">+65,880円</td></tr>
+    <tr><td>江戸川</td><td class="num">54</td><td class="num">40.7%</td><td class="num neg">98.5%</td><td class="num neg">-800円</td></tr>
+    <tr><td>尼崎</td><td class="num">43</td><td class="num">46.5%</td><td class="num neg">88.8%</td><td class="num neg">-4,820円</td></tr>
+    <tr><td>若松</td><td class="num">37</td><td class="num">45.9%</td><td class="num neg">86.2%</td><td class="num neg">-5,100円</td></tr>
+  </table>
+  <p class="note">3ヶ月では場ごとの標本(37〜81レース)が少なく、順位は安定しない
+  (通年検証で最も安定だった若松がこの期間はマイナス、逆もまた然り)。
+  特定の場に賭け金を偏らせず、5場ポートフォリオ全体で見るのが正解。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">頑健性チェック(まぐれ依存度)</h2>
+  <table>
+    <tr><th>条件</th><th class="num">回収率</th></tr>
+    <tr><td>全レース(278レース)</td><td class="num pos">159.1%</td></tr>
+    <tr><td>最大の1発(払戻140,540円)を除く</td><td class="num pos">108.9%</td></tr>
+    <tr><td>最高の1日(5/14)を除く</td><td class="num pos">109.2%</td></tr>
+    <tr><td>上位3発を除く</td><td class="num neg">93.3%</td></tr>
+  </table>
+  <p class="note">読み方: ベースの期待値は105〜110%程度で、そこに時々大きな万舟が乗って
+  期間全体では159%になった、という構造。大穴を含む戦略の宿命として、
+  <b>たまに来る大きな当たりを逃さず取り続けること</b>(=全勝負レースを機械的に買うこと)が重要。
+  途中でやめると上位3発を逃した場合の93%側に落ちる。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">日別の体感(資金管理の参考)</h2>
+  <table>
+    <tr><td>投票日数</td><td class="num">59日(3ヶ月でほぼ毎日投票機会あり)</td></tr>
+    <tr><td>1日の平均投資</td><td class="num">約4,700円(平均4.7レース)</td></tr>
+    <tr><td>勝ち日の割合</td><td class="num">36%(21日/59日)</td></tr>
+    <tr><td>最悪の1日</td><td class="num neg">-7,020円(2026-05-31)</td></tr>
+    <tr><td>最高の1日</td><td class="num pos">+139,040円(2026-05-14)</td></tr>
+    <tr><td>最大ドローダウン</td><td class="num neg">-27,380円</td></tr>
+  </table>
+  <p class="note">負け日の方が多い(64%)ことに注意。連敗中も継続できる資金計画
+  (最低でもドローダウン3万円+余裕をみて5万円程度)を推奨。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">検証条件と注意事項</h2>
+  <ul>
+    <li>バケット分布(5場・検証期間2,021レース): 堅め1,266 / 標準474 / 荒れ注意281。勝負対象は荒れ注意のみ</li>
+    <li>予算1レース1,000円・100円単位配分・再投資なし。払戻は公示額で計算(自分の投票によるオッズ低下は未考慮)</li>
+    <li>5場の選定は2025-12〜2026-07の通年検証に基づく(検証②参照)。選定後の期間での確認という位置づけだが、
+        選定に使った期間と一部重なるため、完全に独立な検証ではない点に留意</li>
+    <li>毎月1日の自動再学習時にバックテストが走るので、回収率100%割れが続く場合は構成見直しを検討</li>
+  </ul>
+</div>
+
+<p class="note">生成: Claude Code / 関連: backtest_report_2026-07-04.html(検証①全場),
+backtest_report_2026-07-05_raceno.html(検証②race_no追加) / 舟券の購入は自己責任で</p>
+</body>
+</html>

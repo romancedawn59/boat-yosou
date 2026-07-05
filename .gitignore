@@ -1,0 +1,15 @@
+# ローカル環境専用
+.claude/
+
+# 大きすぎてGitHubに置けない/生成物なので除外(クラウドではキャッシュや実行時生成で対応)
+boat.db
+boat.db-wal
+boat.db-shm
+data_raw/
+logs/
+reports/
+__pycache__/
+*.pyc
+
+# Pagesの生成物(index.htmlはワークフローが都度上書き)は追跡するが、
+# ローカルの試し出力は無視したい場合ここに追加する

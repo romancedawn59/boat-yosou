@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>競艇予想システム(5場) 仕組み(データフロー)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.3rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 24px 4px 10px; border-left: 4px solid #0969da; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .note { font-size: .78rem; color: #57606a; margin: 4px 4px 10px; }
+
+  /* フロー図 */
+  .flow { display: flex; flex-direction: column; gap: 4px; }
+  .stage { display: flex; align-items: stretch; gap: 8px; }
+  .stage .box { flex: 1; border-radius: 8px; padding: 10px 12px; font-size: .85rem; }
+  .box-source { background: #ddf4ff; border: 1px solid #54aeff66; }
+  .box-collect { background: #fff8c5; border: 1px solid #d4a72c66; }
+  .box-store { background: #f6f8fa; border: 1px solid #d0d7de; }
+  .box-model { background: #ffeff7; border: 1px solid #d4589e66; }
+  .box-output { background: #dafbe1; border: 1px solid #4ac26b66; }
+  .box b { display: block; font-size: .9rem; margin-bottom: 3px; }
+  .box .sub { font-size: .72rem; color: #57606a; }
+  .arrow-down { text-align: center; color: #8c959f; font-size: 1.1rem; padding: 2px 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+  code { background: #f6f8fa; padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+  .badge { display: inline-block; font-size: .68rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-blue { background: #0969da; } .b-orange { background: #9a6700; }
+  .b-pink { background: #bf3989; } .b-green { background: #1a7f37; }
+  .b-gray { background: #8c959f; }
+  ul { padding-left: 1.2em; margin: 4px 0; font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<h1>競艇 買い目予想システム — 仕組み(データフロー)</h1>
+<p class="note">対象: 江戸川・平和島・常滑・尼崎・若松の5場(毎日)。データ収集からレポート出力までの全体像。
+場別ウォークフォワード検証で期待値プラスが確認できた5場に絞っている(戸田は検証の結果除外)。</p>
+
+<div class="card">
+  <h2 style="margin-top:0">全体フロー</h2>
+  <div class="flow">
+
+    <div class="stage">
+      <div class="box box-source"><b>BoatraceOpenAPI</b>(非公式JSON)<div class="sub">番組表・競走成績</div></div>
+      <div class="box box-source"><b>Open-Meteo</b>(無料予報API)<div class="sub">対象5場それぞれの座標の風速・気温</div></div>
+      <div class="box box-source"><b>boatrace.jp</b>(公式)<div class="sub">直前情報(展示タイム)</div></div>
+    </div>
+    <div class="arrow-down">↓</div>
+
+    <div class="stage">
+      <div class="box box-collect"><b>collect.py</b><div class="sub">日次・全場の番組表/結果を取得</div></div>
+      <div class="box box-collect"><b>collect_exhibition.py</b><div class="sub">締切30分前から展示データ取得(対象5場)</div></div>
+    </div>
+    <div class="arrow-down">↓</div>
+
+    <div class="stage">
+      <div class="box box-store"><b>boat.db</b>(SQLite)<div class="sub">races / entries / results / payouts / exhibition</div></div>
+    </div>
+    <div class="arrow-down">↓</div>
+
+    <div class="stage">
+      <div class="box box-model"><b>features.py</b><div class="sub">選手成績・ローリング成績・場×レース番号 等を特徴量化</div></div>
+    </div>
+    <div class="arrow-down">↓</div>
+
+    <div class="stage">
+      <div class="box box-model"><b>train_model.py</b><div class="sub">LightGBMで1着確率を学習 → models/lgbm_win.txt</div></div>
+      <div class="box box-model"><b>backtest.py</b><div class="sub">ウォークフォワード検証で買い方別回収率を確認</div></div>
+    </div>
+    <div class="arrow-down">↓</div>
+
+    <div class="stage">
+      <div class="box box-model"><b>predict.py</b><div class="sub">当日の番組表+気象予報(表示用)で各レースを予測</div></div>
+    </div>
+    <div class="arrow-down">↓</div>
+
+    <div class="stage">
+      <div class="box box-output"><b>reports/*.html</b><div class="sub">買い目レポート。Google Driveアプリでスマホ閲覧</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">自動実行スケジュール(Windows タスクスケジューラ)</h2>
+  <table>
+    <tr><th>タスク名</th><th>頻度</th><th>内容</th></tr>
+    <tr><td><code>BoatRace_CollectDaily</code></td><td>毎日 06:00</td><td>全場の番組表・結果を収集(collect.py)</td></tr>
+    <tr><td><code>BoatRace_PredictDaily</code></td><td>毎日 06:30</td><td>対象5場の買い目予想レポートを出力</td></tr>
+    <tr><td><code>BoatRace_CollectExhibition</code></td><td>毎日 09:00〜21:00 の10分おき</td><td>締切30分前になったレースの直前情報を取得(対象5場・保存専用)</td></tr>
+    <tr><td><code>BoatRace_RetrainMonthly</code></td><td>毎月1日 05:00</td><td>モデル再学習とバックテスト検証</td></tr>
+  </table>
+  <p class="note">対象5場のいずれかはほぼ毎日開催があるため、予測・直前情報収集は毎日実行する
+  (開催のない日は「非開催」として即終了)。旧・戸田単独構成で必要だった開催日程の事前確認と
+  変則開催日用の使い捨てタスクの仕組みは不要になったため撤去した。</p>
+  <p class="note">
+    全タスクに「<b>スリープ解除して実行</b>」を設定済み。PCがスリープ状態でも指定時刻に自動で起きて実行し、
+    終わったら元の状態に戻る。<br>
+    <b>制約:</b> 完全に電源を切っている(シャットダウン)状態からは実行できない。
+    スリープ/休止状態からの復帰のみ対応(電源設定で復帰タイマーが有効になっていることを確認済み)。
+    実行結果は <code>logs/*.log</code> に記録される。
+  </p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">データ源ごとの役割</h2>
+  <table>
+    <tr><th>データ源</th><th>用途</th><th>モデルへの利用</th></tr>
+    <tr>
+      <td><span class="badge b-blue">BoatraceOpenAPI</span></td>
+      <td>番組表(選手・モーター・ボート成績)、競走成績(着順・払戻金)</td>
+      <td><b>予測特徴量として使用</b>。学習・予測ともに一貫して同じ情報源</td>
+    </tr>
+    <tr>
+      <td><span class="badge b-orange">Open-Meteo</span></td>
+      <td>対象5場それぞれのピンポイント気象予報(風速・気温・波高推定)</td>
+      <td>レポートに<b>表示のみ</b>。バックテストで回収率が悪化したためモデルには不使用</td>
+    </tr>
+    <tr>
+      <td><span class="badge b-pink">boatrace.jp直前情報</span></td>
+      <td>展示タイム・チルト角度・当日体重</td>
+      <td><b>DBに保存のみ</b>。締切間際にしか取得できないため現状は予測に未使用。将来の分析用</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">主要ファイル一覧</h2>
+  <table>
+    <tr><th>ファイル</th><th>役割</th></tr>
+    <tr><td><code>src/config.py</code></td><td>場コード・パス・URL・対象5場と座標の設定</td></tr>
+    <tr><td><code>src/downloader.py</code></td><td>BoatraceOpenAPIのJSON日次ダウンロード</td></tr>
+    <tr><td><code>src/parser_b.py / parser_k.py</code></td><td>番組表/結果JSON → DB行への変換</td></tr>
+    <tr><td><code>src/db.py</code></td><td>SQLiteスキーマ定義とUPSERT</td></tr>
+    <tr><td><code>src/collect.py</code></td><td>収集の日次実行CLI</td></tr>
+    <tr><td><code>src/exhibition.py / collect_exhibition.py</code></td><td>直前情報の取得・保存</td></tr>
+    <tr><td><code>src/weather.py</code></td><td>Open-Meteo予報取得(表示専用)</td></tr>
+    <tr><td><code>src/features.py</code></td><td>DB → 学習・予測用の特徴量への変換</td></tr>
+    <tr><td><code>src/train_model.py</code></td><td>LightGBM学習・モデル保存</td></tr>
+    <tr><td><code>src/backtest.py</code></td><td>ウォークフォワード検証(買い方別ROI)</td></tr>
+    <tr><td><code>src/predict.py</code></td><td>予測・買い目プラン作成・HTMLレポート出力</td></tr>
+    <tr><td><code>src/scheduled_runner.py</code></td><td>タスクスケジューラ用の統一エントリポイント+ログ記録</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">買い目ロジックの位置づけ</h2>
+  <ul>
+    <li>ウォークフォワード検証の結果、<b>「荒れ注意」レース(予測1位艇の勝率35%未満)のみ期待値プラス</b>(回収率122.0%)と判明</li>
+    <li>堅め・標準レースはどの買い方も期待値マイナス(77〜90%)</li>
+    <li>そのため <code>predict.py</code> は荒れ注意レースだけを「勝負」(予算1,000円: 3連複軸1流し600円+3連単穴400円)、それ以外を「見送り推奨」として出力する</li>
+    <li>詳しい買い目の考え方・使い方は <code>manual.html</code> を参照</li>
+  </ul>
+</div>
+
+<p class="note">生成: Claude Code / 関連資料: manual.html(ユーザーマニュアル), test/backtest_report_*.html(検証結果)</p>
+</body>
+</html>

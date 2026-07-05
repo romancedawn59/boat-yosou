@@ -1,0 +1,75 @@
+name: 予想レポート更新
+
+# 毎日 JST 6:30(UTC 21:30)に自動実行。加えてスマホ/PCから手動実行も可能。
+on:
+  schedule:
+    - cron: "30 21 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boat-predict
+  cancel-in-progress: false
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリ取得
+        uses: actions/checkout@v4
+
+      - name: Python準備
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存インストール
+        run: pip install -r requirements.txt
+
+      # DB(137MB)はリポジトリに入れられないため、実行の間はキャッシュで持ち回る。
+      # キャッシュが無い初回は collect.py が約1年分を取得して作り直す。
+      - name: DBキャッシュ復元
+        uses: actions/cache/restore@v4
+        with:
+          path: boat.db
+          key: boatdb-${{ github.run_id }}
+          restore-keys: boatdb-
+
+      - name: データ収集(前回の続きから)
+        run: python collect.py
+        working-directory: src
+
+      - name: 予想レポート生成
+        run: python predict.py today
+        working-directory: src
+
+      - name: DBキャッシュ保存
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: boat.db
+          key: boatdb-${{ github.run_id }}
+
+      - name: レポートをPagesへ公開
+        run: |
+          latest=$(ls -t reports/*_picks.html 2>/dev/null | head -1 || true)
+          if [ -z "$latest" ]; then
+            echo "本日は対象5場すべて非開催。レポートなしのため公開はスキップ。"
+            exit 0
+          fi
+          mkdir -p docs/archive
+          cp "$latest" docs/index.html
+          cp "$latest" "docs/archive/$(basename "$latest")"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "変更なし"
+          else
+            git commit -m "予想レポート更新 $(date -u +%Y-%m-%d)"
+            git pull --rebase --autostash || true
+            git push
+          fi

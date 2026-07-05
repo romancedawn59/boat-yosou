@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>競艇 買い目予想(5場) ユーザーマニュアル</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.3rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 22px 4px 10px; border-left: 4px solid #1a7f37; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .highlight { background: #dafbe1; border: 1px solid #4ac26b66; }
+  .warn { background: #fff8c5; border: 1px solid #d4a72c66; }
+  .note { font-size: .78rem; color: #57606a; margin: 4px 4px 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+  code { background: #f6f8fa; padding: 2px 6px; border-radius: 4px; font-size: .88em; }
+  pre { background: #24292f; color: #e6edf3; padding: 10px 12px; border-radius: 8px;
+        overflow-x: auto; font-size: .82rem; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-green { background: #1a7f37; } .b-gray { background: #8c959f; } .b-red { background: #cf222e; }
+  ul, ol { padding-left: 1.3em; margin: 6px 0; font-size: .88rem; }
+  li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<h1>競艇 買い目予想 ユーザーマニュアル(対象5場)</h1>
+<p class="note">対象: 江戸川・平和島・常滑・尼崎・若松。場別ウォークフォワード検証で
+「最大の1発を除いても回収率100%超・5期間中3期間以上黒字」を満たした5場
+(戸田は回収率79.5%・黒字1/5期間のため検証の結果除外)。</p>
+
+<div class="card highlight">
+  <b>要点:</b> 2026-07-05以降、収集〜予測〜レポート出力はすべて自動化済み。
+  毎朝、スマホでGoogle Driveの <code>reports/</code> フォルダを開くだけで買い目が確認できる。
+  手動でPCを操作する必要は基本的にない。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">日常の使い方</h2>
+  <ol>
+    <li>土・日の朝6:30以降、スマホでGoogle Driveアプリを開く</li>
+    <li><code>boat &gt; reports &gt; YYYY-MM-DD_picks.html</code> を開く</li>
+    <li>ページ上部の「本日の勝負レース」を確認する</li>
+    <li>「勝負」レースだけ買い目プラン通りに投票する。「見送り推奨」レースは基本買わない</li>
+  </ol>
+  <p class="note">対象5場のいずれかはほぼ毎日開催があるため、レポートは基本毎日作られる。
+  開催のある場だけがレポートに載る。検証時の実績では勝負レースは1日平均5レース前後(予算約5,000円/日)。
+  毎日買う必要はなく、見たい日だけ開けばよい(土日だけの利用でも問題ない)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">レポートの見方</h2>
+  <table>
+    <tr><th>表示</th><th>意味</th></tr>
+    <tr><td>締切 HH:MM</td><td>投票締切予定時刻</td></tr>
+    <tr><td><span class="badge b-red">勝負</span></td><td>買うレース。予算1,000円の買い目プランつき</td></tr>
+    <tr><td><span class="badge b-gray">見送り推奨</span></td><td>買わないレース。参考買い目のみ(期待値マイナスと明記)</td></tr>
+    <tr><td>堅め / 標準 / 荒れ注意</td><td>予測1位艇の勝率 50%以上 / 35〜50% / 35%未満</td></tr>
+    <tr><td>選手表</td><td>モデル予測勝率の降順。枠番の色は実際のボートカラー</td></tr>
+    <tr><td>予報: 風速◯m/s(◯の風) 波高目安◯cm 気温◯℃</td><td>レース時刻のOpen-Meteo気象予報。<b>参考情報であり予測には使っていない</b></td></tr>
+  </table>
+
+  <h3>買い目の構成(検証済み・回収率122.0%)</h3>
+  <ul>
+    <li><b>負けにくい枠(600円)</b>: 3連複 軸1流し3点 各200円</li>
+    <li><b>大穴枠(400円)</b>: 3連単 予測3・4位頭 2点 各200円</li>
+  </ul>
+  <p class="note">
+    1年分のウォークフォワード検証(5期間)で「荒れ注意」レースのみ全期間104%以上の回収率を確認
+    (全場合算122.0%)。堅め・標準はどの買い方も77〜90%でマイナスのため見送りが正解。
+    対象5場に絞った直近3ヶ月(2026年5〜7月)のテストでは回収率159.1%・3ヶ月すべて100%超
+    (最大の1発を除いても108.9%)。ただし勝ち日は36%で負け日の方が多く、最大ドローダウンは
+    約2.7万円。連敗中も機械的に続けられる資金計画(5万円程度の余裕)を推奨。詳細は
+    <code>test/backtest_report_5venues_202605-07.html</code>(検証③)を参照。
+  </p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">自動化されている処理</h2>
+  <table>
+    <tr><th>いつ</th><th>何をするか</th></tr>
+    <tr><td>毎日 6:00</td><td>全場の番組表・結果データを収集</td></tr>
+    <tr><td>毎日 6:30</td><td>対象5場の買い目予想レポートを reports/ に出力</td></tr>
+    <tr><td>毎日 9:00〜21:00(10分おき)</td><td>締切間近のレースの展示タイムを記録(保存のみ、予測には未使用)</td></tr>
+    <tr><td>毎月1日 5:00</td><td>最新データでモデルを再学習し、バックテストで前提を再確認</td></tr>
+  </table>
+  <p class="note">
+    PCがスリープ中でも指定時刻に自動で起きて実行される(タスクスケジューラの「スリープ解除して実行」設定)。
+    <b>ただし完全にシャットダウンしている場合は動かない。</b>その場合は起動後に手動で
+    <code>py collect.py</code> → <code>py predict.py today</code> を実行すればよい(下記参照)。
+  </p>
+</div>
+
+<div class="card warn">
+  <h2 style="margin-top:0">手動実行が必要なとき</h2>
+  <p>PCを長期間シャットダウンしていた、自動実行に失敗した、特定の日付を見たい、など。</p>
+<pre>cd Y:\マイドライブ\boat\src
+py collect.py            REM 最新データを取得(続きから自動)
+py predict.py today      REM 今日の対象5場を予測しレポート出力
+py predict.py 2026-07-11 REM 日付を指定して予測</pre>
+  <p class="note">実行結果はコンソールに表示される。自動実行時のログは <code>logs/*.log</code> で確認できる。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">メンテナンス</h2>
+<pre>py train_model.py               REM モデル再学習(自動実行もされるが手動でも可)
+py backtest.py                  REM ウォークフォワード検証
+py -m unittest discover tests   REM 動作確認(コード変更時)</pre>
+  <ul>
+    <li>再学習のたびに <code>py backtest.py</code> で「荒れ注意のみプラス」の前提が崩れていないか確認する</li>
+    <li>学習データは約1年分(BoatraceOpenAPI resultsの保持期間)で自動的にスライドしていく</li>
+    <li>現在のモデル性能: 検証AUC 0.845 / 単勝的中率(予測1位が1着)約57%</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">トラブルシューティング</h2>
+  <table>
+    <tr><th>症状</th><th>対処</th></tr>
+    <tr><td>レポートが出力されていない</td><td><code>logs/predict.log</code> を確認。対象5場すべて非開催の日はレポートなし</td></tr>
+    <tr><td>モデルが見つかりません</td><td><code>py train_model.py</code> を先に実行</td></tr>
+    <tr><td>ModuleNotFoundError</td><td><code>cd Y:\マイドライブ\boat &amp;&amp; py -m pip install -r requirements.txt</code></td></tr>
+    <tr><td>収集が失敗する</td><td>ネット接続を確認して <code>py collect.py</code> を再実行(続きから再開される)</td></tr>
+    <tr><td>気象予報が表示されない</td><td>Open-Meteoへの接続失敗。予測結果自体には影響しない(表示専用のため)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">データ源について</h2>
+  <ul>
+    <li><b>BoatraceOpenAPI</b>(非公式・MITライセンス): <code>boatraceopenapi.github.io</code>。旧公式オープンデータ(mbrace.or.jp)は2025年3月5日にサービス終了済み</li>
+    <li><b>Open-Meteo</b>(無料・APIキー不要): 対象5場それぞれのピンポイント気象予報。表示専用</li>
+    <li><b>boatrace.jp 直前情報</b>: 展示タイム・チルト角度。保存専用(robots.txt確認済み・クロール制限なし)</li>
+    <li>非公式サービスのため、将来止まる可能性はある。止まった場合は代替源の再調査が必要</li>
+  </ul>
+  <p class="note">仕組み全体の図解は <code>flow.html</code> を参照。</p>
+</div>
+
+<p class="note">※ 予測は参考情報であり的中を保証しない。舟券の購入は自己責任・余裕資金の範囲で。</p>
+</body>
+</html>

@@ -1,0 +1,69 @@
+name: モデル再学習
+
+# 毎月1日 JST 5:00(UTC 前日20:00)に再学習+バックテスト。手動実行も可能。
+on:
+  schedule:
+    - cron: "0 20 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boat-retrain
+  cancel-in-progress: false
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリ取得
+        uses: actions/checkout@v4
+
+      - name: Python準備
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存インストール
+        run: pip install -r requirements.txt
+
+      - name: DBキャッシュ復元
+        uses: actions/cache/restore@v4
+        with:
+          path: boat.db
+          key: boatdb-${{ github.run_id }}
+          restore-keys: boatdb-
+
+      - name: 最新データ収集
+        run: python collect.py
+        working-directory: src
+
+      - name: 再学習
+        run: python train_model.py
+        working-directory: src
+
+      - name: バックテスト検証(ログ確認用)
+        run: python backtest.py
+        working-directory: src
+
+      - name: DBキャッシュ保存
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: boat.db
+          key: boatdb-${{ github.run_id }}
+
+      - name: 更新モデルをコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add models/lgbm_win.txt
+          if git diff --cached --quiet; then
+            echo "モデル変更なし"
+          else
+            git commit -m "モデル再学習 $(date -u +%Y-%m-%d)"
+            git pull --rebase --autostash || true
+            git push
+          fi
