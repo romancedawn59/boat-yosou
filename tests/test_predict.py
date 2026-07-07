@@ -18,8 +18,8 @@ def _ranked(probs: list[float]) -> list[dict]:
 
 
 class TestRecommendBets(unittest.TestCase):
-    def test_areru_race_is_shobu_with_1000yen_plan(self):
-        """荒れ注意 -> 勝負。3連複流し600円+3連単穴400円=1000円"""
+    def test_areru_race_is_shobu_with_1100yen_plan(self):
+        """荒れ注意 -> 勝負。3連複流し600円+3連単穴400円+万舟100円=1100円"""
         bets = recommend_bets(_ranked([0.25, 0.2, 0.2, 0.15, 0.1, 0.1]))
         self.assertEqual(bets["confidence"], "荒れ注意")
         self.assertEqual(bets["stance"], "勝負")
@@ -29,15 +29,18 @@ class TestRecommendBets(unittest.TestCase):
             ("3連複", "1=2=4", 200, "負けにくい"),
             ("3連単", "2-1-3", 200, "大穴"),
             ("3連単", "4-1-3", 200, "大穴"),
+            ("3連単", "4-3-1", 100, "万舟"),  # 予測4位→2位→1位
         ])
-        self.assertEqual(sum(y for _, _, y, _ in bets["plan"]), 1000)
+        self.assertEqual(sum(y for _, _, y, _ in bets["plan"]), 1100)
 
     def test_standard_race_is_skip_with_reference_plan(self):
         bets = recommend_bets(_ranked([0.40, 0.3, 0.1, 0.1, 0.05, 0.05]))
         self.assertEqual(bets["confidence"], "標準")
         self.assertEqual(bets["stance"], "見送り推奨")
-        self.assertEqual([tag for _, _, _, tag in bets["plan"]], ["参考"] * 3)
-        self.assertEqual(sum(y for _, _, y, _ in bets["plan"]), 300)
+        self.assertEqual([tag for _, _, _, tag in bets["plan"]], ["参考"] * 3 + ["万舟"])
+        # 標準の万舟枠は予測5位→1位→2位
+        self.assertEqual(bets["plan"][-1], ("3連単", "5-1-3", 100, "万舟"))
+        self.assertEqual(sum(y for _, _, y, _ in bets["plan"]), 400)
 
     def test_solid_race_is_skip_with_small_reference(self):
         bets = recommend_bets(_ranked([0.60, 0.2, 0.1, 0.05, 0.03, 0.02]))
@@ -46,13 +49,15 @@ class TestRecommendBets(unittest.TestCase):
         self.assertEqual(bets["plan"], [
             ("2連複", "1=3", 100, "参考"),
             ("3連単", "1-3-2", 100, "参考"),
+            ("3連単", "4-3-1", 100, "万舟"),  # 予測4位→2位→1位
         ])
 
     def test_short_field_areru_falls_back_to_skip(self):
-        """荒れ注意でも4艇未満なら勝負プランは組めず見送り扱い"""
+        """荒れ注意でも4艇未満なら勝負プランは組めず見送り扱い。万舟枠も付かない"""
         bets = recommend_bets(_ranked([0.3, 0.3, 0.2]))
         self.assertEqual(bets["confidence"], "荒れ注意")
         self.assertEqual(bets["stance"], "見送り推奨")
+        self.assertNotIn("万舟", [tag for _, _, _, tag in bets["plan"]])
 
 
 class TestRenderHtml(unittest.TestCase):
@@ -78,7 +83,7 @@ class TestRenderHtml(unittest.TestCase):
         self.assertIn("本日の勝負レース: <b>平和島5R</b>", html)
         self.assertIn("<h2>平和島</h2>", html)
         self.assertIn("<h2>若松</h2>", html)
-        self.assertIn("買い目プラン(計1,000円)", html)
+        self.assertIn("買い目プラン(計1,100円)", html)
         self.assertIn("viewport", html)  # スマホ対応
 
     def test_render_no_shobu_day(self):

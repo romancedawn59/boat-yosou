@@ -36,6 +36,7 @@ def recommend_bets(ranked: list[dict]) -> dict:
     ウォークフォワード検証で期待値プラスが確認できた「荒れ注意」レースのみ
     予算1000円の「勝負」プラン(3連複軸1流し600円+3連単穴400円)。
     堅め・標準は見送り推奨とし、少額の参考買い目だけ付ける。
+    さらに全レースに「万舟」枠(3連単1点100円)を付ける。
     planの要素は (券種, 組み合わせ, 金額円, 区分)。
     """
     lanes = [r["lane"] for r in ranked]
@@ -52,7 +53,7 @@ def recommend_bets(ranked: list[dict]) -> dict:
         s = sorted([a, b, c])
         return f"{s[0]}={s[1]}={s[2]}"
 
-    r1, r2, r3, r4 = (lanes + [None] * 4)[:4]
+    r1, r2, r3, r4, r5 = (lanes + [None] * 5)[:5]
 
     if confidence == "荒れ注意" and r4 is not None:
         stance = "勝負"
@@ -77,6 +78,15 @@ def recommend_bets(ranked: list[dict]) -> dict:
             plan.append(("2連複", f"{min(r1, r2)}={max(r1, r2)}", 100, "参考"))
         if r3 is not None:
             plan.append(("3連単", f"{r1}-{r2}-{r3}", 100, "参考"))
+
+    # 万舟チャレンジ枠(全レース共通・1点100円)。テンプレート検証(2026-07)で
+    # 「的中時に万舟になりやすく、かつ最も損が小さい型」をバケット別に採用:
+    #   標準: 予測5位→1位→2位 (回収率95.9% / 的中時平均16,132円 / 万舟率54.5%)
+    #   堅め・荒れ注意: 予測4位→2位→1位 (堅め78.6%・荒れ注意100.0% / 万舟率20-55%)
+    if confidence == "標準" and r5 is not None:
+        plan.append(("3連単", f"{r5}-{r1}-{r2}", 100, "万舟"))
+    elif confidence != "標準" and r4 is not None:
+        plan.append(("3連単", f"{r4}-{r2}-{r1}", 100, "万舟"))
 
     return {"confidence": confidence, "stance": stance, "plan": plan}
 
@@ -191,10 +201,11 @@ _CONFIDENCE_COLORS = {"堅め": "#1a7f37", "標準": "#9a6700", "荒れ注意": 
 
 
 def shobu_races(races: list[dict]) -> tuple[list[str], int]:
-    """勝負レースのラベル一覧(例 '尼崎3R')と合計予算円を返す"""
+    """勝負レースのラベル一覧(例 '尼崎3R')と合計予算円(プラン実額)を返す"""
     shobu = [r for r in races if r["bets"]["stance"] == "勝負"]
     labels = [f"{r['venue_name']}{r['race_no']}R" for r in shobu]
-    return labels, len(shobu) * 1000
+    budget = sum(yen for r in shobu for _, _, yen, _ in r["bets"]["plan"])
+    return labels, budget
 
 
 def build_notify_text(d: date, races: list[dict]) -> str:
