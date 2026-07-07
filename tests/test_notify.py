@@ -40,7 +40,7 @@ class TestShobuRaces(unittest.TestCase):
         ]
         labels, budget = shobu_races(races)
         self.assertEqual(labels, ["平和島5R", "尼崎2R"])
-        self.assertEqual(budget, 2200)  # 勝負プランは万舟枠込みで1レース1,100円
+        self.assertEqual(budget, 2000)
 
     def test_no_shobu_returns_empty(self):
         races = [_race([0.60, 0.2, 0.1, 0.05, 0.03, 0.02], 20, "若松", 1)]
@@ -55,7 +55,7 @@ class TestBuildNotifyText(unittest.TestCase):
         text = build_notify_text(date(2026, 7, 5), races)
         self.assertIn("2026-07-05", text)
         self.assertIn("平和島5R", text)
-        self.assertIn("予算: 1,100円", text)
+        self.assertIn("予算: 1,000円", text)
         self.assertIn(f"{PAGES_URL}/archive/2026-07-05_picks.html", text)
 
     def test_no_shobu_day_text(self):
