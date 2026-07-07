@@ -1,9 +1,11 @@
-"""当日の対象場レースの直前情報(展示タイム)と直前オッズを締切前に取得しDBへ保存するCLI
+"""当日の対象場レースの直前情報(展示タイム・直前オッズ)を締切15分前に1回だけ取得するCLI
 
-締切のLOOKAHEAD_MIN分前になったレースを対象に、
-- 展示タイム: 1回取得できたら以後スキップ(確定値のため)
-- オッズ: 毎回上書き(変動するため。最後に取得した=締切に最も近い値が残る)
-タスクスケジューラでレース開催中は10分おきに実行される想定。
+方針(2026-07-09確定): 直前情報は保存のみ。予測・勝負所判定には一切反映しない。
+数ヶ月分蓄積した後、朝予想との比較検証を行ってから利用可否を判断する。
+
+- 取得タイミング: 締切の15分前〜締切の間に入った最初の実行で1回だけ
+  (タスクスケジューラの10分おき実行なら、この窓に必ず1回だけ入る)
+- 展示タイム・オッズとも取得済みのレースはスキップ(再取得しない)
 
     python collect_exhibition.py
 """
@@ -14,7 +16,7 @@ import exhibition
 import odds as odds_mod
 from config import DB_PATH, TARGET_VENUE_CODES
 
-LOOKAHEAD_MIN = 30  # 締切のこの分数前から取得を試みる(展示は締切約20分前に確定)
+LOOKAHEAD_MIN = 15  # 締切のこの分数前から取得対象(展示は締切約20分前に確定済み)
 
 
 def _collect_race_odds(conn, race_id: str, venue_code: int, race_no: int, today: date, now: datetime) -> None:
@@ -34,7 +36,7 @@ def _collect_race_odds(conn, race_id: str, venue_code: int, race_no: int, today:
             n += 1
     conn.commit()
     if n:
-        print(f"{race_id}: オッズ更新 ({n}件)")
+        print(f"{race_id}: 直前オッズ保存 ({n}件)")
 
 
 def collect_today(today: date, now: datetime) -> None:
@@ -50,16 +52,15 @@ def collect_today(today: date, now: datetime) -> None:
         if not deadline_str:
             continue
         deadline = datetime.strptime(deadline_str, "%Y-%m-%d %H:%M:%S")
-        if now < deadline - timedelta(minutes=LOOKAHEAD_MIN):
-            continue  # まだ早い
-        if now > deadline + timedelta(minutes=5):
-            continue  # 締切済み(最後の上書きが直前オッズとして残る)
+        # 締切15分前〜締切の窓に入ったレースだけが対象
+        if now < deadline - timedelta(minutes=LOOKAHEAD_MIN) or now > deadline:
+            continue
 
-        # 展示タイム: 確定値なので取得済みならスキップ
-        already = conn.execute(
+        # 展示タイム: 1回だけ取得
+        already_ex = conn.execute(
             "SELECT COUNT(*) FROM exhibition WHERE race_id = ?", (race_id,)
         ).fetchone()[0]
-        if not already:
+        if not already_ex:
             try:
                 rows_ex = exhibition.fetch_exhibition(venue_code, race_no, today)
             except Exception as e:
@@ -73,8 +74,12 @@ def collect_today(today: date, now: datetime) -> None:
             else:
                 print(f"{race_id}: まだ展示データなし")
 
-        # オッズ: 毎回上書き(締切に最も近い値を残す)
-        _collect_race_odds(conn, race_id, venue_code, race_no, today, now)
+        # オッズ: 1回だけ取得(締切15分前スナップショット)
+        already_odds = conn.execute(
+            "SELECT COUNT(*) FROM odds WHERE race_id = ?", (race_id,)
+        ).fetchone()[0]
+        if not already_odds:
+            _collect_race_odds(conn, race_id, venue_code, race_no, today, now)
 
     conn.close()
 
