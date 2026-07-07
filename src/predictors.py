@@ -11,7 +11,15 @@
 """
 from itertools import combinations, permutations
 
-# 万舟圏の判定ライン(較正済み: この確率以下の決着は実績平均払戻22,442円・万舟率59%)
+# Benter割引: 2着・3着の条件付き確率を勝率のべき乗で減衰させる。
+# P(2着=b|1着=a) = pb^λ / Σ(残りp^λ)。λ=μ=1が素のHarville法。
+# 2025-12〜2026-04のウォークフォワード予測21,398レースで対数尤度を最大化して推定
+# (Harville比 +2,119。「2着以降は勝率ほど順当に決まらない」を反映)。
+LAMBDA2 = 0.70  # 2着の減衰
+LAMBDA3 = 0.50  # 3着の減衰
+
+# 万舟圏の判定ライン。Benter割引後の確率で再較正済み(2025-12〜2026-04、21,398レース):
+# 発生確率0.005以下で決まったレースの実払戻は平均約27,000円・万舟率約70%
 MANSHU_PROB_MAX = 0.005
 
 
@@ -23,26 +31,31 @@ def normalize_probs(ranked: list[dict]) -> dict[int, float]:
     return {r["lane"]: r["prob"] / total for r in ranked}
 
 
-def trifecta_probs(probs: dict[int, float]) -> dict[tuple, float]:
-    """3連単全順列の発生確率"""
+def trifecta_probs(probs: dict[int, float], lam: float = LAMBDA2, mu: float = LAMBDA3) -> dict[tuple, float]:
+    """3連単全順列の発生確率(Benter割引つきHarville法)"""
+    pow2 = {k: v ** lam for k, v in probs.items()}
+    pow3 = {k: v ** mu for k, v in probs.items()}
+    sum2 = sum(pow2.values())
+    sum3 = sum(pow3.values())
     out = {}
     for a, b, c in permutations(probs, 3):
-        d1 = 1 - probs[a]
-        d2 = 1 - probs[a] - probs[b]
-        if d1 <= 0 or d2 <= 0:
+        d2 = sum2 - pow2[a]
+        d3 = sum3 - pow3[a] - pow3[b]
+        if d2 <= 0 or d3 <= 0:
             continue
-        out[(a, b, c)] = probs[a] * (probs[b] / d1) * (probs[c] / d2)
+        out[(a, b, c)] = probs[a] * (pow2[b] / d2) * (pow3[c] / d3)
     return out
 
 
-def quinella_prob(probs: dict[int, float], a: int, b: int) -> float:
-    """2連複{a,b}の発生確率(a-b着順とb-a着順の和)"""
-    pa, pb = probs[a], probs[b]
+def quinella_prob(probs: dict[int, float], a: int, b: int, lam: float = LAMBDA2) -> float:
+    """2連複{a,b}の発生確率(割引つき。a-b着順とb-a着順の和)"""
+    pow2 = {k: v ** lam for k, v in probs.items()}
+    sum2 = sum(pow2.values())
     p = 0.0
-    if 1 - pa > 0:
-        p += pa * pb / (1 - pa)
-    if 1 - pb > 0:
-        p += pb * pa / (1 - pb)
+    if sum2 - pow2[a] > 0:
+        p += probs[a] * pow2[b] / (sum2 - pow2[a])
+    if sum2 - pow2[b] > 0:
+        p += probs[b] * pow2[a] / (sum2 - pow2[b])
     return p
 
 

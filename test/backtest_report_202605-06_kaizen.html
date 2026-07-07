@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑥ 回収率改善施策の検証(2026年5〜6月)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.25rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 20px 4px 8px; border-left: 4px solid #bc4c00; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .conclusion { background: #fff1e5; border: 1px solid #bc4c0066; }
+  .conclusion b { color: #953800; }
+  .good { background: #dafbe1; border: 1px solid #4ac26b66; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 4px; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-orange { background: #bc4c00; }
+</style>
+</head>
+<body>
+
+<h1><span class="badge b-orange">検証⑥</span>回収率改善施策の検証 — 2026年5月〜6月</h1>
+<p class="note">実施日: 2026-07-09 / 学習: 4月末まで・検証: 5-6月(対象5場・6艇立て1,763レース) /
+新規: Benter割引モデル採用、直前オッズ収集基盤、バリューベッティング実験(最終オッズ231レース分)</p>
+
+<div class="card good">
+  <b>採用①: Benter割引モデル(2着・3着の条件付き確率補正)。</b>
+  λ=0.70/μ=0.50を12月〜4月の21,398レースで推定。確率予測の質(対数尤度)が大幅改善(+2,119)。
+  「2着以降は勝率どおりに決まらない」という競艇の構造を反映し、A/B/C予想と万舟圏判定の土台が良くなった。<br><br>
+  <b>採用②: 直前オッズの自動収集開始。</b>
+  10分おきの直前収集に3連単120通り+3連複20通りのオッズ取得を追加(締切直前の値を保存)。
+  パーサーは実払戻との一致で検証済み。過去に遡れないデータなので、今日から資産になる。
+</div>
+
+<div class="card conclusion">
+  <b>不採用(重要な発見): オッズ照合による買い目選別(バリューベッティング)は現状のモデル精度では逆効果。</b><br>
+  最終オッズ231レース分で3方式を実験した結果、すべて素通し(98.2%)より悪化した。
+  大穴領域では市場(オッズ)の方がモデルより正確なため、「モデルが割安と判断する目」は
+  実際にはモデルの過大評価である場合が多い。買い目ロジックには組み込まない。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">バリューベッティング実験の結果(荒れ注意231レース・最終オッズ使用)</h2>
+  <table>
+    <tr><th>方式</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>(基準)kenプラン素通し</td><td class="num">44.2%</td><td class="num">98.2%</td><td class="num">-4,270円</td></tr>
+    <tr><td>E1: kenプランのうちEV≥1の点のみ購入</td><td class="num">15.6%</td><td class="num neg">80.0%</td><td class="num neg">-23,370円</td></tr>
+    <tr><td>E2: 全140通りからEV≥1.2を購入(≤8点)</td><td class="num">2.6%</td><td class="num neg">61.2%</td><td class="num neg">-71,500円</td></tr>
+    <tr><td>E3a: モデル×市場ブレンド(α=0.5) EV≥1.1</td><td class="num">3.5%</td><td class="num neg">52.8%</td><td class="num neg">-74,840円</td></tr>
+    <tr><td>E3b: 同上 EV≥1.3</td><td class="num">2.5%</td><td class="num neg">58.4%</td><td class="num neg">-52,930円</td></tr>
+    <tr><td>E3c: ブレンド(α=0.3) EV≥1.1</td><td class="num">2.3%</td><td class="num neg">59.8%</td><td class="num neg">-49,450円</td></tr>
+  </table>
+  <p class="note">EV = 推定確率×オッズ。教訓: 現在のエッジは「荒れそうなレースを当てる」レース選別から来ており、
+  「個別の目の価格の歪みを突く」精度はまだない。なお本実験は<b>最終オッズ</b>(全投票を織り込んだ最も効率的な価格)への
+  挑戦であり、最難関ベンチマークである点に留意。締切前のオッズとの差(ライブでの歪み)は、
+  今日から始めた直前オッズ収集が貯まれば検証できる。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">Benter補正後のA/B/C/ken成績(5-6月・全1,763レース)</h2>
+  <table>
+    <tr><th>予想者</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th><th class="num">(補正前)</th></tr>
+    <tr><td>A 石橋渡</td><td class="num">71.9%</td><td class="num">86.2%</td><td class="num">-121,320円</td><td class="num">85.3%</td></tr>
+    <tr><td>B 山田三連単</td><td class="num">33.2%</td><td class="num">83.4%</td><td class="num">-146,020円</td><td class="num">84.8%</td></tr>
+    <tr><td>C 勝万舟</td><td class="num">2.2%</td><td class="num">73.4%</td><td class="num">-234,890円</td><td class="num">64.1%</td></tr>
+    <tr><td>ken 本命勝負所(231レース)</td><td class="num">44.2%</td><td class="num">98.2%</td><td class="num">-4,270円</td><td class="num">113.5%</td></tr>
+  </table>
+  <p class="note"><b>kenの98.2%(補正前113.5%)について:</b> プランの核(900円分)は補正前後で同一で、
+  差は100円の万舟枠がどの目を拾うかのみ。この期間は補正前の枠が特大万舟(払戻99,500円)を
+  拾っていたため見かけ上大差がつくが、2ヶ月窓の万舟枠成績は1本で±15pt動く宝くじ領域であり優劣は判断できない。
+  確率の質は客観指標(対数尤度)で明確に改善しているため、Benter補正を採用する。
+  長期の期待値は従来検証(全場122%・5fold全て104%以上)が引き続き最良の推定値。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">今回始めた情報収集と今後の反映予定</h2>
+  <table>
+    <tr><th>データ</th><th>状態</th><th>予測への反映</th></tr>
+    <tr><td>直前オッズ(3連単/3連複)</td><td class="pos">本日から自動収集開始</td>
+      <td>2〜3週間貯まったら「締切30分前→最終」のオッズ変動(ライブの歪み)を分析して報告</td></tr>
+    <tr><td>展示タイム・チルト</td><td class="pos">収集中(7/5〜)</td>
+      <td>2〜3ヶ月分たまり次第、特徴量としての効果をバックテストして報告</td></tr>
+    <tr><td>2着・3着補正(Benter)</td><td class="pos">本日採用済み</td><td>反映済み(A/B/C/万舟圏の確率計算)</td></tr>
+    <tr><td>学習データの蓄積</td><td class="pos">毎日自動蓄積中</td><td>結果保持1年の壁を越えて自動で伸びていく</td></tr>
+  </table>
+</div>
+
+<p class="note">生成: Claude Code / 検証①〜⑤: backtest_report_*.html / 舟券の購入は自己責任で</p>
+</body>
+</html>

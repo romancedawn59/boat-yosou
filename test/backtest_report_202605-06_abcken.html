@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑤ A/B/C/ken方式テスト(2026年5〜6月)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.25rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 20px 4px 8px; border-left: 4px solid #0969da; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .conclusion { background: #ddf4ff; border: 1px solid #54aeff66; }
+  .conclusion b { color: #0550ae; }
+  .warn { background: #fff8c5; border: 1px solid #d4a72c66; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 4px; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-blue { background: #0969da; }
+  tr.hl td { background: #d6efff88; }
+</style>
+</head>
+<body>
+
+<h1><span class="badge b-blue">検証⑤</span>A/B/C/ken方式テスト — 2026年5月〜6月</h1>
+<p class="note">実施日: 2026-07-08 / 学習: 2026-04-30以前の全場データ(リークなし) /
+検証: 2026-05-01〜06-30、対象5場・全1,763レース(6艇立てのみ) /
+本番採用ロジック(predictors.py)そのもので採点</p>
+
+<div class="card conclusion">
+  <b>結論: 期待値プラスは「ken 本命勝負所」(回収率113.5%・+31,140円)のみ。</b><br>
+  A/B/C個人と全レース購入はいずれもマイナスで、「本命勝負所のkenプランだけ買う」が
+  引き続き正解。A/B/Cの通算成績は見える化・答え合わせ用として運用する。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">予想者別成績(全1,763レース・A/B/Cは各点100円の均等買い換算)</h2>
+  <table>
+    <tr><th>予想者</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th><th>性格</th></tr>
+    <tr><td>A 石橋渡(堅実5点)</td><td class="num">70.2%</td><td class="num neg">85.3%</td><td class="num neg">-129,470円</td><td>7割当たるが配当が安い</td></tr>
+    <tr><td>B 山田三連単(5点)</td><td class="num">33.0%</td><td class="num neg">84.8%</td><td class="num neg">-134,230円</td><td>3回に1回、中配当</td></tr>
+    <tr><td>C 勝万舟(万舟圏5点)</td><td class="num">2.3%</td><td class="num neg">64.1%</td><td class="num neg">-316,130円</td><td>ほぼ外れるが当たれば大きい</td></tr>
+    <tr class="hl"><td>予想屋ken(全レース1,000円)</td><td class="num">47.2%</td><td class="num neg">91.5%</td><td class="num neg">-150,340円</td><td>全レース買うと負ける(想定通り)</td></tr>
+  </table>
+  <p class="note">全レースを買えばどの予想者もマイナス=控除率25%の壁。エッジはレース選別(勝負所)にある。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">予想屋ken: バケット別・勝負所別</h2>
+  <table>
+    <tr><th>区分</th><th class="num">レース数</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>堅め</td><td class="num">1,116</td><td class="num">51.1%</td><td class="num neg">93.0%</td><td class="num neg">-77,860円</td></tr>
+    <tr><td>標準</td><td class="num">416</td><td class="num">37.7%</td><td class="num neg">75.1%</td><td class="num neg">-103,620円</td></tr>
+    <tr class="hl"><td><b>荒れ注意 = 本命勝負所</b></td><td class="num">231</td><td class="num">45.5%</td><td class="num pos">113.5%</td><td class="num pos">+31,140円</td></tr>
+    <tr><td>準勝負所(標準からの補充・最大10まで)</td><td class="num">252</td><td class="num">37.7%</td><td class="num neg">81.0%</td><td class="num neg">-47,870円</td></tr>
+    <tr><td>勝負所合計(本命+準)</td><td class="num">483</td><td class="num">41.4%</td><td class="num neg">96.5%</td><td class="num neg">-16,730円</td></tr>
+  </table>
+  <p class="note">準勝負所は「毎日買い目が欲しい」ためのエンタメ枠で、期待値は本命より明確に低い。
+  収支を重視するなら本命勝負所のみ購入すること(サイト上でもバッジ色で区別表示)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">kenの荒れ注意プラン配合の検証(V2採用の根拠)</h2>
+  <table>
+    <tr><th>配合</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>従来の検証済み構成(C枠なし1,000円)</td><td class="num">106.1%</td><td class="num">+14,080円</td></tr>
+    <tr><td>V1: 3連単穴の1点を100円に減らしC枠100円</td><td class="num">111.8%</td><td class="num">+27,180円</td></tr>
+    <tr class="hl"><td><b>V2: 3連複流しの3点目を100円に減らしC枠100円(採用)</b></td><td class="num pos">113.5%</td><td class="num pos">+31,140円</td></tr>
+    <tr><td>V3: 3連複流しの1点目を100円に減らしC枠100円</td><td class="num">113.0%</td><td class="num">+30,000円</td></tr>
+  </table>
+  <p class="note">同一231レースでの比較。「C勝万舟を必ず100円以上含む」制約を入れても
+  エッジは削れず、むしろわずかに改善することを確認して採用した。</p>
+</div>
+
+<div class="card warn">
+  <h2 style="margin-top:0">⚠ 注意事項</h2>
+  <ul style="font-size:.85rem; padding-left:1.2em; margin:4px 0;">
+    <li>本テストは6艇立てレースのみ(1,763レース)。欠場のある少数レースは対象外</li>
+    <li>荒れ注意の回収率113.5%は過去の同種検証(106〜160%)の範囲内だが、期間により変動する</li>
+    <li>A/B/C個人の成績は「どの視点が当たっているか」の観察用。単体で買い続ける戦略ではない</li>
+    <li>実運用の通算成績は毎晩23:30の自動採点でstats.htmlに蓄積される(実績: 7/7 本命10レース+20,100円)</li>
+  </ul>
+</div>
+
+<p class="note">生成: Claude Code / 関連: backtest_report_*.html(検証①〜④)、jissen_report_*.html(実戦) /
+舟券の購入は自己責任で</p>
+</body>
+</html>

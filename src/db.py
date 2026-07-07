@@ -69,6 +69,17 @@ CREATE TABLE IF NOT EXISTS payouts (
     PRIMARY KEY (race_id, bet_type, combination)
 );
 
+-- 直前オッズ(boatrace.jpオッズページ)。10分おきの収集で締切直前の値に上書きされる。
+-- fetched_atで取得時点を記録。過去日の'final-backfill'は確定最終オッズ。
+CREATE TABLE IF NOT EXISTS odds (
+    race_id      TEXT NOT NULL REFERENCES races(race_id),
+    bet_type     TEXT NOT NULL,   -- 3連単/3連複
+    combination  TEXT NOT NULL,   -- 例 "1-2-3" "1=3=5"
+    odds         REAL,
+    fetched_at   TEXT,
+    PRIMARY KEY (race_id, bet_type, combination)
+);
+
 -- 直前情報(boatrace.jp直前情報ページ)。締切約20分前に確定する。
 -- 予測モデルには使わない(計測・保存のみ、将来の分析用)。
 CREATE TABLE IF NOT EXISTS exhibition (
@@ -91,6 +102,7 @@ _PK_COLS = {
     "results": ("race_id", "lane"),
     "payouts": ("race_id", "bet_type", "combination"),
     "exhibition": ("race_id", "lane"),
+    "odds": ("race_id", "bet_type", "combination"),
 }
 
 
@@ -144,3 +156,7 @@ def upsert_payout(conn, payout: dict):
 
 def upsert_exhibition(conn, exhibition: dict):
     _upsert(conn, "exhibition", exhibition)
+
+
+def upsert_odds(conn, odds_row: dict):
+    _upsert(conn, "odds", odds_row)
