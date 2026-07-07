@@ -4,7 +4,12 @@ name: 予想レポート更新
 on:
   schedule:
     - cron: "30 21 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "予測する日付(YYYY-MM-DD)。空なら今日。動作確認用に過去日を指定できる"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -43,7 +48,7 @@ jobs:
         working-directory: src
 
       - name: 予想レポート生成
-        run: python predict.py today
+        run: python predict.py "${{ github.event.inputs.target_date || 'today' }}"
         working-directory: src
 
       - name: DBキャッシュ保存
