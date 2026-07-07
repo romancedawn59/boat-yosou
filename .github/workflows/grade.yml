@@ -1,0 +1,83 @@
+name: 夜間採点(通算成績更新)
+
+# 毎日 JST 23:30(UTC 14:30)に当日の予想を採点し、通算成績ページを更新する。
+on:
+  schedule:
+    - cron: "30 14 * * *"
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "採点する日付(YYYY-MM-DD)。空なら今日(JST)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boat-grade
+  cancel-in-progress: false
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリ取得
+        uses: actions/checkout@v4
+
+      - name: Python準備
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存インストール
+        run: pip install -r requirements.txt
+
+      - name: DBキャッシュ復元
+        uses: actions/cache/restore@v4
+        with:
+          path: boat.db
+          key: boatdb-${{ github.run_id }}
+          restore-keys: boatdb-
+
+      - name: 当日結果の収集(確定払戻の取得)
+        run: python collect.py
+        working-directory: src
+
+      - name: DBキャッシュ保存
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: boat.db
+          key: boatdb-${{ github.run_id }}
+
+      # 朝の予想ワークフローがdocs/dataへ保存したpicksと過去のledgerを採点環境へ持ち込む
+      - name: 採点データ準備
+        run: |
+          mkdir -p reports/site/data
+          cp docs/data/*.json reports/site/data/ 2>/dev/null || true
+
+      - name: 採点と通算成績ページ生成
+        run: python grade_predictions.py ${{ github.event.inputs.target_date }}
+        working-directory: src
+
+      - name: 成績をPagesへ公開
+        run: |
+          if [ ! -f reports/site/stats.html ]; then
+            echo "採点対象なし(非開催 or 結果未確定)。公開はスキップ。"
+            exit 0
+          fi
+          mkdir -p docs/data
+          cp reports/site/stats.html docs/
+          cp reports/site/data/ledger.json docs/data/
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "変更なし"
+          else
+            git commit -m "通算成績更新 $(date -u +%Y-%m-%d)"
+            git pull --rebase --autostash || true
+            git push
+          fi

@@ -1,5 +1,13 @@
 """場コード・パス・URL設定"""
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# クラウド(GitHub Actions)のランナーはUTCで動くため、「今日」は必ずJSTで判定する
+JST = timezone(timedelta(hours=9))
+
+
+def jst_today():
+    return datetime.now(JST).date()
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 DATA_RAW_DIR = PROJECT_DIR / "data_raw"

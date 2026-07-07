@@ -58,23 +58,30 @@ jobs:
           path: boat.db
           key: boatdb-${{ github.run_id }}
 
-      - name: レポートをPagesへ公開
+      - name: サイトをPagesへ公開
         run: |
-          latest=$(ls -t reports/*_picks.html 2>/dev/null | head -1 || true)
-          if [ -z "$latest" ]; then
-            echo "本日は対象5場すべて非開催。レポートなしのため公開はスキップ。"
+          if [ ! -f reports/site/index.html ]; then
+            echo "本日は対象5場すべて非開催。公開はスキップ。"
             exit 0
           fi
-          mkdir -p docs/archive
-          cp "$latest" docs/index.html
-          cp "$latest" "docs/archive/$(basename "$latest")"
+          mkdir -p docs/archive docs/data
+          cp reports/site/*.html docs/
+          cp reports/site/data/*.json docs/data/ 2>/dev/null || true
+          # アーカイブ(場別ページを日付付きで保存)
+          picks=$(ls reports/site/data/picks_*.json | head -1)
+          pick_date=$(basename "$picks" | sed 's/picks_\(.*\)\.json/\1/')
+          for f in reports/site/*.html; do
+            base=$(basename "$f")
+            [ "$base" = "index.html" ] && continue
+            cp "$f" "docs/archive/${pick_date}_${base}"
+          done
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs
           if git diff --cached --quiet; then
             echo "変更なし"
           else
-            git commit -m "予想レポート更新 $(date -u +%Y-%m-%d)"
+            git commit -m "予想サイト更新 ${pick_date}"
             git pull --rebase --autostash || true
             git push
           fi
@@ -83,10 +90,8 @@ jobs:
         if: always()
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
-        # reports/はリポジトリ直下に生成される(src/からの相対ではない)ため、
-        # このステップはルートで実行しスクリプトをsrc/付きで呼ぶ
         run: |
-          notify_file=$(ls -t reports/*_notify.txt 2>/dev/null | head -1 || true)
+          notify_file=$(ls -t reports/site/data/notify_*.txt 2>/dev/null | head -1 || true)
           if [ -z "$notify_file" ]; then
             echo "本日は対象5場すべて非開催。通知対象なし。"
             exit 0

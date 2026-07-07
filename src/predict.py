@@ -1,121 +1,41 @@
-"""予測対象5場(江戸川・平和島・常滑・尼崎・若松)の指定日レースを予測し、
-買い目を1枚のHTMLレポートに出力するCLI
+"""予測対象5場のレースを予測し、場別ページ(A/B/C予想+予想屋kenのポートフォリオ)を出力するCLI
 
     python predict.py             # 明日分
     python predict.py today       # 今日分
     python predict.py 2026-07-11  # 日付指定
 
-HTMLはreports/に保存される。プロジェクトがGoogle Drive配下にあるため、
-スマホのDriveアプリからそのまま閲覧できる。
+出力(reports/site/): index.html(=平和島) / 各場ページ / data/picks_日付.json(採点用)
+ワークフローがdocs/へコピーしてGitHub Pagesで公開する。
 
-買い目はウォークフォワード検証(backtest.py)の結果に基づく:
-- 荒れ注意(予測1位の勝率35%未満)だけが期待値プラス
-  → このレースのみ「勝負」として予算1000円を配分
-- 堅め・標準はどの買い方も一貫してマイナス → 見送り推奨(参考買い目のみ)
+予想の構成(predictors.py):
+- A 石橋渡: 堅い2連複・3連複を5点
+- B 山田三連単: 発生確率上位の3連単を5点
+- C 勝万舟: 万舟圏(発生確率0.5%以下)から確率上位5点
+- 予想屋ken: 3人の案から1レース1,000円のポートフォリオ(C案を必ず100円以上含む)
+- 勝負所: 荒れ注意=本命(検証済みエッジ)+標準から補充の準、最大10レース/日
 """
 import json
 import sys
 from datetime import date, timedelta
-from itertools import permutations
 from pathlib import Path
 
 import lightgbm as lgb
 
 import db
+import predictors as P
 import weather
-from config import DB_PATH, MODEL_PATH, PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES
+from config import (
+    DB_PATH, MODEL_PATH, PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES, jst_today,
+)
 from downloader import download_day
 from features import FEATURE_COLUMNS, build_program_features
 from parser_b import parse_program
 
-REPORTS_DIR = PROJECT_DIR / "reports"
+SITE_DIR = PROJECT_DIR / "reports" / "site"
 
-
-def recommend_bets(ranked: list[dict]) -> dict:
-    """モデルの勝率降順の艇リストから買い目プランを組む。
-
-    ウォークフォワード検証で期待値プラスが確認できた「荒れ注意」レースのみ
-    予算1000円の「勝負」プラン(3連複軸1流し600円+3連単穴400円)。
-    堅め・標準は見送り推奨とし、少額の参考買い目だけ付ける。
-    planの要素は (券種, 組み合わせ, 金額円, 区分)。
-    """
-    lanes = [r["lane"] for r in ranked]
-    top_prob = ranked[0]["prob"]
-
-    if top_prob >= 0.50:
-        confidence = "堅め"
-    elif top_prob >= 0.35:
-        confidence = "標準"
-    else:
-        confidence = "荒れ注意"
-
-    def trio(a, b, c):
-        s = sorted([a, b, c])
-        return f"{s[0]}={s[1]}={s[2]}"
-
-    r1, r2, r3, r4 = (lanes + [None] * 4)[:4]
-
-    if confidence == "荒れ注意" and r4 is not None:
-        stance = "勝負"
-        plan = [
-            ("3連複", trio(r1, r2, r3), 200, "負けにくい"),
-            ("3連複", trio(r1, r2, r4), 200, "負けにくい"),
-            ("3連複", trio(r1, r3, r4), 200, "負けにくい"),
-            ("3連単", f"{r3}-{r1}-{r2}", 200, "大穴"),
-            ("3連単", f"{r4}-{r1}-{r2}", 200, "大穴"),
-        ]
-    elif confidence == "標準" and r4 is not None:
-        stance = "見送り推奨"
-        plan = [
-            ("3連複", trio(r1, r2, r3), 100, "参考"),
-            ("3連複", trio(r1, r2, r4), 100, "参考"),
-            ("3連複", trio(r1, r3, r4), 100, "参考"),
-        ]
-    else:
-        stance = "見送り推奨"
-        plan = []
-        if r2 is not None:
-            plan.append(("2連複", f"{min(r1, r2)}={max(r1, r2)}", 100, "参考"))
-        if r3 is not None:
-            plan.append(("3連単", f"{r1}-{r2}-{r3}", 100, "参考"))
-
-    return {"confidence": confidence, "stance": stance, "plan": plan}
-
-
-# 「注目の万舟券」の万舟圏判定ライン。決着の展開確率(Harville)がこの値以下だった
-# レースの実払戻は平均22,442円・万舟率59%(1年検証)で、実質的に万舟圏とみなせる。
-MANSHU_PROB_MAX = 0.005
-
-
-def pick_manshu(ranked: list[dict]) -> dict | None:
-    """注目の万舟券: 万舟圏(展開確率0.5%以下)の3連単のうち展開確率が最大の1点。
-
-    オッズ(人気薄)基準ではなく、モデル勝率から各決着の起きやすさを
-    Harville法で計算し「市場は軽視しそうだが展開としては最もあり得る」目を選ぶ。
-    購入プラン外の参考情報(検証成績: 的中率0.5〜0.9%・的中時平均1.1〜1.7万円)。
-    """
-    if len(ranked) < 4:
-        return None
-
-    total = sum(r["prob"] for r in ranked)
-    if total <= 0:
-        return None
-    probs = {r["lane"]: r["prob"] / total for r in ranked}
-
-    best = None
-    for a, b, c in permutations(probs, 3):
-        denom1 = 1 - probs[a]
-        denom2 = 1 - probs[a] - probs[b]
-        if denom1 <= 0 or denom2 <= 0:
-            continue
-        p = probs[a] * (probs[b] / denom1) * (probs[c] / denom2)
-        if p <= MANSHU_PROB_MAX and (best is None or p > best[1]):
-            best = ((a, b, c), p)
-
-    if best is None:
-        return None
-    (a, b, c), p = best
-    return {"comb": f"{a}-{b}-{c}", "prob": p}
+# 場コード -> ページファイル名。トップページ(index.html)は平和島
+VENUE_SLUGS = {4: "heiwajima", 3: "edogawa", 8: "tokoname", 13: "amagasaki", 20: "wakamatsu"}
+TOP_VENUE = 4
 
 
 def _ensure_program(conn, d: date) -> bool:
@@ -144,12 +64,7 @@ def _ensure_program(conn, d: date) -> bool:
 
 
 def _fetch_weather_by_race(conn, race_meta: dict) -> dict[str, dict]:
-    """レースIDごとのレース前予報(Open-Meteo)を返す。表示専用(モデルには使わない)。
-
-    バックテストでモデルの特徴量に加えると回収率が悪化したため(features.py参照)、
-    予測には使わずレポート上で人間が判断材料にするための参考情報として提供する。
-    取得失敗した場はスキップする。
-    """
+    """レースIDごとのレース前予報(Open-Meteo)。表示専用(モデルには使わない)"""
     hourly_by_venue = {}
     for venue in {meta["venue_code"] for meta in race_meta.values()}:
         try:
@@ -212,138 +127,157 @@ def predict_day(d: date) -> list[dict] | None:
             }
             for _, row in race_df.iterrows()
         ]
+        probs = P.normalize_probs(ranked)
+        confidence = P.bucket_of(ranked[0]["prob"])
+        a = P.picks_ishibashi(probs) if len(probs) >= 4 else []
+        b = P.picks_yamada(probs) if len(probs) >= 4 else []
+        c = P.picks_katsu(probs) if len(probs) >= 4 else []
+        ken = P.ken_portfolio(confidence, ranked, a, b, c)
+
         races.append({
+            "race_id": race_id,
             "venue_code": meta["venue_code"],
             "venue_name": VENUE_NAMES[meta["venue_code"]],
             "race_no": meta["race_no"],
             "deadline": meta["deadline"],
             "weather": race_weather.get(race_id),
             "ranked": ranked,
-            "bets": recommend_bets(ranked),
-            "manshu": pick_manshu(ranked),
+            "picks_a": a,
+            "picks_b": b,
+            "picks_c": c,
+            "bets": {"confidence": confidence, "plan": ken},
         })
+
+    P.select_shobusho(races, max_races=10)
     return races
+
+
+def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], int]:
+    """(本命ラベル一覧, 準ラベル一覧, 本命+準の合計予算円)"""
+    honmei = [f"{r['venue_name']}{r['race_no']}R" for r in races if r.get("shobusho") == "本命"]
+    jun = [f"{r['venue_name']}{r['race_no']}R" for r in races if r.get("shobusho") == "準"]
+    budget = sum(
+        sum(y for _, _, y, _ in r["bets"]["plan"])
+        for r in races if r.get("shobusho")
+    )
+    return honmei, jun, budget
+
+
+def build_notify_text(d: date, races: list[dict]) -> str:
+    """LINE通知用のプレーンテキスト"""
+    honmei, jun, budget = shobu_summary(races)
+    lines = [f"【競艇予想】{d}"]
+    if honmei:
+        lines.append(f"本命勝負所: {'、'.join(honmei)}")
+    if jun:
+        lines.append(f"準勝負所: {'、'.join(jun)}")
+    if honmei or jun:
+        lines.append(f"予算: {budget:,}円(1R=1,000円)")
+    else:
+        lines.append("本日は勝負所なし(全レース見送り推奨)")
+    lines.append("")
+    lines.append(PAGES_URL)
+    return "\n".join(lines)
 
 
 _CONFIDENCE_COLORS = {"堅め": "#1a7f37", "標準": "#9a6700", "荒れ注意": "#cf222e"}
 
-
-def shobu_races(races: list[dict]) -> tuple[list[str], int]:
-    """勝負レースのラベル一覧(例 '尼崎3R')と合計予算円(プラン実額)を返す"""
-    shobu = [r for r in races if r["bets"]["stance"] == "勝負"]
-    labels = [f"{r['venue_name']}{r['race_no']}R" for r in shobu]
-    budget = sum(yen for r in shobu for _, _, yen, _ in r["bets"]["plan"])
-    return labels, budget
-
-
-def build_notify_text(d: date, races: list[dict]) -> str:
-    """LINE通知用のプレーンテキストを組み立てる"""
-    labels, budget = shobu_races(races)
-    if labels:
-        body = f"本日の勝負レース: {'、'.join(labels)}\n予算: {budget:,}円"
-    else:
-        body = "本日は勝負レースなし(見送り推奨)"
-    url = f"{PAGES_URL}/archive/{d.isoformat()}_picks.html"
-    return f"【競艇予想】{d}\n{body}\n\n{url}"
-
-
-def render_html(d: date, races: list[dict]) -> str:
-    labels, budget = shobu_races(races)
-    if labels:
-        summary = (f"本日の勝負レース: <b>{'、'.join(labels)}</b>"
-                   f"(予算 {budget:,}円)。それ以外は見送り推奨。")
-    else:
-        summary = "本日は勝負レースなし(全レース見送り推奨)。"
-
-    venues_today = sorted({r["venue_code"] for r in races})
-    sections = []
-    for venue in venues_today:
-        venue_races = [r for r in races if r["venue_code"] == venue]
-        cards = [_render_race_card(r) for r in venue_races]
-        sections.append(
-            f"<h2>{VENUE_NAMES[venue]}</h2>\n" + "".join(cards)
-        )
-
-    return f"""<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{d} 買い目予想(5場)</title>
-<style>
-  body {{ font-family: sans-serif; margin: 0; padding: 8px; background: #f6f8fa; }}
-  h1 {{ font-size: 1.2rem; margin: 8px 4px; }}
-  h2 {{ font-size: 1.05rem; margin: 18px 4px 8px; border-left: 4px solid #0969da;
-       padding-left: 8px; }}
-  .note {{ font-size: .75rem; color: #57606a; margin: 0 4px 12px; }}
-  .card {{ background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px;
-          box-shadow: 0 1px 3px rgba(0,0,0,.12); }}
-  .head {{ display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }}
-  .rno {{ font-size: 1.3rem; font-weight: bold; }}
-  .deadline {{ color: #57606a; font-size: .85rem; }}
-  .conf {{ margin-left: auto; color: #fff; font-size: .75rem; padding: 3px 10px;
-          border-radius: 12px; }}
-  table {{ width: 100%; border-collapse: collapse; font-size: .9rem; }}
-  td {{ padding: 4px 6px; border-bottom: 1px solid #eee; }}
-  .lane {{ width: 2em; text-align: center; font-weight: bold; border-radius: 4px; }}
-  .l1 {{ background: #fff; border: 1px solid #ccc; }} .l2 {{ background: #222; color: #fff; }}
-  .l3 {{ background: #d32f2f; color: #fff; }} .l4 {{ background: #1565c0; color: #fff; }}
-  .l5 {{ background: #fbc02d; }} .l6 {{ background: #2e7d32; color: #fff; }}
-  .prob {{ text-align: right; font-weight: bold; }}
-  .weather {{ font-size: .78rem; color: #57606a; background: #f0f6ff; border-radius: 6px;
-             padding: 5px 8px; margin-bottom: 8px; }}
-  .wx-note {{ display: block; font-size: .68rem; color: #8c959f; }}
-  .card.dim {{ opacity: .62; }}
-  .stance {{ font-size: .75rem; padding: 3px 10px; border-radius: 12px; color: #fff;
-            font-weight: bold; }}
-  .stance.go {{ background: #cf222e; }}
-  .stance.skip {{ background: #8c959f; }}
-  .summary {{ background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
-             padding: 10px 12px; margin: 0 0 12px; font-size: .9rem; }}
-  .plan {{ margin-top: 10px; background: #f6f8fa; border-radius: 8px; padding: 8px; }}
-  .plan h3 {{ margin: 0 0 6px; font-size: .8rem; }}
-  .plan-table td {{ border: none; padding: 2px 6px; font-size: .95rem; }}
-  .plan-table .tag {{ font-size: .7rem; color: #57606a; width: 5em; }}
-  .plan-table .bt {{ font-size: .8rem; color: #57606a; width: 4em; }}
-  .plan-table .yen {{ text-align: right; }}
-  .manshu {{ margin-top: 8px; background: #fbefff; border: 1px solid #8250df44;
-            border-radius: 8px; padding: 7px 10px; font-size: .85rem; }}
-  .manshu-note {{ display: block; font-size: .68rem; color: #8c959f; }}
-</style>
-</head>
-<body>
-<h1>{d} 買い目予想(対象5場)</h1>
-<div class="summary">{summary}</div>
-<p class="note">勝率はモデル予測値。「勝負」=検証で回収率100%超の荒れ注意レースのみ。
-堅め・標準レースはどの買い方も期待値マイナスのため見送り推奨。購入は自己責任で。</p>
-{''.join(sections)}
-</body>
-</html>
+_CSS = """
+  body { font-family: sans-serif; margin: 0; padding: 8px; background: #f6f8fa; }
+  h1 { font-size: 1.15rem; margin: 8px 4px; }
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 10px; }
+  .nav a { text-decoration: none; font-size: .82rem; padding: 5px 10px; border-radius: 14px;
+           background: #fff; color: #0969da; border: 1px solid #d0d7de; }
+  .nav a.active { background: #0969da; color: #fff; border-color: #0969da; }
+  .note { font-size: .75rem; color: #57606a; margin: 0 4px 12px; }
+  .card { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .rno { font-size: 1.3rem; font-weight: bold; }
+  .deadline { color: #57606a; font-size: .85rem; }
+  .conf { margin-left: auto; color: #fff; font-size: .75rem; padding: 3px 10px;
+          border-radius: 12px; }
+  .sho { font-size: .75rem; padding: 3px 10px; border-radius: 12px; color: #fff; font-weight: bold; }
+  .sho.hon { background: #cf222e; }
+  .sho.jun { background: #bc4c00; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  td { padding: 4px 6px; border-bottom: 1px solid #eee; }
+  .lane { width: 2em; text-align: center; font-weight: bold; border-radius: 4px; }
+  .l1 { background: #fff; border: 1px solid #ccc; } .l2 { background: #222; color: #fff; }
+  .l3 { background: #d32f2f; color: #fff; } .l4 { background: #1565c0; color: #fff; }
+  .l5 { background: #fbc02d; } .l6 { background: #2e7d32; color: #fff; }
+  .prob { text-align: right; font-weight: bold; }
+  .weather { font-size: .78rem; color: #57606a; background: #f0f6ff; border-radius: 6px;
+             padding: 5px 8px; margin-bottom: 8px; }
+  .wx-note { display: block; font-size: .68rem; color: #8c959f; }
+  .summary { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+             padding: 10px 12px; margin: 0 0 12px; font-size: .9rem; }
+  .picks { margin-top: 8px; border-radius: 8px; padding: 8px 10px; background: #f6f8fa; }
+  .picks h3 { margin: 0 0 4px; font-size: .8rem; }
+  .picks .items { font-size: .88rem; line-height: 1.8; }
+  .picks .p { color: #57606a; font-size: .75rem; }
+  .ken { margin-top: 8px; background: #d6efff; border: 1px solid #54aeff88;
+         border-radius: 8px; padding: 8px 10px; }
+  .ken h3 { margin: 0 0 6px; font-size: .85rem; }
+  .ken-table td { border: none; padding: 2px 6px; font-size: .95rem; }
+  .ken-table .src { font-size: .7rem; color: #57606a; width: 5em; }
+  .ken-table .bt { font-size: .8rem; color: #57606a; width: 4em; }
+  .ken-table .yen { text-align: right; font-weight: bold; }
 """
 
 
+def _nav_html(active_venue: int, venues_today: set[int]) -> str:
+    links = []
+    for venue, slug in VENUE_SLUGS.items():
+        href = "index.html" if venue == TOP_VENUE else f"{slug}.html"
+        cls = " class=\"active\"" if venue == active_venue else ""
+        mark = "" if venue in venues_today else "・休"
+        links.append(f'<a href="{href}"{cls}>{VENUE_NAMES[venue]}{mark}</a>')
+    links.append('<a href="stats.html">通算成績</a>')
+    return '<div class="nav">' + "".join(links) + "</div>"
+
+
+def _summary_html(races: list[dict]) -> str:
+    honmei, jun, budget = shobu_summary(races)
+    if not honmei and not jun:
+        return '<div class="summary">本日は勝負所なし(全レース見送り推奨)。</div>'
+    parts = []
+    if honmei:
+        parts.append(f"本命勝負所(検証済みエッジ): <b>{'、'.join(honmei)}</b>")
+    if jun:
+        parts.append(f"準勝負所(補充・期待値は本命より低い): {'、'.join(jun)}")
+    parts.append(f"予算 {budget:,}円(1レース1,000円)")
+    return '<div class="summary">' + "<br>".join(parts) + "</div>"
+
+
+def _picks_html(title: str, picks: list[tuple[str, str, float]]) -> str:
+    if not picks:
+        return ""
+    items = " / ".join(
+        f"{bt}{comb}<span class='p'>({p:.1%})</span>" if p >= 0.001
+        else f"{bt}{comb}<span class='p'>({p:.2%})</span>"
+        for bt, comb, p in picks
+    )
+    return f"<div class='picks'><h3>{title}</h3><div class='items'>{items}</div></div>"
+
+
 def _render_race_card(race: dict) -> str:
-    deadline = (race["deadline"] or "")[-8:-3]  # HH:MM
-    bets = race["bets"]
-    conf = bets["confidence"]
+    deadline = (race["deadline"] or "")[-8:-3]
+    conf = race["bets"]["confidence"]
     color = _CONFIDENCE_COLORS[conf]
-    is_shobu = bets["stance"] == "勝負"
+    shobusho = race.get("shobusho")
+
+    sho_html = ""
+    if shobusho == "本命":
+        sho_html = "<span class='sho hon'>本命勝負所</span>"
+    elif shobusho == "準":
+        sho_html = "<span class='sho jun'>準勝負所</span>"
 
     boat_rows = "".join(
         f"<tr><td class='lane l{b['lane']}'>{b['lane']}</td>"
         f"<td>{b['name']}</td><td>{b['racer_class']}</td>"
         f"<td class='prob'>{b['prob']:.0%}</td></tr>"
         for b in race["ranked"]
-    )
-    plan_rows = "".join(
-        f"<tr><td class='tag'>{tag}</td><td class='bt'>{bt}</td>"
-        f"<td>{comb}</td><td class='yen'>{yen}円</td></tr>"
-        for bt, comb, yen, tag in bets["plan"]
-    )
-    total = sum(yen for _, _, yen, _ in bets["plan"])
-    stance_html = (
-        "<span class='stance go'>勝負</span>" if is_shobu
-        else "<span class='stance skip'>見送り推奨</span>"
     )
     wx = race.get("weather")
     weather_html = (
@@ -352,37 +286,91 @@ def _render_race_card(race: dict) -> str:
         f"<span class='wx-note'>※参考情報・予測には未使用</span></div>"
         if wx else ""
     )
-    plan_title = (
-        f"買い目プラン(計{total:,}円)" if is_shobu
-        else f"参考買い目(期待値マイナス・計{total:,}円)"
+
+    picks_html = (
+        _picks_html("A 石橋渡(堅実・2連複/3連複)", race["picks_a"])
+        + _picks_html("B 山田三連単(のびのび3連単)", race["picks_b"])
+        + _picks_html("C 勝万舟(万舟圏・発生率順)", race["picks_c"])
     )
-    manshu = race.get("manshu")
-    if manshu:
-        once_in = round(1 / manshu["prob"]) if manshu["prob"] > 0 else 0
-        manshu_html = (
-            f"<div class='manshu'>⭐ 注目の万舟券: <b>3連単 {manshu['comb']}</b>"
-            f"(想定発生確率 {manshu['prob']:.2%} ≒ 約{once_in:,}レースに1回)"
-            f"<span class='manshu-note'>万舟圏の中で展開の可能性が最も高い組み合わせ。購入プラン外の参考情報</span></div>"
+
+    ken_plan = race["bets"]["plan"]
+    if ken_plan:
+        total = sum(y for _, _, y, _ in ken_plan)
+        ken_rows = "".join(
+            f"<tr><td class='src'>{src}</td><td class='bt'>{bt}</td>"
+            f"<td>{comb}</td><td class='yen'>{yen}円</td></tr>"
+            for bt, comb, yen, src in ken_plan
+        )
+        ken_html = (
+            f"<div class='ken'><h3>予想屋ken のポートフォリオ(計{total:,}円)</h3>"
+            f"<table class='ken-table'>{ken_rows}</table></div>"
         )
     else:
-        manshu_html = ""
+        ken_html = ""
 
     return f"""
-  <div class="card{' dim' if not is_shobu else ''}">
+  <div class="card">
     <div class="head">
       <span class="rno">{race['race_no']}R</span>
       <span class="deadline">締切 {deadline}</span>
-      {stance_html}
+      {sho_html}
       <span class="conf" style="background:{color}">{conf}</span>
     </div>
     {weather_html}
     <table>{boat_rows}</table>
-    <div class="plan">
-      <h3>{plan_title}</h3>
-      <table class="plan-table">{plan_rows}</table>
-    </div>
-    {manshu_html}
+    {picks_html}
+    {ken_html}
   </div>"""
+
+
+def render_venue_page(d: date, venue: int, races: list[dict]) -> str:
+    venues_today = {r["venue_code"] for r in races}
+    venue_races = [r for r in races if r["venue_code"] == venue]
+
+    if venue_races:
+        body = "".join(_render_race_card(r) for r in venue_races)
+    else:
+        body = '<div class="card">本日この場は非開催です。上のメニューから開催場をご覧ください。</div>'
+
+    return f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{d} {VENUE_NAMES[venue]} 買い目予想</title>
+<style>{_CSS}</style>
+</head>
+<body>
+<h1>{d} {VENUE_NAMES[venue]} 買い目予想</h1>
+{_nav_html(venue, venues_today)}
+{_summary_html(races)}
+<p class="note">A/B/Cは3人の予想者の視点(購入額なし・通算成績は「通算成績」ページ)。
+水色枠の予想屋kenが実際の購入プラン(1レース1,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
+確率はモデル予測値。購入は自己責任で。</p>
+{body}
+</body>
+</html>
+"""
+
+
+def _picks_json(d: date, races: list[dict]) -> dict:
+    return {
+        "date": d.isoformat(),
+        "races": [
+            {
+                "race_id": r["race_id"],
+                "venue_code": r["venue_code"],
+                "race_no": r["race_no"],
+                "confidence": r["bets"]["confidence"],
+                "shobusho": r.get("shobusho"),
+                "a": [[bt, comb, p] for bt, comb, p in r["picks_a"]],
+                "b": [[bt, comb, p] for bt, comb, p in r["picks_b"]],
+                "c": [[bt, comb, p] for bt, comb, p in r["picks_c"]],
+                "ken": [[bt, comb, yen, src] for bt, comb, yen, src in r["bets"]["plan"]],
+            }
+            for r in races
+        ],
+    }
 
 
 def run(d: date) -> Path | None:
@@ -391,16 +379,26 @@ def run(d: date) -> Path | None:
         print(f"{d}: 対象5場はすべて非開催(または番組表未公開)")
         return None
 
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    out = REPORTS_DIR / f"{d.isoformat()}_picks.html"
-    out.write_text(render_html(d, races), encoding="utf-8")
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
+    (SITE_DIR / "data").mkdir(exist_ok=True)
 
-    notify_out = REPORTS_DIR / f"{d.isoformat()}_notify.txt"
-    notify_out.write_text(build_notify_text(d, races), encoding="utf-8")
+    for venue, slug in VENUE_SLUGS.items():
+        html = render_venue_page(d, venue, races)
+        (SITE_DIR / f"{slug}.html").write_text(html, encoding="utf-8")
+    # トップページ=平和島
+    (SITE_DIR / "index.html").write_text(
+        render_venue_page(d, TOP_VENUE, races), encoding="utf-8")
+
+    picks_path = SITE_DIR / "data" / f"picks_{d.isoformat()}.json"
+    picks_path.write_text(
+        json.dumps(_picks_json(d, races), ensure_ascii=False, indent=1), encoding="utf-8")
+
+    notify_path = SITE_DIR / "data" / f"notify_{d.isoformat()}.txt"
+    notify_path.write_text(build_notify_text(d, races), encoding="utf-8")
 
     venues = "、".join(sorted({r["venue_name"] for r in races}))
-    print(f"{d}: {len(races)}レース({venues})を出力 -> {out}")
-    return out
+    print(f"{d}: {len(races)}レース({venues})のサイトを出力 -> {SITE_DIR}")
+    return SITE_DIR
 
 
 if __name__ == "__main__":
@@ -408,12 +406,13 @@ if __name__ == "__main__":
         print(f"モデルが見つかりません: {MODEL_PATH}\n先に train_model.py を実行してください。")
         sys.exit(1)
 
+    # クラウドランナーはUTCのためJSTで「今日」を判定する(date.today()はUTC日付になり1日ずれる)
     if len(sys.argv) > 1 and sys.argv[1] == "today":
-        targets = [date.today()]
+        targets = [jst_today()]
     elif len(sys.argv) > 1:
         targets = [date.fromisoformat(sys.argv[1])]
     else:
-        targets = [date.today() + timedelta(days=1)]
+        targets = [jst_today() + timedelta(days=1)]
 
     for target in targets:
         run(target)

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証④ 5-6月フルシステムテスト(勝負プラン+注目の万舟券)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 10px; background: #f6f8fa; color: #1f2328; }
+  h1 { font-size: 1.25rem; margin: 8px 4px; }
+  h2 { font-size: 1.05rem; margin: 20px 4px 8px; border-left: 4px solid #8250df; padding-left: 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .conclusion { background: #dafbe1; border: 1px solid #4ac26b66; }
+  .conclusion b { color: #116329; }
+  .warn { background: #fff8c5; border: 1px solid #d4a72c66; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 4px; }
+  .badge { display: inline-block; font-size: .7rem; color: #fff; border-radius: 10px;
+           padding: 2px 8px; margin-right: 4px; }
+  .b-purple { background: #8250df; } .b-red { background: #cf222e; }
+  .star { color: #9a6700; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1><span class="badge b-purple">検証④</span>5〜6月フルシステムテスト — 勝負プラン+注目の万舟券</h1>
+<p class="note">実施日: 2026-07-08 / 学習: 2026-04-30以前の全場データ(リークなし) /
+検証: 2026-05-01〜06-30、対象5場(江戸川・平和島・常滑・尼崎・若松) /
+バケット分布: 堅め1,181・標準441・荒れ注意257</p>
+
+<div class="card conclusion">
+  <b>勝負プラン: 回収率161.6%(+158,440円)。注目の万舟券も別会計で回収率122.9%(+40,320円)。</b><br>
+  両方合わせた総収支は2ヶ月で+198,760円(投資433,300円)。ただし万舟側は
+  6/26の1本(99,500円)への依存が大きく、変動は非常に大きい(下記参照)。
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">① 勝負プラン(荒れ注意のみ・1,000円/レース)</h2>
+  <table>
+    <tr><th>月</th><th class="num">勝負レース</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2026年5月</td><td class="num">119</td><td class="num">42.9%</td><td class="num pos">226.0%</td><td class="num pos">+149,900円</td></tr>
+    <tr><td>2026年6月</td><td class="num">138</td><td class="num">46.4%</td><td class="num pos">106.2%</td><td class="num pos">+8,540円</td></tr>
+    <tr><th>合計</th><th class="num">257</th><th class="num">44.7%</th><th class="num pos">161.6%</th><th class="num pos">+158,440円</th></tr>
+  </table>
+  <p class="note">検証③(5〜7月)と整合する結果。2ヶ月とも100%超を維持。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">② 注目の万舟券(全レース・別会計100円/レース)</h2>
+  <table>
+    <tr><th>月</th><th class="num">対象レース</th><th class="num">的中</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>2026年5月</td><td class="num">842</td><td class="num">2回</td><td class="num neg">25.6%</td><td class="num neg">-62,650円</td></tr>
+    <tr><td>2026年6月</td><td class="num">921</td><td class="num">9回</td><td class="num pos">211.8%</td><td class="num pos">+102,970円</td></tr>
+    <tr><th>合計</th><th class="num">1,763</th><th class="num">11回(0.62%)</th><th class="num pos">122.9%</th><th class="num pos">+40,320円</th></tr>
+  </table>
+
+  <h3>的中一覧(11回・払戻は100円あたり)</h3>
+  <table>
+    <tr><th>日付</th><th>レース</th><th>買い目</th><th class="num">払戻</th></tr>
+    <tr><td>5/13</td><td>平和島9R</td><td>3連単4-2-3</td><td class="num">12,610円 <span class="star">★万舟</span></td></tr>
+    <tr><td>5/31</td><td>若松9R</td><td>3連単1-6-4</td><td class="num">8,940円</td></tr>
+    <tr><td>6/1</td><td>尼崎2R</td><td>3連単1-3-6</td><td class="num">12,340円 <span class="star">★万舟</span></td></tr>
+    <tr><td>6/2</td><td>尼崎11R</td><td>3連単5-1-2</td><td class="num">7,680円</td></tr>
+    <tr><td>6/4</td><td>江戸川8R</td><td>3連単2-3-4</td><td class="num">12,970円 <span class="star">★万舟</span></td></tr>
+    <tr><td>6/18</td><td>若松3R</td><td>3連単1-4-3</td><td class="num">12,000円 <span class="star">★万舟</span></td></tr>
+    <tr><td>6/21</td><td>常滑4R</td><td>3連単3-2-4</td><td class="num">10,830円 <span class="star">★万舟</span></td></tr>
+    <tr><td>6/21</td><td>平和島5R</td><td>3連単1-4-2</td><td class="num">12,730円 <span class="star">★万舟</span></td></tr>
+    <tr><td>6/21</td><td>若松3R</td><td>3連単3-2-6</td><td class="num">4,000円</td></tr>
+    <tr><td>6/26</td><td>尼崎5R</td><td>3連単4-1-2</td><td class="num"><b>99,500円</b> <span class="star">★特大万舟</span></td></tr>
+    <tr><td>6/28</td><td>若松12R</td><td>3連単3-2-1</td><td class="num">23,020円 <span class="star">★万舟</span></td></tr>
+  </table>
+  <p class="note">的中11回のうち8回が万舟(1万円以上)。「オッズではなく展開確率で選ぶ」設計の狙いどおり、
+  当たれば大きい買い目が選べている。</p>
+</div>
+
+<div class="card warn">
+  <h2 style="margin-top:0">⚠ 万舟券の読み方(重要な注意)</h2>
+  <ul style="font-size:.85rem; padding-left:1.2em; margin:4px 0;">
+    <li><b>6/26の特大万舟(99,500円)を除くと回収率は66.4%</b>。2ヶ月の利益のほぼ全てが1本に依存している</li>
+    <li>5月は2ヶ月で-62,650円と大きく沈んだ。<b>数ヶ月単位のマイナスに耐える前提</b>の宝くじ的な枠</li>
+    <li>約160レースに1回(0.62%)しか当たらない=毎日20レース買っても平均8日に1回</li>
+    <li>長期の期待回収率は61〜101%(1年検証)であり、勝負プランのような再現性のあるプラスではない</li>
+    <li>買うなら勝負プランとは<b>財布を分けて</b>「夢代」として。同じ財布だと的中レースの取りガミが増える(ガミり率62.8%→66.8%)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">総合(参考: 両方買った場合)</h2>
+  <table>
+    <tr><th></th><th class="num">投資</th><th class="num">回収</th><th class="num">損益</th><th class="num">回収率</th></tr>
+    <tr><td>勝負プランのみ</td><td class="num">257,000円</td><td class="num">415,440円</td><td class="num pos">+158,440円</td><td class="num pos">161.6%</td></tr>
+    <tr><td>注目の万舟券のみ</td><td class="num">176,300円</td><td class="num">216,620円</td><td class="num pos">+40,320円</td><td class="num pos">122.9%</td></tr>
+    <tr><th>両方</th><th class="num">433,300円</th><th class="num">632,060円</th><th class="num pos">+198,760円</th><th class="num pos">145.9%</th></tr>
+  </table>
+  <p class="note">1日あたりの投資規模: 勝負プラン約4,200円+万舟枠約2,900円(全レース購入時)。
+  万舟枠を「勝負レースのみ」「気になるレースのみ」に絞る運用も可(その場合の成績は未検証)。</p>
+</div>
+
+<p class="note">生成: Claude Code / 検証①②③: backtest_report_*.html / 実戦: jissen_report_*.html / 舟券の購入は自己責任で</p>
+</body>
+</html>

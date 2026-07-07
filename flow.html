@@ -77,7 +77,7 @@
     <div class="arrow-down">↓</div>
 
     <div class="stage">
-      <div class="box box-model"><b>predict.py</b><div class="sub">当日の番組表+気象予報(表示用)で各レースを予測</div></div>
+      <div class="box box-model"><b>predict.py + predictors.py</b><div class="sub">各レースを予測し、A石橋渡/B山田三連単/C勝万舟の5点ずつ+予想屋kenの1,000円ポートフォリオを構成。勝負所(最大10/日)を選定</div></div>
     </div>
     <div class="arrow-down">↓</div>
 
@@ -144,7 +144,9 @@
     <tr><td><code>src/features.py</code></td><td>DB → 学習・予測用の特徴量への変換</td></tr>
     <tr><td><code>src/train_model.py</code></td><td>LightGBM学習・モデル保存</td></tr>
     <tr><td><code>src/backtest.py</code></td><td>ウォークフォワード検証(買い方別ROI)</td></tr>
-    <tr><td><code>src/predict.py</code></td><td>予測・買い目プラン作成・HTMLレポート出力</td></tr>
+    <tr><td><code>src/predict.py</code></td><td>予測・場別ページ生成・picks JSON出力</td></tr>
+    <tr><td><code>src/predictors.py</code></td><td>A/B/C予想とkenポートフォリオ・勝負所選定</td></tr>
+    <tr><td><code>src/grade_predictions.py</code></td><td>夜間採点と通算成績ページ(stats.html)生成</td></tr>
     <tr><td><code>src/scheduled_runner.py</code></td><td>タスクスケジューラ用の統一エントリポイント+ログ記録</td></tr>
   </table>
 </div>

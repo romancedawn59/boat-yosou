@@ -1,0 +1,43 @@
+[
+ {
+  "date": "2026-07-07",
+  "stats": {
+   "a": {
+    "stake": 24000,
+    "ret": 19240,
+    "races": 48,
+    "hits": 31
+   },
+   "b": {
+    "stake": 24000,
+    "ret": 29060,
+    "races": 48,
+    "hits": 14
+   },
+   "c": {
+    "stake": 24000,
+    "ret": 78820,
+    "races": 48,
+    "hits": 2
+   },
+   "ken": {
+    "stake": 48000,
+    "ret": 65060,
+    "races": 48,
+    "hits": 24
+   },
+   "ken_hon": {
+    "stake": 10000,
+    "ret": 30100,
+    "races": 10,
+    "hits": 5
+   },
+   "ken_jun": {
+    "stake": 0,
+    "ret": 0,
+    "races": 0,
+    "hits": 0
+   }
+  }
+ }
+]

@@ -129,8 +129,9 @@
   </ol>
 
   <h3>過去の予想を見る</h3>
-  <p>URLの末尾に <code>archive/日付_picks.html</code> を付けます。<br>
-  例: <code>https://romancedawn59.github.io/boat-yosou/archive/2026-07-06_picks.html</code></p>
+  <p>URLの末尾に <code>archive/日付_場名.html</code> を付けます。<br>
+  例: <code>https://romancedawn59.github.io/boat-yosou/archive/2026-07-07_heiwajima.html</code><br>
+  場名: heiwajima / edogawa / tokoname / amagasaki / wakamatsu</p>
 </div>
 <a class="back" href="#toc">▲目次に戻る</a>
 
@@ -147,7 +148,7 @@
     </tr>
     <tr>
       <td>ローカル版</td>
-      <td><code>Y:\マイドライブ\boat\reports\日付_picks.html</code> をダブルクリック</td>
+      <td><code>Y:\マイドライブ\boat\reports\site\index.html</code> をダブルクリック</td>
       <td>PCの自動実行(毎朝6:30)の出力。クラウドが止まった時の予備</td>
     </tr>
   </table>
@@ -177,8 +178,8 @@ py backtest.py           … 買い方別の回収率を再検証します</pre>
   <table>
     <tr><th>表示</th><th>意味</th></tr>
     <tr><td>締切 HH:MM</td><td>投票締切の予定時刻です。この時刻までに投票します</td></tr>
-    <tr><td><span class="badge b-red">勝負</span></td><td>買う対象のレースです。1,000円の買い目プランが付きます</td></tr>
-    <tr><td><span class="badge b-gray">見送り推奨</span></td><td>期待値マイナスのレースです。買わないのが正解です(カード全体が薄く表示されます)</td></tr>
+    <tr><td><span class="badge b-red">本命勝負所</span></td><td>買う対象のレース(荒れ注意=検証済みエッジ)。1日最大10レース</td></tr>
+    <tr><td><span class="badge b-yellow">準勝負所</span></td><td>本命が10未満の日の補充枠。期待値は本命より低い(参考)</td></tr>
     <tr><td><span class="badge b-green">堅め</span></td><td>予測1位艇の勝率50%以上。順当決着が濃厚です</td></tr>
     <tr><td><span class="badge b-yellow">標準</span></td><td>予測1位艇の勝率35〜50%です</td></tr>
     <tr><td><span class="badge b-red">荒れ注意</span></td><td>予測1位艇の勝率35%未満。波乱含み=このシステムの狙い目です</td></tr>
@@ -197,20 +198,17 @@ py backtest.py           … 買い方別の回収率を再検証します</pre>
     <tr><td><code>2-1-3</code></td><td>3連単</td><td>2号艇が1着、1号艇が2着、3号艇が3着、<b>この順番どおり</b>で的中</td></tr>
     <tr><td><code>1=3</code></td><td>2連複</td><td>1・3号艇が順位を問わず1〜2着なら的中(参考買い目で使用)</td></tr>
   </table>
-  <p>勝負レースのプランは「負けにくい」(3連複流し3点×200円)と「大穴」(3連単2点×200円)の
-  2部構成・計1,000円です。表示された金額のまま買うのが検証どおりの運用です。</p>
-
-  <h3>⑤ 注目の万舟券(全レース共通・購入プラン外)</h3>
-  <p>各レースカードの下部に紫色の「⭐ 注目の万舟券」枠があります。これは
-  <b>「オッズは万舟圏になるはずだが、展開としては最もあり得る」3連単1点</b>です。
-  人気薄を闇雲に選ぶのではなく、モデルの勝率から全120通りの決着確率を計算し、
-  展開確率0.5%以下(過去1年の実績で平均払戻22,442円・59%が万舟の圏内)の中から
-  確率最大のものを選んでいます。</p>
-  <ul>
-    <li><b>購入プランには含まれません</b>(予算にも入っていない参考情報)</li>
-    <li>検証成績: 的中率0.5〜0.9%・的中時平均1.1〜1.7万円・回収率61〜101%</li>
-    <li>買うなら100円単位の「夢代」と割り切ること。数十レースに1回当たる世界です</li>
-  </ul>
+  <h3>⑤ 3人の予想者と予想屋ken</h3>
+  <p>各レースには3人の予想者の視点と、それをまとめた予想屋kenの購入プランが載ります:</p>
+  <table>
+    <tr><th>予想者</th><th>スタイル</th><th>内容</th></tr>
+    <tr><td><b>A 石橋渡</b></td><td>堅実(ローリスク)</td><td>発生確率の高い2連複・3連複を5点。的中率約70%だが配当は安い</td></tr>
+    <tr><td><b>B 山田三連単</b></td><td>のびのび</td><td>発生確率上位の3連単を5点。的中率約33%</td></tr>
+    <tr><td><b>C 勝万舟</b></td><td>一発狙い</td><td>万舟圏(発生確率0.5%以下=実績平均払戻2.2万円)から発生率の高い順に5点</td></tr>
+    <tr><td><b>予想屋ken</b></td><td>まとめ役</td><td><b>水色枠・金額つき。実際に買うのはこれ。</b>1レース1,000円で3人の案を配合(C案を必ず100円以上含む)。荒れ注意レースでは検証済み構成(3連複軸1流し+3連単穴)を核に維持</td></tr>
+  </table>
+  <p>A/B/Cには購入額を付けません(視点の提示と通算成績の記録用)。それぞれの通算成績は
+  ナビの「通算成績」ページで毎晩更新されます。<b>推奨運用は「本命勝負所のkenプランだけ買う」</b>です。</p>
 </div>
 <a class="back" href="#toc">▲目次に戻る</a>
 
@@ -241,6 +239,7 @@ py backtest.py           … 買い方別の回収率を再検証します</pre>
     <tr><th>いつ</th><th>処理</th></tr>
     <tr><td>毎日 朝6:30ごろ</td><td>データ収集 → 5場の予測 → 予想ページを自動更新 →
       <b>LINEに通知</b>(勝負レース・予算・レポートURL。bot「Ken」から届く)</td></tr>
+    <tr><td>毎晩 23:30ごろ</td><td>当日の全予想(A/B/C/ken)を確定結果で採点し、通算成績ページを更新</td></tr>
     <tr><td>毎月1日 朝5:00ごろ</td><td>最新1年分でモデルを再学習し、バックテストで検証</td></tr>
   </table>
   <h3>自宅PC(タスクスケジューラ) — 予備系</h3>
