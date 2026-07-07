@@ -73,3 +73,16 @@ jobs:
             git pull --rebase --autostash || true
             git push
           fi
+
+      - name: LINE通知
+        if: always()
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+        run: |
+          notify_file=$(ls -t reports/*_notify.txt 2>/dev/null | head -1 || true)
+          if [ -z "$notify_file" ]; then
+            echo "本日は対象5場すべて非開催。通知対象なし。"
+            exit 0
+          fi
+          python notify_line.py "$(cat "$notify_file")"
+        working-directory: src

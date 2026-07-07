@@ -21,6 +21,9 @@ VENUE_COORDS = {
     20: (33.906, 130.813),  # 若松
 }
 
+# GitHub Pagesの公開先(LINE通知の本文にレポートURLを載せるため)
+PAGES_URL = "https://romancedawn59.github.io/boat-yosou"
+
 VENUE_NAMES = {
     1: "桐生", 2: "戸田", 3: "江戸川", 4: "平和島", 5: "多摩川", 6: "浜名湖",
     7: "蒲郡", 8: "常滑", 9: "津", 10: "三国", 11: "びわこ", 12: "住之江",

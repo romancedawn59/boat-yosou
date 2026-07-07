@@ -22,7 +22,7 @@ import lightgbm as lgb
 
 import db
 import weather
-from config import DB_PATH, MODEL_PATH, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES
+from config import DB_PATH, MODEL_PATH, PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES
 from downloader import download_day
 from features import FEATURE_COLUMNS, build_program_features
 from parser_b import parse_program
@@ -190,12 +190,29 @@ def predict_day(d: date) -> list[dict] | None:
 _CONFIDENCE_COLORS = {"堅め": "#1a7f37", "標準": "#9a6700", "荒れ注意": "#cf222e"}
 
 
-def render_html(d: date, races: list[dict]) -> str:
+def shobu_races(races: list[dict]) -> tuple[list[str], int]:
+    """勝負レースのラベル一覧(例 '尼崎3R')と合計予算円を返す"""
     shobu = [r for r in races if r["bets"]["stance"] == "勝負"]
-    if shobu:
-        labels = "、".join(f"{r['venue_name']}{r['race_no']}R" for r in shobu)
-        summary = (f"本日の勝負レース: <b>{labels}</b>"
-                   f"(予算 {len(shobu) * 1000:,}円)。それ以外は見送り推奨。")
+    labels = [f"{r['venue_name']}{r['race_no']}R" for r in shobu]
+    return labels, len(shobu) * 1000
+
+
+def build_notify_text(d: date, races: list[dict]) -> str:
+    """LINE通知用のプレーンテキストを組み立てる"""
+    labels, budget = shobu_races(races)
+    if labels:
+        body = f"本日の勝負レース: {'、'.join(labels)}\n予算: {budget:,}円"
+    else:
+        body = "本日は勝負レースなし(見送り推奨)"
+    url = f"{PAGES_URL}/archive/{d.isoformat()}_picks.html"
+    return f"【競艇予想】{d}\n{body}\n\n{url}"
+
+
+def render_html(d: date, races: list[dict]) -> str:
+    labels, budget = shobu_races(races)
+    if labels:
+        summary = (f"本日の勝負レース: <b>{'、'.join(labels)}</b>"
+                   f"(予算 {budget:,}円)。それ以外は見送り推奨。")
     else:
         summary = "本日は勝負レースなし(全レース見送り推奨)。"
 
@@ -324,6 +341,10 @@ def run(d: date) -> Path | None:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     out = REPORTS_DIR / f"{d.isoformat()}_picks.html"
     out.write_text(render_html(d, races), encoding="utf-8")
+
+    notify_out = REPORTS_DIR / f"{d.isoformat()}_notify.txt"
+    notify_out.write_text(build_notify_text(d, races), encoding="utf-8")
+
     venues = "、".join(sorted({r["venue_name"] for r in races}))
     print(f"{d}: {len(races)}レース({venues})を出力 -> {out}")
     return out
