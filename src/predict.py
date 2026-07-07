@@ -357,12 +357,15 @@ def _render_race_card(race: dict) -> str:
         else f"参考買い目(期待値マイナス・計{total:,}円)"
     )
     manshu = race.get("manshu")
-    manshu_html = (
-        f"<div class='manshu'>⭐ 注目の万舟券: <b>3連単 {manshu['comb']}</b>"
-        f"(展開確率 {manshu['prob']:.2%})"
-        f"<span class='manshu-note'>万舟圏の中で展開の可能性が最も高い組み合わせ。購入プラン外の参考情報</span></div>"
-        if manshu else ""
-    )
+    if manshu:
+        once_in = round(1 / manshu["prob"]) if manshu["prob"] > 0 else 0
+        manshu_html = (
+            f"<div class='manshu'>⭐ 注目の万舟券: <b>3連単 {manshu['comb']}</b>"
+            f"(想定発生確率 {manshu['prob']:.2%} ≒ 約{once_in:,}レースに1回)"
+            f"<span class='manshu-note'>万舟圏の中で展開の可能性が最も高い組み合わせ。購入プラン外の参考情報</span></div>"
+        )
+    else:
+        manshu_html = ""
 
     return f"""
   <div class="card{' dim' if not is_shobu else ''}">

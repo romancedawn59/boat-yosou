@@ -140,7 +140,8 @@ class TestRenderHtml(unittest.TestCase):
         html = render_html(date(2026, 7, 5), [race])
         self.assertIn("注目の万舟券", html)
         self.assertIn("3連単 4-2-1", html)
-        self.assertIn("0.42%", html)
+        self.assertIn("想定発生確率 0.42%", html)
+        self.assertIn("約238レースに1回", html)  # 1/0.0042 ≒ 238
         self.assertIn("購入プラン外", html)
 
     def test_render_without_manshu_does_not_crash(self):
