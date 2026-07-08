@@ -14,7 +14,7 @@ from datetime import date
 from pathlib import Path
 
 import db
-from config import DB_PATH, PROJECT_DIR, jst_today
+from config import DB_PATH, PROJECT_DIR, VENUE_NAMES, jst_today
 
 SITE_DIR = PROJECT_DIR / "reports" / "site"
 DATA_DIR = SITE_DIR / "data"
@@ -73,6 +73,66 @@ def grade_day(picks: dict, conn) -> dict | None:
     return day
 
 
+def _chaku(payout: dict) -> str:
+    """払戻の3連単キーからそのレースの決着(1着-2着-3着)を拾う"""
+    for bt, comb in payout:
+        if bt == "3連単":
+            return comb
+    return "?"
+
+
+def collect_hits(picks: dict, conn, day_iso: str) -> dict:
+    """1日分のpicksから、各予想者が「的中した(払戻があった)」レースの明細を集める。
+
+    返り値: {predictor_key: [ {date,venue,race_no,chaku,stake,ret,lines:[{label,payout}]} ]}
+    A/B/Cは各点100円換算、kenはポートフォリオ実額で払戻を計算する。
+    """
+    hits = {k: [] for k in PREDICTOR_LABELS}
+
+    for race in picks["races"]:
+        rid = race["race_id"]
+        payout = {(bt, comb): amt for bt, comb, amt in conn.execute(
+            "SELECT bet_type, combination, amount_yen FROM payouts WHERE race_id = ?", (rid,))}
+        if not payout:
+            continue
+        base = {
+            "date": day_iso,
+            "venue": VENUE_NAMES.get(race["venue_code"], str(race["venue_code"])),
+            "race_no": race["race_no"],
+            "chaku": _chaku(payout),
+        }
+
+        for key in ("a", "b", "c"):
+            lines, ret = [], 0
+            for bt, comb, _p in race[key]:
+                amt = payout.get((bt, comb), 0)
+                if amt:
+                    lines.append({"label": f"{bt} {comb}", "payout": amt})
+                    ret += amt
+            if ret:
+                hits[key].append({**base, "stake": 100 * len(race[key]), "ret": ret, "lines": lines})
+
+        ken = race["ken"]
+        if ken:
+            stake = sum(y for _, _, y, _ in ken)
+            lines, ret = [], 0
+            for bt, comb, y, _ in ken:
+                amt = payout.get((bt, comb), 0)
+                if amt:
+                    r = amt * y // 100
+                    lines.append({"label": f"{bt} {comb}（{y}円）", "payout": r})
+                    ret += r
+            if ret:
+                detail = {**base, "stake": stake, "ret": ret, "lines": lines}
+                hits["ken"].append(detail)
+                sub = ("ken_hon" if race["shobusho"] == "本命"
+                       else "ken_jun" if race["shobusho"] == "準" else None)
+                if sub:
+                    hits[sub].append(detail)
+
+    return hits
+
+
 def load_ledger() -> list:
     path = DATA_DIR / "ledger.json"
     if path.exists():
@@ -95,21 +155,53 @@ def render_stats(ledger: list) -> str:
             for f in ("stake", "ret", "races", "hits"):
                 totals[k][f] += s[f]
 
-    def row(label, s, highlight=False):
+    # 各予想者の「的中(払戻あり)レース」明細を全期間ぶん集約(新しい順)
+    all_hits = {k: [] for k in PREDICTOR_LABELS}
+    for entry in ledger:
+        for k, lst in entry.get("hits", {}).items():
+            if k in all_hits:
+                all_hits[k].extend(lst)
+    for k in all_hits:
+        all_hits[k].sort(key=lambda h: (h["date"], h["venue"], h["race_no"]), reverse=True)
+
+    # 予想者ごとの「的中があった日」一覧(その日の損益・的中レース数つき、新しい順)。
+    # 損益はその日そのレースだけでなく、その予想者のその日全体(ret-stake)。
+    day_pnl = {k: {} for k in PREDICTOR_LABELS}
+    for entry in ledger:
+        for k, s in entry.get("stats", {}).items():
+            if k in day_pnl:
+                day_pnl[k][entry["date"]] = s["ret"] - s["stake"]
+    days = {k: [] for k in PREDICTOR_LABELS}
+    for k in PREDICTOR_LABELS:
+        counts = {}
+        for h in all_hits[k]:
+            counts[h["date"]] = counts.get(h["date"], 0) + 1
+        days[k] = sorted(
+            ({"date": d, "n": n, "pnl": day_pnl[k].get(d, 0)} for d, n in counts.items()),
+            key=lambda x: x["date"], reverse=True)
+
+    def row(key, label, s, highlight=False):
         if s["races"] == 0:
             return ""
         roi = s["ret"] / s["stake"] if s["stake"] else 0
-        cls = " class='hl'" if highlight else ""
+        n_hit = len(days.get(key, []))
+        cls = "row hl" if highlight else "row"
         color = "pos" if s["ret"] >= s["stake"] else "neg"
-        return (f"<tr{cls}><td>{label}</td><td class='num'>{s['races']:,}</td>"
+        arrow = f"<span class='arrow'>›</span>" if n_hit else ""
+        return (f"<tr class='{cls}' data-key='{key}'><td>{label}{arrow}</td>"
+                f"<td class='num'>{s['races']:,}</td>"
                 f"<td class='num'>{s['hits'] / s['races']:.1%}</td>"
                 f"<td class='num {color}'>{roi:.1%}</td>"
                 f"<td class='num {color}'>{s['ret'] - s['stake']:+,}円</td></tr>")
 
     total_rows = "".join(
-        row(PREDICTOR_LABELS[k], totals[k], highlight=k.startswith("ken"))
+        row(k, PREDICTOR_LABELS[k], totals[k], highlight=k.startswith("ken"))
         for k in PREDICTOR_LABELS
     )
+
+    hits_json = json.dumps(all_hits, ensure_ascii=False)
+    days_json = json.dumps(days, ensure_ascii=False)
+    labels_json = json.dumps(PREDICTOR_LABELS, ensure_ascii=False)
 
     daily_rows = []
     for entry in sorted(ledger, key=lambda e: e["date"], reverse=True)[:30]:
@@ -146,7 +238,22 @@ def render_stats(ledger: list) -> str:
   .pos {{ color: #1a7f37; font-weight: bold; }}
   .neg {{ color: #cf222e; }}
   tr.hl td {{ background: #d6efff55; }}
+  tr.row {{ cursor: pointer; transition: background .12s; }}
+  tr.row:hover td {{ background: #eef4ff; }}
+  tr.row.active td {{ background: #cfe6ff; }}
+  .arrow {{ color: #0969da; font-weight: bold; margin-left: 5px; }}
   .note {{ font-size: .75rem; color: #57606a; margin: 6px 4px; }}
+  #hits-card {{ display: none; }}
+  #hits-card h2 {{ display: flex; justify-content: space-between; align-items: center; }}
+  #hits-close {{ font-size: .8rem; color: #0969da; cursor: pointer; padding: 2px 8px;
+                border: 1px solid #d0d7de; border-radius: 12px; background: #fff; }}
+  .hit-lines {{ font-size: .8rem; line-height: 1.45; }}
+  .hit-lines b {{ color: #1a7f37; }}
+  tr.day-row {{ cursor: pointer; }}
+  tr.day-row:hover td {{ background: #eef4ff; }}
+  .back {{ display: inline-block; color: #0969da; cursor: pointer; font-size: .85rem;
+          margin-bottom: 10px; }}
+  .back:hover {{ text-decoration: underline; }}
 </style>
 </head>
 <body>
@@ -164,7 +271,12 @@ def render_stats(ledger: list) -> str:
     {total_rows}
   </table>
   <p class="note">A/B/Cは1点100円の均等買い換算。予想屋kenはポートフォリオ実額(1レース1,000円)。
-  水色行がken。推奨運用は「ken 本命勝負所」のみ購入。</p>
+  水色行がken。推奨運用は「ken 本命勝負所」のみ購入。
+  <b>予想者の行をタップ→日付→その日の当たったレースの順で、的中履歴が見られます。</b></p>
+</div>
+<div class="card" id="hits-card">
+  <h2 style="margin-top:0"><span id="hits-title"></span><span id="hits-close">閉じる</span></h2>
+  <div id="hits-body"></div>
 </div>
 <div class="card">
   <h2 style="margin-top:0">日別(直近30日)</h2>
@@ -175,6 +287,68 @@ def render_stats(ledger: list) -> str:
   </table>
 </div>
 <p class="note">毎晩23時台に自動更新。舟券の購入は自己責任で。</p>
+<script>
+const HITS = {hits_json};
+const DAYS = {days_json};
+const LABELS = {labels_json};
+const yen = n => n.toLocaleString('ja-JP');
+const signed = n => (n >= 0 ? '+' : '') + yen(n) + '円';
+const card = document.getElementById('hits-card');
+const titleEl = document.getElementById('hits-title');
+const bodyEl = document.getElementById('hits-body');
+
+// 第1階層: 予想者をタップ → 的中があった日付の一覧(その日の損益つき)
+function showDays(key) {{
+  document.querySelectorAll('tr.row').forEach(tr =>
+    tr.classList.toggle('active', tr.dataset.key === key));
+  const list = DAYS[key] || [];
+  titleEl.textContent = LABELS[key] + ' の的中履歴';
+  if (!list.length) {{
+    bodyEl.innerHTML = '<p class="note">まだ当たったレースがありません。</p>';
+  }} else {{
+    const rows = list.map(d => {{
+      const cls = d.pnl >= 0 ? 'pos' : 'neg';
+      return '<tr class="day-row" data-key="' + key + '" data-date="' + d.date + '">'
+        + '<td>' + d.date + '<span class="arrow">›</span></td>'
+        + '<td class="num">' + d.n + 'レース的中</td>'
+        + '<td class="num ' + cls + '">' + signed(d.pnl) + '</td></tr>';
+    }}).join('');
+    bodyEl.innerHTML = '<p class="note">日付をタップすると、その日の当たったレースが見られます。</p>'
+      + '<table><tr><th>日付</th><th class="num">的中</th><th class="num">その日の損益</th></tr>'
+      + rows + '</table>';
+    bodyEl.querySelectorAll('tr.day-row').forEach(tr =>
+      tr.addEventListener('click', () => showDayHits(tr.dataset.key, tr.dataset.date)));
+  }}
+  card.style.display = 'block';
+  card.scrollIntoView({{behavior: 'smooth', block: 'nearest'}});
+}}
+
+// 第2階層: 日付をタップ → その日その予想者の当たったレース明細
+function showDayHits(key, date) {{
+  const list = (HITS[key] || []).filter(h => h.date === date);
+  titleEl.textContent = LABELS[key] + '　' + date;
+  const rows = list.map(h => {{
+    const pnl = h.ret - h.stake;
+    const cls = pnl >= 0 ? 'pos' : 'neg';
+    const lines = h.lines.map(l => l.label + ' <b>' + yen(l.payout) + '円</b>').join('<br>');
+    return '<tr><td>' + h.venue + h.race_no + 'R</td><td>' + h.chaku + '</td>'
+      + '<td class="hit-lines">' + lines + '</td>'
+      + '<td class="num ' + cls + '">' + signed(pnl) + '</td></tr>';
+  }}).join('');
+  bodyEl.innerHTML = '<div class="back" data-key="' + key + '">‹ 日付一覧へ戻る</div>'
+    + '<table><tr><th>レース</th><th>決着</th>'
+    + '<th>的中した買い目（払戻）</th><th class="num">損益</th></tr>' + rows + '</table>';
+  bodyEl.querySelector('.back').addEventListener('click', () => showDays(key));
+  card.scrollIntoView({{behavior: 'smooth', block: 'nearest'}});
+}}
+
+document.querySelectorAll('tr.row').forEach(tr =>
+  tr.addEventListener('click', () => showDays(tr.dataset.key)));
+document.getElementById('hits-close').addEventListener('click', () => {{
+  card.style.display = 'none';
+  document.querySelectorAll('tr.row').forEach(tr => tr.classList.remove('active'));
+}});
+</script>
 </body>
 </html>
 """
@@ -189,6 +363,7 @@ def main(d: date) -> None:
     picks = json.loads(picks_path.read_text(encoding="utf-8"))
     conn = db.connect(DB_PATH)
     day = grade_day(picks, conn)
+    hits = collect_hits(picks, conn, d.isoformat()) if day is not None else None
     conn.close()
 
     if day is None:
@@ -196,7 +371,7 @@ def main(d: date) -> None:
         return
 
     ledger = [e for e in load_ledger() if e["date"] != d.isoformat()]
-    ledger.append({"date": d.isoformat(), "stats": day})
+    ledger.append({"date": d.isoformat(), "stats": day, "hits": hits})
     ledger.sort(key=lambda e: e["date"])
     save_ledger(ledger)
 

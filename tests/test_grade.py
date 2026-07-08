@@ -55,6 +55,37 @@ class TestGradeDay(unittest.TestCase):
         self.assertIsNone(G.grade_day(_picks(), self.conn))
 
 
+class TestCollectHits(unittest.TestCase):
+    def setUp(self):
+        self.conn = sqlite3.connect(":memory:")
+        self.conn.executescript(db.SCHEMA)
+        db.upsert_race(self.conn, {
+            "race_id": "20260707_04_01", "date": "2026-07-07", "venue_code": 4, "race_no": 1})
+
+    def test_collects_only_hit_races(self):
+        # C(3連単4-1-2)とken(3連複1=2=3・3連単4-1-2)が的中、A・Bは外れ
+        db.upsert_payout(self.conn, {"race_id": "20260707_04_01", "bet_type": "3連複",
+                                     "combination": "1=2=3", "amount_yen": 500})
+        db.upsert_payout(self.conn, {"race_id": "20260707_04_01", "bet_type": "3連単",
+                                     "combination": "4-1-2", "amount_yen": 12000})
+        hits = G.collect_hits(_picks(), self.conn, "2026-07-07")
+
+        self.assertEqual(hits["a"], [])  # 2連複1=2は非的中
+        self.assertEqual(len(hits["c"]), 1)
+        self.assertEqual(hits["c"][0]["ret"], 12000)
+        self.assertEqual(hits["c"][0]["venue"], "平和島")
+        self.assertEqual(hits["c"][0]["chaku"], "4-1-2")  # 3連単キーから決着を復元
+        # ken: 3連複200円->1000円 + 3連単100円->12000円 = 13000円、本命勝負所にも入る
+        self.assertEqual(hits["ken"][0]["ret"], 13000)
+        self.assertEqual(len(hits["ken"][0]["lines"]), 2)
+        self.assertEqual(len(hits["ken_hon"]), 1)
+        self.assertEqual(hits["ken_jun"], [])
+
+    def test_no_payouts_means_no_hits(self):
+        hits = G.collect_hits(_picks(), self.conn, "2026-07-07")
+        self.assertTrue(all(v == [] for v in hits.values()))
+
+
 class TestLedgerAndStats(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
@@ -85,6 +116,19 @@ class TestLedgerAndStats(unittest.TestCase):
         self.assertIn("ken 本命勝負所", html)
         self.assertIn("120.0%", html)
         self.assertIn("viewport", html)
+
+    def test_render_stats_embeds_clickable_hits(self):
+        stats = {k: {"stake": 1000, "ret": 1200, "races": 2, "hits": 1} for k in G.PREDICTOR_LABELS}
+        hit = {"date": "2026-07-07", "venue": "常滑", "race_no": 2, "chaku": "3-2-1",
+               "stake": 1000, "ret": 20880, "lines": [{"label": "3連単 3-2-1", "payout": 19560}]}
+        html = G.render_stats([{"date": "2026-07-07", "stats": stats,
+                                "hits": {"ken_hon": [hit]}}])
+        self.assertIn("data-key='ken_hon'", html)   # 行がクリック可能
+        self.assertIn("const HITS =", html)          # 明細データ埋め込み
+        self.assertIn("const DAYS =", html)          # 日付一覧データ埋め込み
+        self.assertIn("3-2-1", html)                 # 的中買い目が含まれる
+        self.assertIn("showDays", html)              # 人→日付の第1階層
+        self.assertIn("showDayHits", html)           # 日付→履歴の第2階層
 
 
 if __name__ == "__main__":
