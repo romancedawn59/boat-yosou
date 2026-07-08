@@ -223,6 +223,33 @@ _CSS = """
   .ken-table .src { font-size: .7rem; color: #57606a; width: 5em; }
   .ken-table .bt { font-size: .8rem; color: #57606a; width: 4em; }
   .ken-table .yen { text-align: right; font-weight: bold; }
+  .tabs { display: flex; gap: 6px; margin-top: 10px; }
+  .tabbtn { font-size: .8rem; padding: 5px 12px; border-radius: 14px 14px 0 0;
+            border: 1px solid #d0d7de; border-bottom: none; background: #eef1f4;
+            color: #57606a; cursor: pointer; }
+  .tabbtn.active { background: #fff; color: #0969da; font-weight: bold;
+                   border-color: #0969da; }
+  .pane { display: none; }
+  .pane.active { display: block; }
+  .odds-view { margin-top: 6px; background: #fff8f0; border: 1px solid #bc4c0044;
+               border-radius: 8px; padding: 8px 10px; }
+  .odds-meta { font-size: .72rem; color: #bc4c00; margin: 0 0 6px; }
+  .odds-table th { font-size: .72rem; background: #fff3e8; padding: 3px 6px; }
+  .odds-table td { font-size: .88rem; padding: 3px 6px; border-bottom: 1px solid #f0e0d0; }
+  .odds-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .odds-note { font-size: .68rem; color: #8c959f; margin: 6px 0 0; }
+"""
+
+_TAB_JS = """
+<script>
+function swTab(btn, paneId) {
+  const card = btn.closest('.card');
+  card.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+  card.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+</script>
 """
 
 
@@ -261,7 +288,32 @@ def _picks_html(title: str, picks: list[tuple[str, str, float]]) -> str:
     return f"<div class='picks'><h3>{title}</h3><div class='items'>{items}</div></div>"
 
 
-def _render_race_card(race: dict) -> str:
+def _render_odds_pane(view: dict) -> str:
+    """オッズ反映ペイン(12:00参考版)のHTML。viewはnoon_update.build_odds_viewの出力"""
+    ken_rows = "".join(
+        f"<tr><td class='bt'>{bt}</td><td>{comb}</td>"
+        f"<td class='num'>{('%.1f' % o) + '倍' if o else '-'}</td>"
+        f"<td class='num'>{est:,}円</td>"
+        f"<td class='num'>{ev:.2f}</td></tr>"
+        for bt, comb, o, est, ev in view["ken_rows"]
+    )
+    value_items = " / ".join(
+        f"{bt}{comb}<span class='p'>({o:.1f}倍)</span>" for bt, comb, o in view["value"]
+    ) or "なし"
+    return f"""
+      <div class='odds-view'>
+        <p class='odds-meta'>オッズ取得: {view['fetched']} 時点(参考・成績対象外。朝の勝負所判定は変わりません)</p>
+        <table class='odds-table'>
+          <tr><th>券種</th><th>買い目</th><th>オッズ</th><th>想定払戻</th><th>EV※</th></tr>
+          {ken_rows}
+        </table>
+        <p class='odds-note'>※EV=モデル確率×オッズ。1.00超はモデルが市場より強気の目。
+        検証ではEVによる目の選別は逆効果だったため、判断材料の提示にとどめる。</p>
+        <div class='picks'><h3>オッズ妙味(実験枠・未検証)</h3><div class='items'>{value_items}</div></div>
+      </div>"""
+
+
+def _render_race_card(race: dict, odds_pane: str | None = None) -> str:
     deadline = (race["deadline"] or "")[-8:-3]
     conf = race["bets"]["confidence"]
     color = _CONFIDENCE_COLORS[conf]
@@ -308,6 +360,19 @@ def _render_race_card(race: dict) -> str:
     else:
         ken_html = ""
 
+    morning_pane = picks_html + ken_html
+    if odds_pane is None:
+        body = morning_pane
+    else:
+        rid = race["race_id"]
+        body = f"""
+    <div class="tabs">
+      <button class="tabbtn active" onclick="swTab(this,'m-{rid}')">朝の予想</button>
+      <button class="tabbtn" onclick="swTab(this,'o-{rid}')">オッズ反映⏱</button>
+    </div>
+    <div id="m-{rid}" class="pane active">{morning_pane}</div>
+    <div id="o-{rid}" class="pane">{odds_pane}</div>"""
+
     return f"""
   <div class="card">
     <div class="head">
@@ -318,17 +383,20 @@ def _render_race_card(race: dict) -> str:
     </div>
     {weather_html}
     <table>{boat_rows}</table>
-    {picks_html}
-    {ken_html}
+    {body}
   </div>"""
 
 
-def render_venue_page(d: date, venue: int, races: list[dict]) -> str:
+def render_venue_page(d: date, venue: int, races: list[dict],
+                      odds_panes: dict[str, str] | None = None) -> str:
     venues_today = {r["venue_code"] for r in races}
     venue_races = [r for r in races if r["venue_code"] == venue]
+    odds_panes = odds_panes or {}
 
     if venue_races:
-        body = "".join(_render_race_card(r) for r in venue_races)
+        body = "".join(
+            _render_race_card(r, odds_panes.get(r["race_id"])) for r in venue_races
+        )
     else:
         body = '<div class="card">本日この場は非開催です。上のメニューから開催場をご覧ください。</div>'
 
@@ -348,6 +416,7 @@ def render_venue_page(d: date, venue: int, races: list[dict]) -> str:
 水色枠の予想屋kenが実際の購入プラン(1レース1,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
 確率はモデル予測値。購入は自己責任で。</p>
 {body}
+{_TAB_JS}
 </body>
 </html>
 """
