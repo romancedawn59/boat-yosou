@@ -39,5 +39,46 @@
     "hits": 0
    }
   }
+ },
+ {
+  "date": "2026-07-08",
+  "stats": {
+   "a": {
+    "stake": 18000,
+    "ret": 16750,
+    "races": 36,
+    "hits": 27
+   },
+   "b": {
+    "stake": 18000,
+    "ret": 12200,
+    "races": 36,
+    "hits": 10
+   },
+   "c": {
+    "stake": 18000,
+    "ret": 16760,
+    "races": 36,
+    "hits": 3
+   },
+   "ken": {
+    "stake": 36000,
+    "ret": 22810,
+    "races": 36,
+    "hits": 18
+   },
+   "ken_hon": {
+    "stake": 4000,
+    "ret": 1500,
+    "races": 4,
+    "hits": 2
+   },
+   "ken_jun": {
+    "stake": 6000,
+    "ret": 1140,
+    "races": 6,
+    "hits": 1
+   }
+  }
  }
 ]
