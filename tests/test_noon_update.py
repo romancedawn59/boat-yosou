@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import predictors as P
-from noon_update import build_odds_view
+from noon_update import build_notify_text, build_odds_view
 from predict import _render_odds_pane, render_venue_page
 
 
@@ -71,6 +71,30 @@ class TestBuildOddsView(unittest.TestCase):
             self.assertIsNone(o)
             self.assertEqual(est, 0)
         self.assertEqual(view["value"], [])
+
+
+class TestNotifyText(unittest.TestCase):
+    def test_contains_time_venues_count_and_url(self):
+        r1 = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1], venue_code=4, race_no=1)
+        r2 = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1], venue_code=8, race_no=2)
+        r3 = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1], venue_code=8, race_no=3)
+        panes = {r["race_id"]: "<div/>" for r in (r1, r2, r3)}
+        text = build_notify_text("10:05", [r1, r2, r3], panes)
+
+        self.assertIn("10:05", text)
+        self.assertIn("平和島・常滑", text)     # 場コード順・重複なし
+        self.assertIn("3レース", text)
+        self.assertIn("boat-yosou", text)       # サイトURL
+
+    def test_venues_limited_to_races_with_panes(self):
+        r1 = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1], venue_code=4, race_no=1)
+        r2 = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1], venue_code=8, race_no=2)
+        panes = {r1["race_id"]: "<div/>"}  # 常滑は締切済みでオッズ無し
+        text = build_notify_text("10:05", [r1, r2], panes)
+
+        self.assertIn("平和島", text)
+        self.assertNotIn("常滑", text)
+        self.assertIn("1レース", text)
 
 
 class TestTabsRendering(unittest.TestCase):

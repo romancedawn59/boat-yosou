@@ -14,7 +14,7 @@ from datetime import date, datetime
 import odds as odds_mod
 import predict
 import predictors as P
-from config import JST, VENUE_NAMES, jst_today
+from config import JST, PAGES_URL, VENUE_NAMES, jst_today
 
 
 def build_odds_view(race: dict, odds_data: dict, fetched_label: str) -> dict:
@@ -59,6 +59,15 @@ def build_odds_view(race: dict, odds_data: dict, fetched_label: str) -> dict:
     return {"fetched": fetched_label, "ken_rows": ken_rows, "value": value}
 
 
+def build_notify_text(fetched_label: str, races: list, odds_panes: dict) -> str:
+    """オッズ反映版のLINE通知文(ワークフロー側でその日の初回のみ送信される)"""
+    venues = sorted({r["venue_code"] for r in races if r["race_id"] in odds_panes})
+    names = "・".join(VENUE_NAMES[v] for v in venues)
+    return (f"⏱オッズ反映版を公開しました（{fetched_label}時点）\n"
+            f"{names}の締切前{len(odds_panes)}レースにオッズ・想定払戻つきの予想を掲載\n"
+            f"{PAGES_URL}/")
+
+
 def run(d: date, include_all: bool = False) -> bool:
     races = predict.predict_day(d)
     if races is None:
@@ -94,6 +103,14 @@ def run(d: date, include_all: bool = False) -> bool:
         (predict.SITE_DIR / f"{slug}.html").write_text(html, encoding="utf-8")
     (predict.SITE_DIR / "index.html").write_text(
         predict.render_venue_page(d, predict.TOP_VENUE, races, odds_panes), encoding="utf-8")
+
+    # オッズを1レースでも反映できたら通知文を書き出す(送信判断はワークフロー側。
+    # *.htmlしかdocsへコピーされないため、このファイルがサイトに載ることはない)
+    if odds_panes:
+        data_dir = predict.SITE_DIR / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        (data_dir / "noon_notify.txt").write_text(
+            build_notify_text(fetched_label, races, odds_panes), encoding="utf-8")
 
     print(f"{d}: {len(odds_panes)}レースにオッズ反映タブを追加してサイトを再生成 -> {predict.SITE_DIR}")
     return True

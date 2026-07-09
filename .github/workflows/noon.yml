@@ -56,6 +56,14 @@ jobs:
             echo "非開催のため更新なし。"
             exit 0
           fi
+          # その日の初回実行か判定(朝の予想はオッズタブ無しでページを上書きするため、
+          # 公開前のdocsにタブが残っていなければ本日初)。LINE通知の重複抑止に使う。
+          if grep -q "オッズ反映⏱" docs/index.html docs/edogawa.html docs/heiwajima.html \
+              docs/tokoname.html docs/amagasaki.html docs/wakamatsu.html 2>/dev/null; then
+            echo "FIRST_ODDS_TODAY=no" >> "$GITHUB_ENV"
+          else
+            echo "FIRST_ODDS_TODAY=yes" >> "$GITHUB_ENV"
+          fi
           cp reports/site/*.html docs/
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -67,3 +75,17 @@ jobs:
             git pull --rebase --autostash || true
             git push
           fi
+
+      - name: LINE通知(その日の初回のみ)
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+        run: |
+          if [ ! -f reports/site/data/noon_notify.txt ]; then
+            echo "オッズ反映なし(非開催・全レース締切済み等)のため通知対象なし。"
+            exit 0
+          fi
+          if [ "$FIRST_ODDS_TODAY" != "yes" ]; then
+            echo "本日2回目以降の更新のため通知はスキップ(オッズの上書きのみ)。"
+            exit 0
+          fi
+          python src/notify_line.py "$(cat reports/site/data/noon_notify.txt)"
