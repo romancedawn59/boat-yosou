@@ -146,6 +146,10 @@ def save_ledger(ledger: list) -> None:
         json.dumps(ledger, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+# ビューワーに表示する日数(3日+今日=4日)。ledger.jsonのログ自体は全期間保存する
+SHOW_DAYS = 4
+
+
 def render_stats(ledger: list) -> str:
     totals = {k: _zero() for k in PREDICTOR_LABELS}
     for entry in ledger:
@@ -155,9 +159,14 @@ def render_stats(ledger: list) -> str:
             for f in ("stake", "ret", "races", "hits"):
                 totals[k][f] += s[f]
 
-    # 各予想者の「的中(払戻あり)レース」明細を全期間ぶん集約(新しい順)
+    # 表示対象の日付(新しい順に最大SHOW_DAYS日)。通算成績の合計は全期間のまま
+    recent = set(sorted({e["date"] for e in ledger}, reverse=True)[:SHOW_DAYS])
+
+    # 各予想者の「的中(払戻あり)レース」明細を表示対象日ぶん集約(新しい順)
     all_hits = {k: [] for k in PREDICTOR_LABELS}
     for entry in ledger:
+        if entry["date"] not in recent:
+            continue
         for k, lst in entry.get("hits", {}).items():
             if k in all_hits:
                 all_hits[k].extend(lst)
@@ -204,7 +213,7 @@ def render_stats(ledger: list) -> str:
     labels_json = json.dumps(PREDICTOR_LABELS, ensure_ascii=False)
 
     daily_rows = []
-    for entry in sorted(ledger, key=lambda e: e["date"], reverse=True)[:30]:
+    for entry in sorted(ledger, key=lambda e: e["date"], reverse=True)[:SHOW_DAYS]:
         ken = entry["stats"].get("ken_hon", _zero())
         all_ken = entry["stats"].get("ken", _zero())
         pnl = ken["ret"] - ken["stake"]
@@ -272,14 +281,15 @@ def render_stats(ledger: list) -> str:
   </table>
   <p class="note">A/B/Cは1点100円の均等買い換算。予想屋kenはポートフォリオ実額(1レース1,000円)。
   水色行がken。推奨運用は「ken 本命勝負所」のみ購入。
-  <b>予想者の行をタップ→日付→その日の当たったレースの順で、的中履歴が見られます。</b></p>
+  <b>予想者の行をタップ→日付→その日の当たったレースの順で、的中履歴が見られます</b>
+  (表示は直近{SHOW_DAYS}日分。記録自体は全期間保存)。</p>
 </div>
 <div class="card" id="hits-card">
   <h2 style="margin-top:0"><span id="hits-title"></span><span id="hits-close">閉じる</span></h2>
   <div id="hits-body"></div>
 </div>
 <div class="card">
-  <h2 style="margin-top:0">日別(直近30日)</h2>
+  <h2 style="margin-top:0">日別(直近{SHOW_DAYS}日)</h2>
   <table>
     <tr><th>日付</th><th class="num">本命勝負所</th><th class="num">本命損益</th>
         <th class="num">全レース</th><th class="num">全レース損益</th></tr>
@@ -298,7 +308,7 @@ const titleEl = document.getElementById('hits-title');
 const bodyEl = document.getElementById('hits-body');
 
 // 第1階層: 予想者をタップ → 的中があった日付の一覧(その日の損益つき)
-function showDays(key) {{
+function showDays(key, scroll = true) {{
   document.querySelectorAll('tr.row').forEach(tr =>
     tr.classList.toggle('active', tr.dataset.key === key));
   const list = DAYS[key] || [];
@@ -320,7 +330,7 @@ function showDays(key) {{
       tr.addEventListener('click', () => showDayHits(tr.dataset.key, tr.dataset.date)));
   }}
   card.style.display = 'block';
-  card.scrollIntoView({{behavior: 'smooth', block: 'nearest'}});
+  if (scroll) card.scrollIntoView({{behavior: 'smooth', block: 'nearest'}});
 }}
 
 // 第2階層: 日付をタップ → その日その予想者の当たったレース明細
@@ -348,6 +358,9 @@ document.getElementById('hits-close').addEventListener('click', () => {{
   card.style.display = 'none';
   document.querySelectorAll('tr.row').forEach(tr => tr.classList.remove('active'));
 }});
+
+// 初期表示: 推奨運用の「ken 本命勝負所」を開いておく(スクロールはしない)
+if ((DAYS['ken_hon'] || []).length) showDays('ken_hon', false);
 </script>
 </body>
 </html>

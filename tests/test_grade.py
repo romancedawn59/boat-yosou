@@ -129,6 +129,27 @@ class TestLedgerAndStats(unittest.TestCase):
         self.assertIn("3-2-1", html)                 # 的中買い目が含まれる
         self.assertIn("showDays", html)              # 人→日付の第1階層
         self.assertIn("showDayHits", html)           # 日付→履歴の第2階層
+        self.assertIn("showDays('ken_hon', false)", html)  # 初期表示で自動オープン
+
+    def test_viewer_shows_only_recent_days_but_totals_all(self):
+        # 6日分のledger(的中つき)→ ビューワーには新しい4日だけ、通算は全期間
+        stats = {k: {"stake": 1000, "ret": 1100, "races": 1, "hits": 1} for k in G.PREDICTOR_LABELS}
+        ledger = []
+        for i in range(1, 7):  # 07-01〜07-06
+            d = f"2026-07-{i:02d}"
+            hit = {"date": d, "venue": "常滑", "race_no": 1, "chaku": "1-2-3",
+                   "stake": 1000, "ret": 1100, "lines": [{"label": "3連複 1=2=3", "payout": 1100}]}
+            ledger.append({"date": d, "stats": stats, "hits": {"ken_hon": [hit]}})
+        html = G.render_stats(ledger)
+
+        for d in ("2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06"):
+            self.assertIn(d, html)                   # 直近4日は表示
+        self.assertNotIn("2026-07-02", html)         # 5日前は非表示
+        # 初日は「採点開始 2026-07-01〜」の見出しにだけ現れる(日別・履歴には出ない)
+        self.assertEqual(html.count("2026-07-01"), 1)
+        # 通算は全6日分(1,000円×6日=6,000円が母数: 回収率110.0%)
+        self.assertIn("110.0%", html)
+        self.assertIn("日別(直近4日)", html)
 
 
 if __name__ == "__main__":

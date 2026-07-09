@@ -54,14 +54,15 @@
   </table>
   <p class="note">A/B/Cは1点100円の均等買い換算。予想屋kenはポートフォリオ実額(1レース1,000円)。
   水色行がken。推奨運用は「ken 本命勝負所」のみ購入。
-  <b>予想者の行をタップ→日付→その日の当たったレースの順で、的中履歴が見られます。</b></p>
+  <b>予想者の行をタップ→日付→その日の当たったレースの順で、的中履歴が見られます</b>
+  (表示は直近4日分。記録自体は全期間保存)。</p>
 </div>
 <div class="card" id="hits-card">
   <h2 style="margin-top:0"><span id="hits-title"></span><span id="hits-close">閉じる</span></h2>
   <div id="hits-body"></div>
 </div>
 <div class="card">
-  <h2 style="margin-top:0">日別(直近30日)</h2>
+  <h2 style="margin-top:0">日別(直近4日)</h2>
   <table>
     <tr><th>日付</th><th class="num">本命勝負所</th><th class="num">本命損益</th>
         <th class="num">全レース</th><th class="num">全レース損益</th></tr>
@@ -80,7 +81,7 @@ const titleEl = document.getElementById('hits-title');
 const bodyEl = document.getElementById('hits-body');
 
 // 第1階層: 予想者をタップ → 的中があった日付の一覧(その日の損益つき)
-function showDays(key) {
+function showDays(key, scroll = true) {
   document.querySelectorAll('tr.row').forEach(tr =>
     tr.classList.toggle('active', tr.dataset.key === key));
   const list = DAYS[key] || [];
@@ -102,7 +103,7 @@ function showDays(key) {
       tr.addEventListener('click', () => showDayHits(tr.dataset.key, tr.dataset.date)));
   }
   card.style.display = 'block';
-  card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+  if (scroll) card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
 // 第2階層: 日付をタップ → その日その予想者の当たったレース明細
@@ -130,6 +131,9 @@ document.getElementById('hits-close').addEventListener('click', () => {
   card.style.display = 'none';
   document.querySelectorAll('tr.row').forEach(tr => tr.classList.remove('active'));
 });
+
+// 初期表示: 推奨運用の「ken 本命勝負所」を開いておく(スクロールはしない)
+if ((DAYS['ken_hon'] || []).length) showDays('ken_hon', false);
 </script>
 </body>
 </html>
