@@ -1,8 +1,12 @@
 name: 夜間採点(通算成績更新)
 
-# 毎日 JST 23:30(UTC 14:30)に当日の予想を採点し、通算成績ページを更新する。
+# 毎日 JST 21:30 / 23:30(UTC 12:30 / 14:30)の2回、当日の予想を採点し通算成績を更新する。
+# GitHubの定期実行は大きく遅延することがある(2026-07-08/09に2晩連続の実績)ため2回建て。
+# 採点は同一日付の上書き(冪等)なので、21:30に結果が出揃っていれば23:30は同じ内容になるだけ。
+# 21:30時点で未確定のレースがあっても23:30の回が全レース分で上書きする。
 on:
   schedule:
+    - cron: "30 12 * * *"
     - cron: "30 14 * * *"
   workflow_dispatch:
     inputs:
@@ -77,7 +81,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "変更なし"
           else
-            git commit -m "通算成績更新 $(date -u +%Y-%m-%d)"
+            git commit -m "通算成績更新 $(TZ=Asia/Tokyo date +%Y-%m-%d)"
             git pull --rebase --autostash || true
             git push
           fi
