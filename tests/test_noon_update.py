@@ -31,7 +31,7 @@ def _race(probs, venue_code=4, race_no=1):
         "weather": None,
         "ranked": ranked,
         "picks_a": a, "picks_b": b, "picks_c": c,
-        "bets": {"confidence": conf, "plan": P.ken_portfolio(conf, ranked, a, b, c)},
+        "bets": {"confidence": conf, "plan": P.ken_portfolio(conf, ranked, b, c)},
         "shobusho": None,
     }
 

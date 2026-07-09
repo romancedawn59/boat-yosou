@@ -4,10 +4,12 @@
 決着確率はHarville法: P(a-b-c) = pa * pb/(1-pa) * pc/(1-pa-pb)
 
 - A 石橋渡: 硬い予想。2連複・3連複の全組み合わせから発生確率上位5点
-- B 山田三連単: 3連単の全120通りから発生確率上位5点
+- B 山田三連単: 3連単の全120通りから発生確率上位10点
 - C 勝万舟: 万舟圏(発生確率0.5%以下)の3連単から確率上位5点
 - 予想屋ken: 3人の案を基に1レース1,000円のポートフォリオを構成。
   C案を必ず1点以上100円で購入、他は100〜400円単位。
+  2連複は購入しない(Aの2連複は判断材料。検証⑦: 3連複への置換で
+  標準83.3%→85.7%・ken全体は92.5%→92.4%と同水準のため採用)。
 """
 from itertools import combinations, permutations
 
@@ -72,10 +74,21 @@ def picks_ishibashi(probs: dict[int, float]) -> list[tuple[str, str, float]]:
 
 
 def picks_yamada(probs: dict[int, float]) -> list[tuple[str, str, float]]:
-    """B 山田三連単: 3連単の発生確率上位5点"""
+    """B 山田三連単: 3連単の発生確率上位10点(フォーメーション買いに近い形になる)"""
     tri = trifecta_probs(probs)
-    top = sorted(tri.items(), key=lambda x: -x[1])[:5]
+    top = sorted(tri.items(), key=lambda x: -x[1])[:10]
     return [("3連単", f"{a}-{b}-{c}", p) for (a, b, c), p in top]
+
+
+def trio_top(probs: dict[int, float], n: int = 2) -> list[tuple[str, float]]:
+    """3連複20通りの発生確率上位n点 [(組み合わせ, 確率)]"""
+    tri = trifecta_probs(probs)
+    agg: dict[str, float] = {}
+    for (a, b, c), p in tri.items():
+        s = sorted([a, b, c])
+        key = f"{s[0]}={s[1]}={s[2]}"
+        agg[key] = agg.get(key, 0.0) + p
+    return sorted(agg.items(), key=lambda x: -x[1])[:n]
 
 
 def picks_katsu(probs: dict[int, float]) -> list[tuple[str, str, float]]:
@@ -99,7 +112,6 @@ def bucket_of(top_prob: float) -> str:
 def ken_portfolio(
     confidence: str,
     ranked: list[dict],
-    a_picks: list[tuple[str, str, float]],
     b_picks: list[tuple[str, str, float]],
     c_picks: list[tuple[str, str, float]],
 ) -> list[tuple[str, str, int, str]]:
@@ -107,7 +119,8 @@ def ken_portfolio(
 
     - C勝万舟の案を必ず1点以上・100円で購入
     - 荒れ注意はウォークフォワード検証済みの構成(3連複軸1流し+3連単穴)を核に維持する
-    - 堅め・標準はA(堅い)を厚く、B(3連単)を添える
+    - 堅め・標準は3連複上位を厚く、B(3連単)を添える。2連複は購入しない
+      (Aの2連複は判断材料。検証⑦: 3連複置換で標準83.3%→85.7%)
     """
     lanes = [r["lane"] for r in ranked]
     if len(lanes) < 4 or not c_picks:
@@ -128,19 +141,22 @@ def ken_portfolio(
             ("3連単", f"{r3}-{r1}-{r2}", 200, "検証済み"),
             ("3連単", f"{r4}-{r1}-{r2}", 200, "検証済み"),
         ]
-    elif confidence == "堅め":
-        plan = [
-            (a_picks[0][0], a_picks[0][1], 400, "石橋"),
-            (a_picks[1][0], a_picks[1][1], 300, "石橋"),
-            (b_picks[0][0], b_picks[0][1], 200, "山田"),
-        ]
-    else:  # 標準
-        plan = [
-            (a_picks[0][0], a_picks[0][1], 300, "石橋"),
-            (a_picks[1][0], a_picks[1][1], 200, "石橋"),
-            (b_picks[0][0], b_picks[0][1], 200, "山田"),
-            (b_picks[1][0], b_picks[1][1], 200, "山田"),
-        ]
+    else:
+        probs = normalize_probs(ranked)
+        trios = trio_top(probs, 2)
+        if confidence == "堅め":
+            plan = [
+                ("3連複", trios[0][0], 400, "本線"),
+                ("3連複", trios[1][0], 300, "本線"),
+                (b_picks[0][0], b_picks[0][1], 200, "山田"),
+            ]
+        else:  # 標準
+            plan = [
+                ("3連複", trios[0][0], 300, "本線"),
+                ("3連複", trios[1][0], 200, "本線"),
+                (b_picks[0][0], b_picks[0][1], 200, "山田"),
+                (b_picks[1][0], b_picks[1][1], 200, "山田"),
+            ]
 
     # C勝万舟から、既にプランにある組み合わせと重複しない最初の1点を100円で追加
     existing = {(bt, comb) for bt, comb, _, _ in plan}

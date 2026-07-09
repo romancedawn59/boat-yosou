@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑦ B山田10点化とkenの2連複廃止(2026年5〜6月)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 860px; margin: auto; }
+  h1 { font-size: 1.2rem; margin: 10px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .adopt { background: #d6efff55; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+</style>
+</head>
+<body>
+<h1>検証⑦ B山田10点化とkenの2連複廃止(2026年5〜6月)</h1>
+<p class="note">実施: 2026-07-09 / 学習: 2026-05-01より前の230,366行 / 評価: 2026-05-01〜06-30の対象5場 1,883レース(検証⑤と同じ枠組み)</p>
+
+<div class="card">
+  <h2 style="margin-top:0">背景(ユーザー指示)</h2>
+  <ul style="font-size:.85rem">
+    <li>B山田三連単を5点→<b>10点</b>に増やす(確率上位10点。フォーメーション買いに近い形になる)</li>
+    <li>予想屋kenは<b>2連複を購入しない</b>。2連複は他の買い目の判断材料とする。
+        浮いた金額の使い道は複数案をバックテストで比較して決定</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">B山田: 5点 vs 10点(各点100円換算)</h2>
+  <table>
+    <tr><th>構成</th><th>区分</th><th class="num">レース数</th><th class="num">的中率</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>5点(旧)</td><td>全体</td><td class="num">1,883</td><td class="num">33.9%</td><td class="num neg">90.8%</td><td class="num neg">-86,530円</td></tr>
+    <tr><td>5点(旧)</td><td>荒れ注意</td><td class="num">260</td><td class="num">25.0%</td><td class="num pos">128.4%</td><td class="num pos">+36,870円</td></tr>
+    <tr class="adopt"><td>10点(採用)</td><td>全体</td><td class="num">1,883</td><td class="num">50.5%</td><td class="num neg">86.9%</td><td class="num neg">-246,500円</td></tr>
+    <tr class="adopt"><td>10点(採用)</td><td>荒れ注意</td><td class="num">260</td><td class="num">38.5%</td><td class="num pos">107.0%</td><td class="num pos">+18,020円</td></tr>
+  </table>
+  <p class="note">10点化で的中率は33.9%→50.5%に大きく向上する一方、回収率は90.8%→86.9%に低下
+  (賭け金が倍になり薄い目が加わるため)。<b>Bは参考予想(実購入はken)であり、
+  「2回に1回当たる」体感を優先するユーザー方針により10点を採用</b>。数字上は5点が優位である事実も記録しておく。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">ken構成案: 2連複の置き換え4案(荒れ注意=本命勝負所は全案共通・不変)</h2>
+  <table>
+    <tr><th>案</th><th class="num">全体</th><th class="num">堅め(見送り)</th><th class="num">標準(=準勝負所)</th><th class="num">荒れ注意(=本命)</th></tr>
+    <tr><td>現行(2連複あり)</td><td class="num">92.5%</td><td class="num">83.5%</td><td class="num">83.3%</td><td class="num pos">151.5%</td></tr>
+    <tr class="adopt"><td><b>V2 3連複上位に置換(採用)</b></td><td class="num">92.4%</td><td class="num">82.4%</td><td class="num pos">85.7%</td><td class="num pos">151.5%</td></tr>
+    <tr><td>V1 2連複軸+3艇目で3連複化</td><td class="num" colspan="4">V2と完全一致(2連複の軸2艇+最良3艇目=3連複上位と同組になるため)</td></tr>
+    <tr><td>V3 3連単(山田)厚め</td><td class="num">91.0%</td><td class="num">83.3%</td><td class="num neg">77.1%</td><td class="num pos">151.5%</td></tr>
+    <tr><td>V4 大穴(勝万舟)厚め</td><td class="num">86.6%</td><td class="num neg">74.2%</td><td class="num neg">78.7%</td><td class="num pos">151.5%</td></tr>
+  </table>
+  <p class="note">評価1,870レース(構成が組めた分)。<b>V2を採用</b>: 実際に購入する準勝負所(標準)が
+  83.3%→85.7%(+2.4pt)と最も改善し、ken全体も92.5%→92.4%と同水準を維持。
+  堅めは-1.1ptだが見送り(購入対象外)のため影響なし。V3/V4は標準が明確に悪化するため不採用。
+  本命勝負所(荒れ注意)の検証済み構成には一切手を触れていない。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">採用内容(2026-07-09実装)</h2>
+  <ul style="font-size:.85rem">
+    <li>B山田三連単: 3連単の発生確率上位<b>10点</b></li>
+    <li>ken堅め: 3連複上位2点(400/300円)+山田3連単(200円)+勝万舟(100円)</li>
+    <li>ken標準: 3連複上位2点(300/200円)+山田3連単2点(各200円)+勝万舟(100円)</li>
+    <li>ken荒れ注意: 変更なし(検証済み構成)</li>
+    <li>A石橋渡の2連複予想は従来通り表示する(kenの判断材料・参考)</li>
+  </ul>
+</div>
+
+<p class="note">⚠ 単一期間(5〜6月)での比較であり、標準+2.4ptは誤差の可能性もある。
+本命勝負所のエッジには影響しない変更のため採用したが、実戦成績(stats.html)で継続監視する。</p>
+</body>
+</html>

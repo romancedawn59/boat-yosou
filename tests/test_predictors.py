@@ -44,11 +44,19 @@ class TestPicks(unittest.TestCase):
         for bt, _, _ in picks:
             self.assertIn(bt, ("2連複", "3連複"))
 
-    def test_yamada_returns_top5_trifectas(self):
+    def test_yamada_returns_top10_trifectas(self):
         picks = P.picks_yamada(PROBS)
-        self.assertEqual(len(picks), 5)
+        self.assertEqual(len(picks), 10)
         self.assertEqual(picks[0][:2], ("3連単", "1-2-3"))
         self.assertTrue(all(bt == "3連単" for bt, _, _ in picks))
+        probs = [p for _, _, p in picks]
+        self.assertEqual(probs, sorted(probs, reverse=True))
+
+    def test_trio_top_returns_best_trios(self):
+        trios = P.trio_top(PROBS, 2)
+        self.assertEqual(len(trios), 2)
+        self.assertEqual(trios[0][0], "1=2=3")  # 本命3艇の3連複が最有力
+        self.assertGreaterEqual(trios[0][1], trios[1][1])
 
     def test_katsu_all_below_threshold(self):
         picks = P.picks_katsu(PROBS)
@@ -61,10 +69,9 @@ class TestPicks(unittest.TestCase):
 
 class TestKenPortfolio(unittest.TestCase):
     def _plans(self, confidence):
-        a = P.picks_ishibashi(PROBS)
         b = P.picks_yamada(PROBS)
         c = P.picks_katsu(PROBS)
-        return P.ken_portfolio(confidence, RANKED, a, b, c)
+        return P.ken_portfolio(confidence, RANKED, b, c)
 
     def test_total_is_1000_and_includes_katsu_100(self):
         for conf in ("堅め", "標準", "荒れ注意"):
@@ -88,10 +95,23 @@ class TestKenPortfolio(unittest.TestCase):
         self.assertIn(("3連複", "1=3=4"), combos)
         self.assertIn(("3連単", "3-1-2"), combos)
 
+    def test_no_quinella_in_any_plan(self):
+        # 2連複は判断材料であり購入しない(検証⑦で採用)
+        for conf in ("堅め", "標準", "荒れ注意"):
+            for bt, _, _, _ in self._plans(conf):
+                self.assertNotEqual(bt, "2連複", conf)
+
+    def test_katame_and_hyojun_use_top_trios(self):
+        for conf in ("堅め", "標準"):
+            plan = self._plans(conf)
+            trios = [(bt, comb) for bt, comb, _, src in plan if src == "本線"]
+            self.assertEqual(trios[0], ("3連複", "1=2=3"), conf)
+            self.assertEqual(len(trios), 2, conf)
+
     def test_short_field_returns_empty(self):
         short = _ranked([0.5, 0.3, 0.2])[:3]
         self.assertEqual(
-            P.ken_portfolio("標準", short, [], [], [("3連単", "1-2-3", 0.001)]), [])
+            P.ken_portfolio("標準", short, [], [("3連単", "1-2-3", 0.001)]), [])
 
 
 class TestShobusho(unittest.TestCase):

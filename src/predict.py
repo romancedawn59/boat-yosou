@@ -9,7 +9,7 @@
 
 予想の構成(predictors.py):
 - A 石橋渡: 堅い2連複・3連複を5点
-- B 山田三連単: 発生確率上位の3連単を5点
+- B 山田三連単: 発生確率上位の3連単を10点
 - C 勝万舟: 万舟圏(発生確率0.5%以下)から確率上位5点
 - 予想屋ken: 3人の案から1レース1,000円のポートフォリオ(C案を必ず100円以上含む)
 - 勝負所: 荒れ注意=本命(検証済みエッジ)+標準から補充の準、最大10レース/日
@@ -132,7 +132,7 @@ def predict_day(d: date) -> list[dict] | None:
         a = P.picks_ishibashi(probs) if len(probs) >= 4 else []
         b = P.picks_yamada(probs) if len(probs) >= 4 else []
         c = P.picks_katsu(probs) if len(probs) >= 4 else []
-        ken = P.ken_portfolio(confidence, ranked, a, b, c)
+        ken = P.ken_portfolio(confidence, ranked, b, c)
 
         races.append({
             "race_id": race_id,
