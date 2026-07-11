@@ -80,6 +80,27 @@ CREATE TABLE IF NOT EXISTS odds (
     PRIMARY KEY (race_id, bet_type, combination)
 );
 
+-- 確定最終オッズ(市場分析専用)。oddsテーブルの15分前スナップショット行を
+-- 上書きしないよう、最終オッズは必ずこちらに分離して保存する。
+-- test/collect_final_odds.py が過去日のオッズページから遡及取得して埋める。
+CREATE TABLE IF NOT EXISTS odds_final (
+    race_id      TEXT NOT NULL REFERENCES races(race_id),
+    bet_type     TEXT NOT NULL,   -- 3連単/3連複
+    combination  TEXT NOT NULL,   -- 例 "1-2-3" "1=3=5"
+    odds         REAL,
+    fetched_at   TEXT,
+    PRIMARY KEY (race_id, bet_type, combination)
+);
+
+-- 潮位(気象庁の潮位表=天文潮汐の推算値。検証⑩用、本番予測には使わない)。
+-- 1時間刻み。stationは気象庁の地点コード(TK=東京/NG=名古屋/OS=大阪/MO=門司)。
+CREATE TABLE IF NOT EXISTS tide (
+    station   TEXT NOT NULL,
+    datetime  TEXT NOT NULL,   -- YYYY-MM-DD HH:00:00 (JST)
+    level_cm  REAL,
+    PRIMARY KEY (station, datetime)
+);
+
 -- 直前情報(boatrace.jp直前情報ページ)。締切約20分前に確定する。
 -- 予測モデルには使わない(計測・保存のみ、将来の分析用)。
 CREATE TABLE IF NOT EXISTS exhibition (
@@ -103,6 +124,8 @@ _PK_COLS = {
     "payouts": ("race_id", "bet_type", "combination"),
     "exhibition": ("race_id", "lane"),
     "odds": ("race_id", "bet_type", "combination"),
+    "odds_final": ("race_id", "bet_type", "combination"),
+    "tide": ("station", "datetime"),
 }
 
 
@@ -160,3 +183,11 @@ def upsert_exhibition(conn, exhibition: dict):
 
 def upsert_odds(conn, odds_row: dict):
     _upsert(conn, "odds", odds_row)
+
+
+def upsert_odds_final(conn, odds_row: dict):
+    _upsert(conn, "odds_final", odds_row)
+
+
+def upsert_tide(conn, tide_row: dict):
+    _upsert(conn, "tide", tide_row)

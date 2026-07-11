@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑩ 潮汐特徴量の有効性(2026年5〜6月・検証のみ)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 860px; margin: auto; }
+  h1 { font-size: 1.2rem; margin: 10px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .adopt { background: #d6efff55; }
+  .reject { background: #ffebe955; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+  .verdict { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+             padding: 10px 12px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<h1>検証⑩ 潮汐特徴量の有効性(2026年5〜6月・検証のみ)</h1>
+<p class="note">実施: 2026-07-12 / 学習: 2026-05-01より前の255,997行 /
+評価: 2026-05-01〜06-30の対象5場 1,883レース(検証⑦⑧⑨と同じ枠組み)。
+<b>本検証は最初から「検証のみ」であり、結果が良くても本番導入はしない</b>(2026-09-01のv2判断材料)。</p>
+
+<div class="verdict"><b>判定: 効果なし(ノイズ)。</b>
+事前登録した予測「本物なら潮汐場(江戸川・平和島・若松)でのみ効き、対照場(常滑・尼崎)では効かない」に対し、
+実際は<b>潮汐場でも改善が出なかった</b>(江戸川-0.0021 / 平和島-0.0010 / 若松+0.0002のAUC差)。
+本命勝負所の回収率も152.6%→148.6%と微悪化。v2判断(2026-09-01)では「潮汐は現行特徴量の追加としては不要」が結論。</div>
+
+<div class="card">
+  <h2 style="margin-top:0">事前登録した反証可能な予測(実行前に固定)</h2>
+  <ul style="font-size:.85rem">
+    <li>場マスタ調査: 江戸川=汽水・河川 / 平和島=海水・運河 / 若松=海水・洞海湾直結 → <b>干満の影響あり(潮汐場)</b></li>
+    <li>常滑=水門で干満皆無 / 尼崎=淡水プール → <b>影響なし(対照場)</b></li>
+    <li>予測: 潮汐特徴量が本物なら、効果は潮汐3場でのみ現れ、対照2場では現れない。
+        5場一様に"効いた/悪化した"場合はノイズと判定する</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">データと特徴量</h2>
+  <ul style="font-size:.85rem">
+    <li>潮位データ: 気象庁「潮位表」(天文潮汐の推算値・決定論的)。2025〜2026年の4地点
+        (東京TK=江戸川・平和島 / 名古屋NG=常滑 / 大阪OS=尼崎 / 門司MO=若松)を
+        test/fetch_tide.py で一括取得し、tideテーブルに1時間刻みで70,080件格納。評価行の充足率100%</li>
+    <li>tide_level: 締切時刻の潮位(cm) / tide_delta: 1時間の潮位変化(正=上げ潮) /
+        tide_range_day: その日の潮位差(大潮・小潮の代理変数)</li>
+    <li>潮汐は事前に確定している推算値のためリークなし。対象5場以外の場はNaN(LightGBMの欠損分岐に委ねる)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">結果1: 事前登録予測の判定(場別AUC差 = tide − base)</h2>
+  <table>
+    <tr><th>場</th><th>区分</th><th class="num">base AUC</th><th class="num">tide AUC</th>
+        <th class="num">AUC差</th><th>予測との整合</th></tr>
+    <tr><td>江戸川</td><td>潮汐場</td><td class="num">0.7837</td><td class="num">0.7817</td>
+        <td class="num neg">-0.0021</td><td>改善するはずが悪化 ✗</td></tr>
+    <tr><td>平和島</td><td>潮汐場</td><td class="num">0.8012</td><td class="num">0.8001</td>
+        <td class="num neg">-0.0010</td><td>改善するはずが悪化 ✗</td></tr>
+    <tr><td>若松</td><td>潮汐場</td><td class="num">0.8467</td><td class="num">0.8469</td>
+        <td class="num">+0.0002</td><td>ほぼ変化なし ✗</td></tr>
+    <tr><td>常滑</td><td>対照場</td><td class="num">0.8711</td><td class="num">0.8709</td>
+        <td class="num">-0.0002</td><td>変化なし(予測どおり)</td></tr>
+    <tr><td>尼崎</td><td>対照場</td><td class="num">0.8887</td><td class="num">0.8890</td>
+        <td class="num">+0.0003</td><td>変化なし(予測どおり)</td></tr>
+  </table>
+  <p class="note">対照場が±0.0003以内なのは設計どおり(実験の妥当性を支持)。
+  しかし肝心の潮汐場で正の効果が出ず、最も潮の影響が強いはずの江戸川が最大の悪化。
+  「潮汐場でのみ効く」という仮説は棄却。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">結果2: 買い目成績(ken現行構成・参考)</h2>
+  <table>
+    <tr><th>区分</th><th>モデル</th><th class="num">レース数</th>
+        <th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr class="adopt"><td rowspan="2">本命勝負所</td><td>現行(base)</td><td class="num">257</td><td class="num pos">152.6%</td><td class="num pos">+134,950円</td></tr>
+    <tr class="reject"><td>+潮汐</td><td class="num">256</td><td class="num pos">148.6%</td><td class="num pos">+124,110円</td></tr>
+  </table>
+  <p class="note">全体AUCも0.8490→0.8488で改善なし。場別の荒れ注意回収率は
+  レース数が33〜74と少なく参考値(verify_tide_results.jsonに全数値を保存)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">結果3: 特徴量重要度(gain・31特徴量中)</h2>
+  <table>
+    <tr><th>特徴量</th><th class="num">gain比率</th><th class="num">順位</th></tr>
+    <tr><td>tide_level(締切時刻の潮位)</td><td class="num">0.08%</td><td class="num">27位</td></tr>
+    <tr><td>tide_delta(上げ潮/下げ潮)</td><td class="num">0.06%</td><td class="num">28位</td></tr>
+    <tr><td>tide_range_day(大潮/小潮)</td><td class="num">0.03%</td><td class="num">29位</td></tr>
+  </table>
+  <p class="note">3特徴量とも最下位圏。モデルはほぼ潮汐を使っておらず、わずかに使った分がノイズとして
+  買い目を微妙に揺らした——気象特徴量・進入コース特徴量(検証⑨)と同じ敗因。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">v2判断(2026-09-01)への引き継ぎ</h2>
+  <ul style="font-size:.85rem">
+    <li><b>結論: 潮汐(潮位・干満・大潮小潮)は現行の特徴量セットへの追加としては効果なし</b></li>
+    <li>ただし本検証が否定したのは「締切時刻の潮位を特徴量に足す」形のみ。
+        風×潮の交互作用や、江戸川の「うねり」発生条件のような局所仮説までは棄却していない</li>
+    <li>潮位データ(tideテーブル・70,080件)と取得の仕組み(test/fetch_tide.py)は資産として残る。
+        再検証は fetch_tide.py → verify_tide_features.py の2コマンド</li>
+    <li>本番(features.py・モデル・買い目構成)には一切手を加えていない(v1凍結中)</li>
+  </ul>
+</div>
+
+<p class="note">⚠ 単一期間(5〜6月)の検証。ただし対照群つきの事前登録予測を先に固定してから
+実行しており、「潮汐場でのみ改善」という支持パターンは観測されなかった。</p>
+</body>
+</html>
