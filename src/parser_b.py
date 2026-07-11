@@ -4,6 +4,24 @@ from db import make_race_id
 CLASS_NAMES = {1: "A1", 2: "A2", 3: "B1", 4: "B2"}
 
 
+def _extract_programs(data: dict) -> list[dict]:
+    """新旧両形式のJSONからprograms配列を取り出す。
+
+    上流BoatraceOpenAPIの2026-07-11変更(コミット「fix: include yesterday's data
+    in update process」)により、直近日付のJSONは
+    {"today": {"programs": [...]}, "yesterday": {"programs": [...]}} の
+    envelope形式で配信される(2026-07-09以前のアーカイブは旧形式のまま)。
+    各program行は自身のdateを持ちrace_idはそこから決まるため、
+    today/yesterday両ブランチを連結して返しても別日が混ざる問題はない。
+    """
+    if "programs" in data:
+        return data["programs"]  # 旧形式(確定アーカイブ)
+    programs: list[dict] = []
+    for branch in ("today", "yesterday"):
+        programs.extend((data.get(branch) or {}).get("programs", []))
+    return programs
+
+
 def parse_program(data: dict) -> dict:
     """戻り値: {"races": [race_dict, ...], "entries": [entry_dict, ...]}
 
@@ -12,7 +30,7 @@ def parse_program(data: dict) -> dict:
     races: list[dict] = []
     entries: list[dict] = []
 
-    for p in data.get("programs", []):
+    for p in _extract_programs(data):
         race_id = make_race_id(p["date"], p["stadium_number"], p["number"])
         races.append({
             "race_id": race_id,

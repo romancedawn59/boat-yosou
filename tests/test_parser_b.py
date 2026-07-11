@@ -128,6 +128,27 @@ class TestParseProgram(unittest.TestCase):
         parsed = parse_program({"programs": []})
         self.assertEqual(parsed, {"races": [], "entries": []})
 
+    def test_envelope_format_today_and_yesterday(self):
+        """上流の2026-07-11変更: 直近日付は{"today":…,"yesterday":…}のenvelope形式。
+
+        両ブランチのprogramsを取り込み、race_idは各行のdateから正しく決まること。
+        """
+        yesterday_program = dict(PROGRAM_FIXTURE["programs"][0], date="2024-05-31")
+        fixture = {
+            "today": {"programs": PROGRAM_FIXTURE["programs"]},
+            "yesterday": {"programs": [yesterday_program]},
+        }
+        parsed = parse_program(fixture)
+        self.assertEqual([r["race_id"] for r in parsed["races"]],
+                         ["20240601_02_01", "20240531_02_01"])
+        self.assertEqual(len(parsed["entries"]), 4)  # 2枠×2日分
+
+    def test_envelope_format_missing_branch(self):
+        # yesterdayブランチが無い/空でも落ちない
+        parsed = parse_program({"today": {"programs": PROGRAM_FIXTURE["programs"]},
+                                "yesterday": None})
+        self.assertEqual(len(parsed["races"]), 1)
+
     def test_null_racer_boat_is_skipped(self):
         """選手未確定(全項目null)の枠はentriesに含めない。レース行は残す"""
         fixture = {
