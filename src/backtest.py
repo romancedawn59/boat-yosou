@@ -5,6 +5,8 @@
 2025-12-01以降をN_FOLDS個の期間に分割し、各期間について
 「その期間より前のデータだけで学習したモデル」で予測して買い目のROIを計測する。
 予算は1レース1000円、100円単位で均等配分(余りは先頭の目に上乗せ)、再投資なし。
+「ken現行構成」のみpredictors.ken_portfolioのplan実額で計算する(実運用と同じ買い方)。
+集計は実運用の5場(config.TARGET_VENUE_CODES)と全24場の両スコープで出力する。
 """
 from collections import defaultdict
 
@@ -12,7 +14,8 @@ import lightgbm as lgb
 import pandas as pd
 
 import db
-from config import DB_PATH
+import predictors as P
+from config import DB_PATH, TARGET_VENUE_CODES
 from features import CATEGORICAL_FEATURES, FEATURE_COLUMNS, build_training_set
 
 TEST_START = "2025-12-01"
@@ -28,6 +31,14 @@ PARAMS = {
 }
 
 BUCKETS = ("堅め", "標準", "荒れ注意")
+
+# 集計スコープ。実運用は5場(TARGET_VENUE_CODES)のみ買うため、
+# 全24場の数字だけでは実際の売り方と乖離する。両方を集計して出力する
+SCOPES = ("5場", "全場")
+
+# 実運用のken構成(predictors.ken_portfolio)。plan実額で払戻を計算するため
+# strategies()の均等配分とは別枠で扱う
+KEN_STRATEGY = "ken現行構成"
 
 
 def bucket_of(top_prob: float) -> str:
@@ -109,7 +120,7 @@ def main():
     fold_size = len(dates) // N_FOLDS
     boundaries = [dates[i * fold_size] for i in range(N_FOLDS)] + [dates[-1] + "z"]
 
-    # {(バケット, 戦略): [投資, 回収, レース数, 的中数]}
+    # {(スコープ, バケット, 戦略): [投資, 回収, レース数, 的中数]}
     total = defaultdict(lambda: [0, 0, 0, 0])
 
     for i in range(N_FOLDS):
@@ -124,37 +135,65 @@ def main():
         for rid, g in fold_df.groupby("race_id"):
             if 1 not in actual[rid]:
                 continue
-            ranked = g.sort_values("pred", ascending=False)["lane"].astype(int).tolist()
+            g_sorted = g.sort_values("pred", ascending=False)
+            ranked = g_sorted["lane"].astype(int).tolist()
             b = bucket_of(g["pred"].max())
+            # 実運用の対象5場のレースは「5場」「全場」の両スコープに計上する
+            scopes = ["全場"]
+            if int(g["venue_code"].iloc[0]) in TARGET_VENUE_CODES:
+                scopes.append("5場")
+
+            def add(name, stake, ret):
+                for stat in (fold_stat, total):
+                    for scope in scopes:
+                        s = stat[(scope, b, name)]
+                        s[0] += stake
+                        s[1] += ret
+                        s[2] += 1
+                        s[3] += 1 if ret else 0
+
             for name, bets in strategies(ranked).items():
                 alloc = allocate(len(bets))
                 ret = sum(
                     payout_map[rid].get((bt, comb), 0) * stake // 100
                     for (bt, comb), stake in zip(bets, alloc)
                 )
-                for stat in (fold_stat, total):
-                    s = stat[(b, name)]
-                    s[0] += sum(alloc)
-                    s[1] += ret
-                    s[2] += 1
-                    s[3] += 1 if ret else 0
+                add(name, sum(alloc), ret)
+
+            # 実際に売っているken構成(V2+C)をそのまま評価。払戻はplanの実額で計算
+            ranked_dicts = [{"lane": int(r["lane"]), "prob": float(r["pred"])}
+                            for _, r in g_sorted.iterrows()]
+            probs = P.normalize_probs(ranked_dicts)
+            if probs:
+                plan = P.ken_portfolio(
+                    b, ranked_dicts, P.picks_yamada(probs), P.picks_katsu(probs))
+                if plan:
+                    ret = sum(
+                        payout_map[rid].get((bt, comb), 0) * yen // 100
+                        for bt, comb, yen, _src in plan
+                    )
+                    add(KEN_STRATEGY, sum(yen for _, _, yen, _ in plan), ret)
 
         period = f"{f_start}〜{fold_df['date'].max()}"
-        n_are = fold_stat[('荒れ注意', '3連複軸1流し3点')][2]
+        n_are = fold_stat[("全場", "荒れ注意", "3連複軸1流し3点")][2]
         print(f"\n--- fold{i+1} {period} (学習 {len(train_df):,}行 / 荒れ注意 {n_are}レース) ---")
-        for name in ("3連複軸1流し3点", "3連単F6点", "3連単穴2点(3,4位頭)", "推奨:3連複流し600+穴400"):
-            s = fold_stat[("荒れ注意", name)]
+        for name in ("3連複軸1流し3点", "3連単F6点", "3連単穴2点(3,4位頭)",
+                     "推奨:3連複流し600+穴400", KEN_STRATEGY):
+            s = fold_stat[("全場", "荒れ注意", name)]
             if s[0]:
                 print(f"  荒れ注意 {name:<22} 的中 {s[3]/s[2]:6.1%}  回収率 {s[1]/s[0]:7.1%}")
 
-    print("\n===== 全fold合計 (バケット × 戦略) =====")
-    for b in BUCKETS:
-        n = next((total[(b, k)][2] for k in strategies([1, 2, 3, 4]) if total[(b, k)][2]), 0)
-        print(f"\n[{b}] {n}レース")
-        for name in strategies([1, 2, 3, 4]):
-            stake, ret, races, hits = total[(b, name)]
-            if stake:
-                print(f"  {name:<24} 的中 {hits/races:6.1%}  回収率 {ret/stake:7.1%}  損益 {ret-stake:+,}円")
+    strategy_names = [*strategies([1, 2, 3, 4]), KEN_STRATEGY]
+    for scope in SCOPES:
+        print(f"\n===== 全fold合計 [{scope}] (バケット × 戦略) =====")
+        for b in BUCKETS:
+            n = next((total[(scope, b, k)][2] for k in strategy_names
+                      if total[(scope, b, k)][2]), 0)
+            print(f"\n[{b}] {n}レース")
+            for name in strategy_names:
+                stake, ret, races, hits = total[(scope, b, name)]
+                if stake:
+                    print(f"  {name:<24} 的中 {hits/races:6.1%}  回収率 {ret/stake:7.1%}  損益 {ret-stake:+,}円")
 
 
 if __name__ == "__main__":

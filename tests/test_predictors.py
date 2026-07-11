@@ -114,6 +114,38 @@ class TestKenPortfolio(unittest.TestCase):
             P.ken_portfolio("標準", short, [], [("3連単", "1-2-3", 0.001)]), [])
 
 
+class TestFlatProbsRegression(unittest.TestCase):
+    """確率が平坦なレースはC候補が0点になりうるが、kenプランは消えないこと(回帰テスト)。
+
+    以前は ken_portfolio がC空でプラン全体を[]にし、最も荒れたレースが
+    勝負所から静かに脱落するバグがあった。
+    """
+
+    FLAT = _ranked([0.20, 0.18, 0.17, 0.16, 0.15, 0.14])
+    NORMAL = _ranked([0.30, 0.22, 0.16, 0.13, 0.10, 0.09])
+
+    def test_flat_probs_make_katsu_empty(self):
+        # 全120通りが万舟圏の閾値(0.005)を超えるためC候補は0点になる
+        probs = P.normalize_probs(self.FLAT)
+        self.assertEqual(P.picks_katsu(probs), [])
+
+    def test_ken_returns_900yen_plan_without_katsu(self):
+        probs = P.normalize_probs(self.FLAT)
+        plan = P.ken_portfolio("荒れ注意", self.FLAT, P.picks_yamada(probs), [])
+        self.assertEqual(len(plan), 5)  # 検証済み5点構成は維持される
+        self.assertEqual(sum(y for _, _, y, _ in plan), 900)
+        self.assertTrue(all(src == "検証済み" for _, _, _, src in plan))
+
+    def test_normal_probs_keep_6point_1000yen_plan(self):
+        probs = P.normalize_probs(self.NORMAL)
+        c = P.picks_katsu(probs)
+        self.assertTrue(c)  # 通常の荒れレースではC候補あり
+        plan = P.ken_portfolio("荒れ注意", self.NORMAL, P.picks_yamada(probs), c)
+        self.assertEqual(len(plan), 6)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 1)
+
+
 class TestShobusho(unittest.TestCase):
     def _race(self, conf, top_prob, has_plan=True):
         return {

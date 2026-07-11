@@ -8,13 +8,46 @@
   採点・アーカイブには一切影響しない(HTMLページだけを再生成する)
 - 取得したオッズはDBに保存しない(15分前スナップショットの蓄積データと分離するため)
 """
+import json
 import sys
 from datetime import date, datetime
 
 import odds as odds_mod
 import predict
 import predictors as P
-from config import JST, PAGES_URL, VENUE_NAMES, jst_today
+from config import JST, PAGES_URL, PROJECT_DIR, VENUE_NAMES, jst_today
+
+
+def _apply_morning_picks(races: list[dict], d: date) -> bool:
+    """朝のワークフローが出力した picks JSON を正として予測表示を上書きする。
+
+    noonは predict_day() で予測を再計算するため、scheduleの遅延で朝の予想より
+    先に走ると、古いDB由来の予測で勝負所判定が朝版(=採点対象)とズレたページを
+    公開しうる。picks JSONが見つかればそちらの判定・買い目で固定する。
+    見つからなければFalseを返し、呼び出し側は再計算表示にフォールバックする。
+    """
+    candidates = [
+        predict.SITE_DIR / "data" / f"picks_{d.isoformat()}.json",
+        PROJECT_DIR / "docs" / "data" / f"picks_{d.isoformat()}.json",
+    ]
+    path = next((p for p in candidates if p.exists()), None)
+    if path is None:
+        return False
+
+    picks = json.loads(path.read_text(encoding="utf-8"))
+    by_id = {r["race_id"]: r for r in picks.get("races", [])}
+    for race in races:
+        m = by_id.get(race["race_id"])
+        if m is None:
+            continue  # 朝版にないレースは再計算値のまま
+        race["bets"]["confidence"] = m["confidence"]
+        race["shobusho"] = m["shobusho"]
+        race["bets"]["plan"] = [tuple(x) for x in m["ken"]]
+        race["picks_a"] = [tuple(x) for x in m["a"]]
+        race["picks_b"] = [tuple(x) for x in m["b"]]
+        race["picks_c"] = [tuple(x) for x in m["c"]]
+    print(f"朝のpicks JSONを反映: {path}")
+    return True
 
 
 def build_odds_view(race: dict, odds_data: dict, fetched_label: str) -> dict:
@@ -73,6 +106,10 @@ def run(d: date, include_all: bool = False) -> bool:
     if races is None:
         print(f"{d}: 対象5場はすべて非開催。")
         return False
+
+    if not _apply_morning_picks(races, d):
+        print(f"警告: 朝のpicks JSON(picks_{d.isoformat()}.json)が見つからないため、"
+              "再計算した予測で表示します(勝負所判定が朝版とズレる可能性あり)")
 
     now = datetime.now(JST)
     fetched_label = now.strftime("%H:%M")

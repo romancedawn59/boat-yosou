@@ -14,7 +14,7 @@ from datetime import date, datetime, timedelta
 import db
 import exhibition
 import odds as odds_mod
-from config import DB_PATH, TARGET_VENUE_CODES
+from config import DB_PATH, JST, TARGET_VENUE_CODES
 
 LOOKAHEAD_MIN = 15  # 締切のこの分数前から取得対象(展示は締切約20分前に確定済み)
 
@@ -85,4 +85,6 @@ def collect_today(today: date, now: datetime) -> None:
 
 
 if __name__ == "__main__":
-    collect_today(date.today(), datetime.now())
+    # クラウドランナーはUTC。deadline_timeはnaive(JST)文字列のためnaiveに揃えて渡す
+    now = datetime.now(JST).replace(tzinfo=None)
+    collect_today(now.date(), now)

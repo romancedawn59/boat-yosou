@@ -59,8 +59,7 @@ class TestJobImplementations(unittest.TestCase):
         mock_predict = MagicMock()
         fixed_today = date(2026, 7, 20)
         with patch.dict(sys.modules, {"predict": mock_predict}), \
-             patch("scheduled_runner.date") as mock_date:
-            mock_date.today.return_value = fixed_today
+             patch("scheduled_runner.jst_today", return_value=fixed_today):
             scheduled_runner.run_predict()
 
         mock_predict.run.assert_called_once_with(fixed_today)

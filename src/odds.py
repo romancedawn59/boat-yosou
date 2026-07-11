@@ -16,10 +16,6 @@ from config import USER_AGENT
 _URL_3T = "https://www.boatrace.jp/owpc/pc/race/odds3t?rno={rno}&jcd={jcd:02d}&hd={ymd}"
 _URL_3F = "https://www.boatrace.jp/owpc/pc/race/odds3f?rno={rno}&jcd={jcd:02d}&hd={ymd}"
 
-# tbody内のセル: rowspan付き=2着艇(グループ先頭)、艇番セル、オッズセル
-_TD_PATTERN = re.compile(
-    r'<td[^>]*?(rowspan="\d+")?[^>]*class="([^"]*)"[^>]*>([^<]*)</td>')
-
 
 def _fetch(url: str) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})

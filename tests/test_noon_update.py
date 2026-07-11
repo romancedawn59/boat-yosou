@@ -1,12 +1,17 @@
+import json
 import sys
 import unittest
 from datetime import date
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+import noon_update
+import predict
 import predictors as P
-from noon_update import build_notify_text, build_odds_view
+from noon_update import _apply_morning_picks, build_notify_text, build_odds_view
 from predict import _render_odds_pane, render_venue_page
 
 
@@ -95,6 +100,73 @@ class TestNotifyText(unittest.TestCase):
         self.assertIn("平和島", text)
         self.assertNotIn("常滑", text)
         self.assertIn("1レース", text)
+
+
+class TestApplyMorningPicks(unittest.TestCase):
+    """朝のpicks JSONによる表示固定(schedule遅延でnoonが朝より先に走った場合の対策)"""
+
+    def setUp(self):
+        self.tmpdir = TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        root = Path(self.tmpdir.name)
+        self.site_dir = root / "site"
+        self.project_dir = root / "project"
+        for p in (patch.object(predict, "SITE_DIR", self.site_dir),
+                  patch.object(noon_update, "PROJECT_DIR", self.project_dir)):
+            p.start()
+            self.addCleanup(p.stop)
+        self.d = date(2026, 7, 5)
+        self.race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
+
+    def _morning_entry(self, race_id):
+        return {
+            "race_id": race_id,
+            "venue_code": 4,
+            "race_no": 1,
+            "confidence": "荒れ注意",
+            "shobusho": "本命",
+            "a": [["2連複", "1=2", 0.3]],
+            "b": [["3連単", "1-2-3", 0.1]],
+            "c": [["3連単", "6-5-4", 0.004]],
+            "ken": [["3連複", "1=2=3", 200, "検証済み"]],
+        }
+
+    def _write_picks(self, base_dir, entries):
+        data_dir = base_dir / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        (data_dir / f"picks_{self.d.isoformat()}.json").write_text(
+            json.dumps({"date": self.d.isoformat(), "races": entries}, ensure_ascii=False),
+            encoding="utf-8")
+
+    def test_returns_false_when_json_missing(self):
+        self.assertFalse(_apply_morning_picks([self.race], self.d))
+
+    def test_overwrites_from_site_data(self):
+        self._write_picks(self.site_dir, [self._morning_entry(self.race["race_id"])])
+        self.assertTrue(_apply_morning_picks([self.race], self.d))
+        self.assertEqual(self.race["bets"]["confidence"], "荒れ注意")
+        self.assertEqual(self.race["shobusho"], "本命")
+        self.assertEqual(self.race["bets"]["plan"], [("3連複", "1=2=3", 200, "検証済み")])
+        self.assertEqual(self.race["picks_a"], [("2連複", "1=2", 0.3)])
+        self.assertEqual(self.race["picks_b"], [("3連単", "1-2-3", 0.1)])
+        self.assertEqual(self.race["picks_c"], [("3連単", "6-5-4", 0.004)])
+
+    def test_falls_back_to_docs_data(self):
+        # reports/site/data に無ければ docs/data(公開済みの朝版)を使う
+        self._write_picks(self.project_dir / "docs", [self._morning_entry(self.race["race_id"])])
+        self.assertTrue(_apply_morning_picks([self.race], self.d))
+        self.assertEqual(self.race["shobusho"], "本命")
+
+    def test_unknown_race_id_keeps_recomputed_values(self):
+        self._write_picks(self.site_dir, [self._morning_entry("20260705_08_01")])
+        before_conf = self.race["bets"]["confidence"]
+        before_plan = list(self.race["bets"]["plan"])
+        before_c = list(self.race["picks_c"])
+        self.assertTrue(_apply_morning_picks([self.race], self.d))
+        self.assertEqual(self.race["bets"]["confidence"], before_conf)
+        self.assertEqual(self.race["bets"]["plan"], before_plan)
+        self.assertEqual(self.race["picks_c"], before_c)
+        self.assertIsNone(self.race["shobusho"])
 
 
 class TestTabsRendering(unittest.TestCase):

@@ -9,7 +9,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import db
-from config import DB_PATH, DEFAULT_LOOKBACK_DAYS
+from config import DB_PATH, DEFAULT_LOOKBACK_DAYS, jst_today
 from downloader import download_day
 from parser_b import parse_program
 from parser_k import parse_result
@@ -80,7 +80,9 @@ def auto_range() -> tuple[date, date, bool]:
     収集済みなら最終日から(当日途中の不完全データを取り直すため同日を強制再取得)、
     未収集ならresultsの保持期間ぶんだけ遡る。
     """
-    today = date.today()
+    # クラウドランナーはUTC。date.today()は0:00〜8:59 JSTに前日を返し、
+    # 当日分が収集済みだと start > end で空振りするため必ずJSTで判定する
+    today = jst_today()
     conn = db.connect(DB_PATH)
     row = conn.execute("SELECT MAX(date) FROM races").fetchone()
     conn.close()
