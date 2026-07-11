@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑧ C勝万舟0点バグ修正後の再検証(2026年5〜6月)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 860px; margin: auto; }
+  h1 { font-size: 1.2rem; margin: 10px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .adopt { background: #d6efff55; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+</style>
+</head>
+<body>
+<h1>検証⑧ C勝万舟0点でkenプランが消えるバグ修正後の再検証(2026年5〜6月)</h1>
+<p class="note">実施: 2026-07-12 / 学習: 2026-05-01より前の255,997行 /
+評価: 2026-05-01〜06-30の対象5場 1,883レース(検証⑦と同じ枠組み)</p>
+
+<div class="card">
+  <h2 style="margin-top:0">背景(バグの内容)</h2>
+  <ul style="font-size:.85rem">
+    <li>ken_portfolioは「C勝万舟が0点だとプラン全体を空にする」ガードを持っていた</li>
+    <li>確率が平坦なレース(例: 1位20%)では3連単全120通りが万舟圏の閾値0.5%を超え、C候補が0点になる</li>
+    <li>その結果、<b>最も荒れそうなレースほどプランが消え、勝負所から静かに脱落</b>していた</li>
+    <li>修正後: C空でも検証済み5点構成(計900円)を返す。予想ロジック自体(モデル・構成)は無変更</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">バグの影響規模(5〜6月・5場 1,883レース中)</h2>
+  <table>
+    <tr><th>項目</th><th class="num">件数</th></tr>
+    <tr><td>C候補0点(バグでプラン消失していた)レース</td><td class="num">9件
+      (荒れ注意6/標準2/堅め1)</td></tr>
+    <tr><td>本命勝負所のレース数: 修正前 → 修正後</td><td class="num">251R → 257R</td></tr>
+    <tr><td>修正で本命勝負所に加わったレース</td><td class="num">6件</td></tr>
+    <tr><td>本命枠増加により準勝負所から外れたレース</td><td class="num">4件</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">勝負所の成績: 修正前 vs 修正後(ken現行構成・plan実額)</h2>
+  <table>
+    <tr><th>構成</th><th>区分</th><th class="num">レース数</th><th class="num">的中率</th>
+        <th class="num">投資</th><th class="num">回収</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>修正前</td><td>本命</td><td class="num">251</td><td class="num">44.6%</td><td class="num">251,000円</td><td class="num">380,310円</td><td class="num pos">151.5%</td><td class="num pos">+129,310円</td></tr>
+    <tr class="adopt"><td>修正後</td><td>本命</td><td class="num">257</td><td class="num">45.1%</td><td class="num">256,400円</td><td class="num">391,350円</td><td class="num pos">152.6%</td><td class="num pos">+134,950円</td></tr>
+    <tr><td>修正前</td><td>準</td><td class="num">241</td><td class="num">38.2%</td><td class="num">241,000円</td><td class="num">247,840円</td><td class="num pos">102.8%</td><td class="num pos">+6,840円</td></tr>
+    <tr class="adopt"><td>修正後</td><td>準</td><td class="num">237</td><td class="num">37.6%</td><td class="num">237,000円</td><td class="num">232,250円</td><td class="num neg">98.0%</td><td class="num neg">-4,750円</td></tr>
+  </table>
+  <p class="note">推奨運用は「本命勝負所のみ購入」。修正前の数字は
+  「C空レースのプランが消えたまま勝負所を選定した場合」のシミュレーション。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">修正で本命勝負所に加わったレースの明細(6件・損益計 +5,640円)</h2>
+  <table>
+    <tr><th>日付</th><th>レース</th><th class="num">1位勝率</th><th>理由</th>
+        <th class="num">結果(1-2-3着)</th><th class="num">投資</th><th class="num">回収</th><th class="num">損益</th></tr>
+    <tr><td>2026-05-01</td><td>若松1R</td><td class="num">12.7%</td><td>C空</td><td class="num">2-5-3</td><td class="num">900円</td><td class="num">920円</td><td class="num pos">+20円</td></tr><tr><td>2026-05-07</td><td>平和島6R</td><td class="num">25.0%</td><td>C空</td><td class="num">5-2-1</td><td class="num">900円</td><td class="num">1,840円</td><td class="num pos">+940円</td></tr><tr><td>2026-05-15</td><td>尼崎5R</td><td class="num">14.8%</td><td>C空</td><td class="num">4-6-5</td><td class="num">900円</td><td class="num">0円</td><td class="num neg">-900円</td></tr><tr><td>2026-05-31</td><td>常滑4R</td><td class="num">17.2%</td><td>C空</td><td class="num">2-5-6</td><td class="num">900円</td><td class="num">240円</td><td class="num neg">-660円</td></tr><tr><td>2026-06-05</td><td>江戸川10R</td><td class="num">8.6%</td><td>C空</td><td class="num">5-4-6</td><td class="num">900円</td><td class="num">8,040円</td><td class="num pos">+7,140円</td></tr><tr><td>2026-06-17</td><td>尼崎11R</td><td class="num">11.6%</td><td>C空</td><td class="num">5-3-6</td><td class="num">900円</td><td class="num">0円</td><td class="num neg">-900円</td></tr>
+  </table>
+  <p class="note">「C空」=バグでプラン消失していたレース(投資900円)。
+  「枠繰上り」=C空レースの脱落で繰り上がっていた選定が変わったレース。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">参考: バケット別 ken現行構成の全体成績(5場・勝負所以外も含む)</h2>
+  <table>
+    <tr><th>バケット</th><th class="num">レース数</th><th class="num">的中率</th>
+        <th class="num">投資</th><th class="num">回収</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><td>堅め</td><td class="num">1181</td><td class="num">45.0%</td><td class="num">1,180,900円</td><td class="num">973,490円</td><td class="num neg">82.4%</td><td class="num neg">-207,410円</td></tr><tr><td>標準</td><td class="num">441</td><td class="num">38.1%</td><td class="num">440,800円</td><td class="num">379,860円</td><td class="num neg">86.2%</td><td class="num neg">-60,940円</td></tr><tr><td>荒れ注意</td><td class="num">257</td><td class="num">45.1%</td><td class="num">256,400円</td><td class="num">391,350円</td><td class="num pos">152.6%</td><td class="num pos">+134,950円</td></tr>
+  </table>
+  <p class="note">堅め・標準は見送り(準勝負所への補充を除く)が推奨運用。荒れ注意=本命勝負所のエッジが本体。</p>
+</div>
+
+<p class="note">⚠ 単一期間(5〜6月)の検証であり、修正で加わるレースは今後も1日0〜1件程度の低頻度。
+全レースの修正後予想の明細は predictions_202605-06_c_empty_fix.csv に保存。
+なお修正2〜4(UTC日付/noon朝版固定/backtest集計)は予想内容に影響しないため、本検証は修正1の影響を測定したもの。</p>
+</body>
+</html>

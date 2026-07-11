@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑨ 進入コース特徴量(イン屋/アウト屋傾向)の有効性(2026年5〜6月)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 860px; margin: auto; }
+  h1 { font-size: 1.2rem; margin: 10px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .adopt { background: #d6efff55; }
+  .reject { background: #ffebe955; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+  .verdict { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+             padding: 10px 12px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<h1>検証⑨ 進入コース特徴量(イン屋/アウト屋傾向)の有効性(2026年5〜6月)</h1>
+<p class="note">実施: 2026-07-12 / 学習: 2026-05-01より前の255,997行 /
+評価: 2026-05-01〜06-30の対象5場 1,883レース(検証⑦⑧と同じ枠組み)</p>
+
+<div class="verdict"><b>判定: 不採用(経過観察)。</b>
+モデル精度は横ばい(AUC 0.8490→0.8488)なのに、実際に買う本命勝負所の回収率が
+152.6%→142.8%(-9.8pt)、最大1発を除くと98.2%→88.7%と明確に悪化した。
+データ(results.course)は日次収集で自動蓄積が続くため、数ヶ月後にデータが増えた時点で
+<code>py -X utf8 test/verify_course_features.py</code> の再実行だけで再検証できる。</div>
+
+<div class="card">
+  <h2 style="margin-top:0">背景とデータ状況</h2>
+  <ul style="font-size:.85rem">
+    <li>現行モデルは枠番(lane)しか見ておらず、選手のコース取り傾向(イン屋/アウト屋)は特徴量にない</li>
+    <li>results.course(実際の進入コース)は<b>収集済み: 325,173件・充足率98.1%・期間2025-07-15〜2026-07-11</b>。
+        枠番≠コース(前づけ等)は全スタートの9.4%</li>
+    <li>コース別1着率(学習期間): 1コース55.8% / 2コース13.2% / 3コース13.1% / 4コース10.7% / 5コース6.4% / 6コース2.0%</li>
+    <li>当日の進入コースはレース前に分からないため、使えるのは「選手の過去のコース取り傾向」のみ
+        (features.pyの方針「results由来の当日情報は使わない」に抵触しない設計)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">追加した特徴量4つ(いずれもリーク防止: 各行はその行より前のレースのみ参照)</h2>
+  <table>
+    <tr><th>特徴量</th><th>内容</th></tr>
+    <tr><td>form_course_diff</td><td>直近20走の平均(進入コース − 枠番)。負=前づけ(イン屋)</td></tr>
+    <tr><td>form_course_attack_rate</td><td>直近20走の前づけ率(コース&lt;枠番の割合)</td></tr>
+    <tr><td>form_course_edge</td><td>直近20走の平均(取ったコースの全国1着率 − 枠番の全国1着率)。コース取りで得ている勝率上の有利さ</td></tr>
+    <tr><td>form_lane_avg_course</td><td>この枠番からの過去平均進入コース(選手×枠番)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">モデル精度: 現行28特徴量 vs +コース4特徴量(32)</h2>
+  <table>
+    <tr><th>モデル</th><th class="num">AUC</th><th class="num">1位的中率</th></tr>
+    <tr class="adopt"><td>現行(base)</td><td class="num">0.8490</td><td class="num">56.6%</td></tr>
+    <tr class="reject"><td>+コース特徴量</td><td class="num">0.8488</td><td class="num">56.6%</td></tr>
+  </table>
+  <p class="note">予測精度そのものは完全に横ばい。既存のform_lane_win_rate(選手×枠番の過去1着率)が
+  コース取りの結果をすでに間接的に捉えているとみられる。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">買い目成績(ken現行構成・plan実額・5場)</h2>
+  <table>
+    <tr><th>区分</th><th>モデル</th><th class="num">レース数</th><th class="num">的中率</th>
+        <th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr class="adopt"><td rowspan="2">本命勝負所</td><td>現行</td><td class="num">257</td><td class="num">45.1%</td><td class="num pos">152.6%</td><td class="num pos">+134,950円</td></tr>
+    <tr class="reject"><td>+コース</td><td class="num">259</td><td class="num">42.5%</td><td class="num pos">142.8%</td><td class="num pos">+110,540円</td></tr>
+    <tr class="adopt"><td rowspan="2">本命(最大1発除く)※</td><td>現行</td><td class="num">256</td><td class="num">44.9%</td><td class="num neg">98.2%</td><td class="num neg">-4,690円</td></tr>
+    <tr class="reject"><td>+コース</td><td class="num">258</td><td class="num">42.2%</td><td class="num neg">88.7%</td><td class="num neg">-29,000円</td></tr>
+    <tr><td rowspan="2">準勝負所</td><td>現行</td><td class="num">237</td><td class="num">37.6%</td><td class="num neg">98.0%</td><td class="num neg">-4,750円</td></tr>
+    <tr><td>+コース</td><td class="num">237</td><td class="num">41.4%</td><td class="num neg">94.1%</td><td class="num neg">-13,980円</td></tr>
+    <tr><td rowspan="2">荒れ注意(全体)</td><td>現行</td><td class="num">257</td><td class="num">—</td><td class="num pos">152.6%</td><td class="num pos">+134,950円</td></tr>
+    <tr><td>+コース</td><td class="num">262</td><td class="num">—</td><td class="num pos">141.9%</td><td class="num pos">+109,460円</td></tr>
+    <tr><td rowspan="2">堅め(見送り)</td><td>現行</td><td class="num">1,181</td><td class="num">—</td><td class="num neg">82.4%</td><td class="num neg">-207,410円</td></tr>
+    <tr><td>+コース</td><td class="num">1,180</td><td class="num">—</td><td class="num neg">77.9%</td><td class="num neg">-260,310円</td></tr>
+  </table>
+  <p class="note">※最大1発 = 2026-05-14 常滑4R(払戻140,540円)。両モデルとも同レースを的中しており、
+  これを除いた「地力」の比較で現行98.2% vs +コース88.7%と差が開く。<br>
+  月別の本命回収率: 現行 5月219.9%/6月94.8%、+コース 5月207.5%/6月83.5%(両月とも現行が上)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">新特徴量の重要度(gain・32特徴量中)</h2>
+  <table>
+    <tr><th>特徴量</th><th class="num">gain比率</th><th class="num">順位</th></tr>
+    <tr><td>form_lane_avg_course</td><td class="num">1.13%</td><td class="num">10位</td></tr>
+    <tr><td>form_course_diff</td><td class="num">0.36%</td><td class="num">21位</td></tr>
+    <tr><td>form_course_edge</td><td class="num">0.19%</td><td class="num">24位</td></tr>
+    <tr><td>form_course_attack_rate</td><td class="num">0.08%</td><td class="num">30位</td></tr>
+  </table>
+  <p class="note">form_lane_avg_courseは10位に入るが、AUCが上がらないまま買い目の回収率だけ悪化しており、
+  既存特徴量と重複する情報でモデルの確率出力が微妙に変わった(=ノイズ)と判断。
+  気象特徴量の検証(重要度は低くないが回収率悪化→不採用)と同じパターン。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">経過観察の運用(今回の成果物)</h2>
+  <ul style="font-size:.85rem">
+    <li><b>データ取得・保存: 追加作業なし</b>。results.courseは日次収集(collect.py)で今後も自動蓄積される</li>
+    <li><b>分析の仕組み: test/verify_course_features.py</b> に保存(特徴量算出+2モデル比較バックテスト一式)。
+        再検証は <code>py -X utf8 test/verify_course_features.py</code> の1コマンド</li>
+    <li>再検証の目安: コースデータがさらに2〜3ヶ月蓄積した時点(2026年9〜10月ごろ、展示タイム検証と同時期)。
+        評価期間を2期間以上に広げられるようになれば単一期間の偶然も潰せる</li>
+    <li>全レースの予想明細: predictions_202605-06_course_features.csv /
+        集計値: verify_course_features_results.json</li>
+  </ul>
+</div>
+
+<p class="note">⚠ 単一期間(5〜6月)の検証。「有効なら即時導入」の判断基準に対して、
+精度横ばい+回収率悪化のため導入見送りが妥当。features.py・本番モデルには一切手を加えていない。</p>
+</body>
+</html>
