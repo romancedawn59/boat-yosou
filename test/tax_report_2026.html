@@ -24,7 +24,7 @@
 <body>
 <h1>2026年 確定申告用集計(舟券払戻・一時所得)</h1>
 <p class="note">対象期間: 2026-07-08 〜 2026-07-11(採点済みの実戦記録・実購入開始日2026-07-08以降のみ) /
-生成: 2026-07-12 19:20 / 再実行: py -X utf8 test/tax_summary.py(冪等・毎回全期間を再集計)</p>
+生成: 2026-07-12 19:24 / 再実行: py -X utf8 test/tax_summary.py(冪等・毎回全期間を再集計)</p>
 <p class="note">除外した試運転日(未購入): 2026-07-07</p>
 <div class="warn">⚠ <b>採点漏れの疑い:</b> 2026-07-10 は予想(picks)があるのにledgerに採点記録がない。この日に購入していた場合、本集計から漏れている。夜間採点の手動実行で補完してから再集計すること。</div>
 
@@ -36,9 +36,9 @@
         <th class="num">参考:総投資</th><th class="num">参考:実収支</th></tr>
     <tr class=adopt><td>本命勝負所のみ(推奨運用)</td><td class='num'>6,800円</td><td class='num'>1,600円</td><td class='num'><b>0円</b></td><td class='num'><b>0円</b></td><td class='num'>15,000円</td><td class='num neg'>-8,200円</td></tr><tr><td>本命+準勝負所</td><td class='num'>11,510円</td><td class='num'>2,700円</td><td class='num'><b>0円</b></td><td class='num'><b>0円</b></td><td class='num'>28,000円</td><td class='num neg'>-16,490円</td></tr><tr><td>全レース(紙上・参考)</td><td class='num'>73,360円</td><td class='num'>20,100円</td><td class='num'><b>0円</b></td><td class='num'><b>0円</b></td><td class='num'>104,000円</td><td class='num neg'>-30,640円</td></tr>
   </table>
-  <p class="note">実際に購入したスコープの行を使うこと(推奨運用どおりなら「本命勝負所のみ」)。
-  「全レース」はシステムの紙上採点であり、買っていないなら申告対象ではない。
-  一時所得がマイナスの場合は0(他の所得との損益通算は不可)。</p>
+  <p class="note"><b>実購入は「本命勝負所のみ」(2026-07-12ケンさん確認。準は未購入)</b>。
+  申告にはこの行と明細CSVを使う。「本命+準」「全レース」はシステムの紙上採点の参考値で
+  申告対象ではない。一時所得がマイナスの場合は0(他の所得との損益通算は不可)。</p>
 </div>
 
 <div class="card">

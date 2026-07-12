@@ -151,16 +151,16 @@ def main():
                 "hits": hits,
             }
 
-        # 明細CSV(税理士・申告書作成の根拠資料。本命スコープの的中行)
+        # 明細CSV(税理士・申告書作成の根拠資料)。
+        # ケンさんの実購入は本命勝負所のみ(2026-07-12確認・準は買っていない)ため、
+        # 明細も本命のみに絞る(準を混ぜると未購入の的中が申告根拠に紛れるため)
         csv_path = TEST_DIR / f"tax_details_{year}.csv"
         with csv_path.open("w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f)
-            w.writerow(["日付", "場", "レース", "区分", "決着", "券種", "買い目",
+            w.writerow(["日付", "場", "レース", "決着", "券種", "買い目",
                         "当たり券購入額(経費側)", "払戻額"])
-            label = {"ken_hon": "本命勝負所", "ken_jun": "準勝負所"}
-            for h in collect_hits(year_ledger, ["ken_hon", "ken_jun"]):
-                w.writerow([h["date"], h["venue"], f"{h['race_no']}R",
-                            label.get(h["scope_key"], h["scope_key"]), h["chaku"],
+            for h in collect_hits(year_ledger, ["ken_hon"]):
+                w.writerow([h["date"], h["venue"], f"{h['race_no']}R", h["chaku"],
                             h["bt"], h["comb"], h["line_stake"], h["line_payout"]])
 
         html_path = TEST_DIR / f"tax_report_{year}.html"
@@ -242,9 +242,9 @@ def render_report(r: dict) -> str:
         <th class="num">参考:総投資</th><th class="num">参考:実収支</th></tr>
     {''.join(scope_rows)}
   </table>
-  <p class="note">実際に購入したスコープの行を使うこと(推奨運用どおりなら「本命勝負所のみ」)。
-  「全レース」はシステムの紙上採点であり、買っていないなら申告対象ではない。
-  一時所得がマイナスの場合は0(他の所得との損益通算は不可)。</p>
+  <p class="note"><b>実購入は「本命勝負所のみ」(2026-07-12ケンさん確認。準は未購入)</b>。
+  申告にはこの行と明細CSVを使う。「本命+準」「全レース」はシステムの紙上採点の参考値で
+  申告対象ではない。一時所得がマイナスの場合は0(他の所得との損益通算は不可)。</p>
 </div>
 
 <div class="card">
