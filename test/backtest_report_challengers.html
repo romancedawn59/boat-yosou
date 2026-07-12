@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑪-A 選別チャンピオン/チャレンジャー(紙上)</title>
+<style>
+  body { font-family: sans-serif; margin: 0 auto; padding: 12px; background: #f6f8fa; max-width: 900px; }
+  h1 { font-size: 1.2rem; margin: 10px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .adopt { background: #d6efff55; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+  .warn { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+           padding: 8px 12px; font-size: .8rem; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+<h1>検証⑪-A 選別チャンピオン/チャレンジャー(すべて紙上・本番不変)</h1>
+<p class="note">生成: 2026-07-12T16:56:30+09:00 / 枠組み: backtest.py と同一のウォークフォワード
+(2025-12-01以降を5分割・foldモデルで予測、現行MODEL_PATH不使用)。
+買い目は全員 検証済みV2構成(荒れ注意)・1日上限10レースに統一し、変数は選別のみ。
+導入判断は行わない(2026-09-01のv2判断材料)。</p>
+<div class="warn">⚠ 少サンプル注意: fold単位・差分レースの数字は数十件規模。傾向の参考に留め、順位の断定は9/1の判断材料が揃ってから。</div>
+
+<div class="card">
+  <h2 style="margin-top:0">全fold合計(5場・220日)</h2>
+  <table>
+    <tr><th>選別器</th><th class="num">選別数</th><th class="num">選別/日</th>
+        <th class="num">的中率</th><th class="num">回収率</th><th class="num">最大1発除き</th>
+        <th class="num">順当/中波乱/万舟</th><th class="num">Jaccard</th></tr>
+    <tr class="adopt"><td>チャンピオン(現行)</td><td class='num'>1075</td><td class='num'>4.9</td><td class='num'>45.2%</td><td class='num pos'>180.3%</td><td class='num pos'>142.5%</td><td class='num'>254/194/38</td><td class='num'>—</td></tr><tr><td>挑戦者②β1(差)</td><td class='num'>1080</td><td class='num'>4.9</td><td class='num'>47.1%</td><td class='num pos'>117.9%</td><td class='num pos'>103.5%</td><td class='num'>305/180/24</td><td class='num'>0.43</td></tr><tr><td>挑戦者②β2(エントロピー)</td><td class='num'>1067</td><td class='num'>4.8</td><td class='num'>40.3%</td><td class='num neg'>81.1%</td><td class='num neg'>76.8%</td><td class='num'>221/188/21</td><td class='num'>0.40</td></tr><tr><td>挑戦者①市場相違</td><td class='num'>5</td><td class='num'>0.0</td><td class='num'>20.0%</td><td class='num neg'>21.4%</td><td class='num neg'>0.0%</td><td class='num'>0/1/0</td><td class='num'>0.00</td></tr>
+    <tr><td>挑戦者③C条件型</td><td class='num' colspan='7'>蓄積待ち
+      (ledger.jsonのC的中明細+市場レポート(f)が数ヶ月分貯まってから定義。大穴一撃フラグ構想と同件)</td></tr>
+  </table>
+  <p class="note">挑戦者①の判定不能(スナップショット無し)レース:
+  6,871件
+  (スナップショット収集は2026-07-08開始のため遡及期間の大半が判定不能。
+  ①の数字は8月の日次紙上採点で貯めるのが本命で、ここでは器の動作確認)。
+  閾値: ①=スピアマン距離7以上(暫定・8月末に(d)層別で確定) /
+  ②β1=0.1163未満・β2=1.4823超
+  (チャンピオンのcap前選別数1102件±10%に揃うよう較正。成績での最適化はしていない)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">チャンピオンとの差分レースの成績</h2>
+  <table>
+    <tr><th>挑戦者</th><th class="num">挑戦者のみが選んだレース</th>
+        <th class="num">チャンピオンのみが選んだレース</th></tr>
+    <tr><td>挑戦者②β1(差)</td><td class='num'>434R / 回収率94.9%</td><td class='num'>429R / 回収率250.9%</td></tr><tr><td>挑戦者②β2(エントロピー)</td><td class='num'>456R / 回収率59.8%</td><td class='num'>464R / 回収率290.2%</td></tr><tr><td>挑戦者①市場相違</td><td class='num'>5R / 回収率21.4%</td><td class='num'>1075R / 回収率180.3%</td></tr>
+  </table>
+  <p class="note">「挑戦者のみ」が高回収率なら、その挑戦者はチャンピオンが逃すレースを
+  拾えている。逆に「チャンピオンのみ」が高いなら、挑戦者は取りこぼしている。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">fold別(選別器×期間)</h2>
+  <table>
+    <tr><th>fold</th><th>選別器</th><th class="num">選別数</th>
+        <th class="num">的中率</th><th class="num">回収率</th><th class="num">順当決着率</th></tr>
+    <tr><td>fold1</td><td>チャンピオン(現行)</td><td class='num'>246</td><td class='num'>48.0%</td><td class='num pos'>113.0%</td><td class='num'>61.0%</td></tr><tr><td>fold2</td><td>チャンピオン(現行)</td><td class='num'>230</td><td class='num'>40.4%</td><td class='num pos'>390.3%</td><td class='num'>46.2%</td></tr><tr><td>fold3</td><td>チャンピオン(現行)</td><td class='num'>196</td><td class='num'>43.4%</td><td class='num pos'>131.0%</td><td class='num'>52.9%</td></tr><tr><td>fold4</td><td>チャンピオン(現行)</td><td class='num'>202</td><td class='num'>48.5%</td><td class='num pos'>163.9%</td><td class='num'>50.0%</td></tr><tr><td>fold5</td><td>チャンピオン(現行)</td><td class='num'>201</td><td class='num'>45.8%</td><td class='num neg'>87.3%</td><td class='num'>48.9%</td></tr><tr><td>fold1</td><td>挑戦者②β1(差)</td><td class='num'>231</td><td class='num'>50.6%</td><td class='num pos'>122.9%</td><td class='num'>67.5%</td></tr><tr><td>fold2</td><td>挑戦者②β1(差)</td><td class='num'>228</td><td class='num'>43.0%</td><td class='num pos'>202.8%</td><td class='num'>58.2%</td></tr><tr><td>fold3</td><td>挑戦者②β1(差)</td><td class='num'>215</td><td class='num'>46.0%</td><td class='num pos'>103.2%</td><td class='num'>62.6%</td></tr><tr><td>fold4</td><td>挑戦者②β1(差)</td><td class='num'>210</td><td class='num'>51.9%</td><td class='num neg'>83.2%</td><td class='num'>54.1%</td></tr><tr><td>fold5</td><td>挑戦者②β1(差)</td><td class='num'>196</td><td class='num'>43.9%</td><td class='num neg'>66.5%</td><td class='num'>55.8%</td></tr><tr><td>fold1</td><td>挑戦者②β2(エントロピー)</td><td class='num'>192</td><td class='num'>40.6%</td><td class='num neg'>76.7%</td><td class='num'>59.0%</td></tr><tr><td>fold2</td><td>挑戦者②β2(エントロピー)</td><td class='num'>225</td><td class='num'>36.4%</td><td class='num neg'>90.1%</td><td class='num'>47.6%</td></tr><tr><td>fold3</td><td>挑戦者②β2(エントロピー)</td><td class='num'>233</td><td class='num'>39.1%</td><td class='num neg'>74.8%</td><td class='num'>57.1%</td></tr><tr><td>fold4</td><td>挑戦者②β2(エントロピー)</td><td class='num'>209</td><td class='num'>45.5%</td><td class='num neg'>84.0%</td><td class='num'>49.5%</td></tr><tr><td>fold5</td><td>挑戦者②β2(エントロピー)</td><td class='num'>208</td><td class='num'>40.4%</td><td class='num neg'>79.7%</td><td class='num'>44.0%</td></tr><tr><td>fold5</td><td>挑戦者①市場相違</td><td class='num'>5</td><td class='num'>20.0%</td><td class='num neg'>21.4%</td><td class='num'>0.0%</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">ガミり監視の基準値(市場レポートDが参照)</h2>
+  <p style="font-size:.9rem">チャンピオンの順当決着率(的中のうち払戻&lt;掛金だった割合):
+  <b>52.3%</b> / fold間の標準偏差: 5.1%</p>
+  <p class="note">発動条件(暫定): 実戦の直近順当決着率が「基準値+10pt超」を60日継続したら選別の再検証を発動。10ptはfold標準偏差(5.1%)の約2.0σに相当。2σ未満は正常なゆらぎでも誤発動しやすいため、2σ=10%への引き上げを提案する(コード側コメントにも記載)。</p>
+</div>
+
+<p class="note">検算: チャンピオンは src/backtest.py の「ken現行構成[5場]荒れ注意」と同一の計算経路。
+検証⑧(5〜6月固定・train&lt;05-01の単一モデル)の152.6%とはfold分割・学習データが異なるため
+完全一致はしないが、同水準であることを確認して整合とみなす。<br>
+再実行: py -X utf8 test/verify_challengers.py(冪等・全期間を毎回再計算)</p>
+</body>
+</html>

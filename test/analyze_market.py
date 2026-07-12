@@ -24,6 +24,7 @@ from statistics import mean, median
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+import challengers as CH
 import db
 import predictors as P
 from config import DB_PATH, JST, MODEL_PATH, PROJECT_DIR, VENUE_NAMES
@@ -387,6 +388,236 @@ def sec_f_c_hits(picks: dict, model_probs_all: dict) -> dict:
     return {"hits": hits, "by_venue": dict(by_venue), "by_half": dict(by_half)}
 
 
+def sec_g_show_calibration(picks: dict, model_probs: dict, actual: dict) -> dict:
+    """(C) ◎複勝較正: モデル予測1位の複勝(3着以内)確率 vs 実際の複勝率。
+
+    「軸飛び6割」がモデル自身の複勝確率どおり(想定内)か、◎の複勝圏評価が
+    甘い(想定超=系統的過大評価)かをここで裁く。荒れ注意限定の集計も併記。
+    """
+    bins = [0.0, 0.40, 0.50, 0.60, 0.70, 0.80, 1.01]
+    obs_all, obs_are = [], []
+    for rid, r in picks.items():
+        ranked = model_probs.get(rid)
+        res = actual.get(rid, {})
+        if not ranked or 1 not in res or 3 not in res:
+            continue
+        probs = P.normalize_probs(ranked)
+        top = ranked[0]["lane"]
+        pred = CH.show_probability(probs, top)
+        hit = top in {res[1], res[2], res[3]}
+        obs_all.append((pred, hit))
+        if r.get("confidence") == "荒れ注意":
+            obs_are.append((pred, hit))
+
+    def rows(obs):
+        return calibration_rows(obs, bins)
+
+    all_rows, are_rows = rows(obs_all), rows(obs_are)
+
+    # 判定文言(仕様どおり): n>=10のビンだけで判定。予測-実際>+5pt=過大評価
+    judged = [x for x in all_rows if x["n"] >= 10]
+    if not judged:
+        verdict = f"蓄積待ち(全ビンn<10。現在{len(obs_all)}レース)"
+    else:
+        over = [x for x in judged if x["implied"] - x["actual"] > 0.05]
+        within = all(abs(x["implied"] - x["actual"]) <= 0.05 for x in judged)
+        if within:
+            verdict = "前提健在(較正誤差が全ビンで±5pt以内。軸飛びはモデルの想定内)"
+        elif over:
+            over_bins = ", ".join("{:.0%}〜{:.0%}".format(x["lo"], x["hi"]) for x in over)
+            verdict = ("◎複勝圏の過大評価あり(v2で選別・構成の再考材料)。"
+                       f"過大ビン: {over_bins}")
+        else:
+            verdict = "過小評価方向のズレ(◎は想定より複勝圏に残っている。ヒモ側の問題を疑う)"
+    return {"all": all_rows, "are": are_rows, "n": len(obs_all),
+            "n_are": len(obs_are), "verdict": verdict}
+
+
+def sec_h_gami_watch(picks: dict, payout: dict) -> dict:
+    """(D) ガミり監視: 実戦の本命勝負所の順当決着率(的中のうち払戻<掛金)を
+    バックテスト基準値(verify_challengers_results.jsonのチャンピオン順当率)と比較。
+
+    発動条件(暫定): 「30日移動順当率が基準値+10pt超」の状態が60日連続したら
+    『選別再検証の発動条件に到達』を赤字表示する(表示のみ・自動では何も変えない)。
+    10ptは暫定値。基準側JSONにはfold標準偏差も保存されており、レポートで
+    σ換算の妥当性を併記する(fold σ≈5%なら10pt≈2σで誤発動しにくい水準)。
+    """
+    base_path = TEST_DIR / "verify_challengers_results.json"
+    baseline = None
+    if base_path.exists():
+        data = json.loads(base_path.read_text(encoding="utf-8"))
+        baseline = data.get("gami_baseline")
+
+    # 日別の(的中数, 順当数)系列を作る
+    daily: dict[str, list[int]] = {}
+    for rid, r in picks.items():
+        if r.get("shobusho") != "本命" or not r.get("ken"):
+            continue
+        stake, ret = ken_return(r, payout.get(rid, {}))
+        if not ret:
+            continue
+        d = daily.setdefault(r["date"], [0, 0])
+        d[0] += 1
+        if ret < stake:
+            d[1] += 1
+
+    dates = sorted(daily)
+
+    def window_rate(days: int) -> tuple[float | None, int, int]:
+        seg = dates[-days:]
+        hits = sum(daily[d][0] for d in seg)
+        junto = sum(daily[d][1] for d in seg)
+        return (junto / hits if hits else None), hits, junto
+
+    rate30, hits30, _ = window_rate(30)
+    rate60, hits60, _ = window_rate(60)
+
+    # 30日移動順当率が閾値超の「連続日数」(直近から遡る)
+    streak = 0
+    if baseline:
+        th = baseline["junto_rate"] + 0.10
+        for i in range(len(dates), 0, -1):
+            seg = dates[max(0, i - 30):i]
+            hits = sum(daily[d][0] for d in seg)
+            junto = sum(daily[d][1] for d in seg)
+            if hits and junto / hits > th:
+                streak += 1
+            else:
+                break
+    triggered = streak >= 60
+    return {"baseline": baseline, "rate30": rate30, "rate60": rate60,
+            "hits30": hits30, "hits60": hits60,
+            "n_days": len(dates), "streak": streak, "triggered": triggered}
+
+
+def extract_lanes(plan: list[list]) -> tuple[int, int, int, int] | None:
+    """荒れ注意プラン(検証済みV2)からr1〜r4を復元する。
+
+    3連単2点「r3-r1-r2」「r4-r1-r2」の共通2着=r1・共通3着=r2、頭がr3, r4。
+    復元できない構成(標準・堅め等)はNone。
+    """
+    tfs = [comb.split("-") for bt, comb, _y, src in plan
+           if bt == "3連単" and src == "検証済み"]
+    if len(tfs) != 2 or {tfs[0][1], tfs[1][1]} != {tfs[0][1]}:
+        return None
+    if tfs[0][2] != tfs[1][2]:
+        return None
+    return int(tfs[0][1]), int(tfs[0][2]), int(tfs[0][0]), int(tfs[1][0])
+
+
+def paper_challengers(picks: dict, model_probs: dict, payout: dict) -> dict:
+    """(E) 選別・構成チャレンジャーの日次紙上採点。
+
+    - 挑戦者②β1/β2: 閾値はverify_challengers_results.jsonの較正値(無ければ較正待ち)
+    - 挑戦者①: 暫定閾値。スナップショットの無いレースは判定不能として件数を出す
+    - 構成4案: 選別はチャンピオン固定=picksの本命勝負所。r1〜r4は当時の実プランから
+      復元し、Cも当時のpicks_cを使う(構成行だけは当時モデルの実データで採点できる)
+    - ②①の選別はモデル確率の再計算(現行MODEL_PATH)に基づくため当時版と完全一致しない
+    """
+    th_path = TEST_DIR / "verify_challengers_results.json"
+    th = None
+    if th_path.exists():
+        th = json.loads(th_path.read_text(encoding="utf-8")).get("calibration")
+
+    # 日付ごとにレースをまとめる(選別は日単位・上限10)
+    by_date: dict[str, list[str]] = defaultdict(list)
+    for rid, r in picks.items():
+        by_date[r["date"]].append(rid)
+
+    def plan_and_grade(rid) -> tuple[int, int] | None:
+        ranked = model_probs.get(rid)
+        if not ranked or len(ranked) < 4:
+            return None
+        probs = P.normalize_probs(ranked)
+        plan = P.ken_portfolio("荒れ注意", ranked, [], P.picks_katsu(probs))
+        pay = payout.get(rid, {})
+        stake = sum(y for _, _, y, _ in plan)
+        ret = sum(pay.get((bt, comb), 0) * yen // 100 for bt, comb, yen, _ in plan)
+        return stake, ret
+
+    def run_selector(score_fn) -> tuple[dict, int]:
+        stats = {"n": 0, "hits": 0, "stake": 0, "ret": 0}
+        unjudge = 0
+        for d in sorted(by_date):
+            cands = []
+            for rid in by_date[d]:
+                ranked = model_probs.get(rid)
+                if not ranked or len(ranked) < 4:
+                    continue
+                s = score_fn(rid, ranked)
+                if s == "unjudgeable":
+                    unjudge += 1
+                    continue
+                if s is not None:
+                    cands.append((s, rid))
+            for rid in CH.daily_cap(cands):
+                g = plan_and_grade(rid)
+                if not g:
+                    continue
+                stake, ret = g
+                stats["n"] += 1
+                stats["stake"] += stake
+                stats["ret"] += ret
+                stats["hits"] += 1 if ret else 0
+        return stats, unjudge
+
+    rows = {}
+    if th:
+        rows["挑戦者②β1(差)"], _ = run_selector(
+            lambda rid, rk: CH.gap_score(P.normalize_probs(rk), th["th_b1"]))
+        rows["挑戦者②β2(エントロピー)"], _ = run_selector(
+            lambda rid, rk: CH.entropy_score(P.normalize_probs(rk), th["th_b2"]))
+    else:
+        rows["挑戦者②(β1/β2)"] = {"pending": "較正待ち(verify_challengers.py未実行)"}
+
+    # 挑戦者①: スナップショットのあるレースだけ判定可能
+    conn = db.connect(DB_PATH)
+    market_orders: dict[str, dict[int, float]] = defaultdict(lambda: defaultdict(float))
+    for rid, comb, odds in conn.execute(
+        "SELECT race_id, combination, odds FROM odds "
+        "WHERE bet_type = '3連単' AND fetched_at != 'final-backfill' AND odds > 0"
+    ):
+        market_orders[rid][int(comb.split("-")[0])] += 1.0 / odds
+    conn.close()
+    market_order = {rid: sorted(d, key=lambda l: -d[l]) for rid, d in market_orders.items()}
+
+    def sc_mkt(rid, ranked):
+        mo = market_order.get(rid)
+        if mo is None:
+            return "unjudgeable"
+        return CH.divergence_score([x["lane"] for x in ranked], mo)
+
+    rows["挑戦者①市場相違(暫定閾値)"], unjudge = run_selector(sc_mkt)
+    rows["挑戦者①市場相違(暫定閾値)"]["unjudgeable"] = unjudge
+
+    # 構成4案(選別=picksの本命勝負所、券面は当時の実データから復元)
+    comp_stats = {name: {"n": 0, "hits": 0, "stake": 0, "ret": 0}
+                  for name in CH.COMPOSITION_NAMES}
+    unrecoverable = 0
+    for rid, r in picks.items():
+        if r.get("shobusho") != "本命" or not r.get("ken"):
+            continue
+        lanes = extract_lanes(r["ken"])
+        if lanes is None:
+            unrecoverable += 1
+            continue
+        pseudo_ranked = [{"lane": l, "prob": 0.0} for l in lanes] + \
+                        [{"lane": l, "prob": 0.0} for l in range(1, 7) if l not in lanes]
+        c_picks = [tuple(x) for x in r.get("c", [])]
+        pay = payout.get(rid, {})
+        for name in CH.COMPOSITION_NAMES:
+            plan = CH.build_composition(name, pseudo_ranked, c_picks)
+            stake = sum(y for _, _, y, _ in plan)
+            ret = sum(pay.get((bt, comb), 0) * yen // 100 for bt, comb, yen, _ in plan)
+            s = comp_stats[name]
+            s["n"] += 1
+            s["stake"] += stake
+            s["ret"] += ret
+            s["hits"] += 1 if ret else 0
+    return {"selectors": rows, "compositions": comp_stats,
+            "unrecoverable": unrecoverable}
+
+
 def paper_battle(pairs: dict, picks: dict, payout: dict) -> dict:
     """紙上対決(遡及・毎回再計算。本番ledgerには一切書かない)"""
     races = []
@@ -438,6 +669,102 @@ def paper_battle(pairs: dict, picks: dict, payout: dict) -> dict:
 
 def _pct(x, digits=1):
     return f"{x:+.{digits}%}" if x is not None else "-"
+
+
+def _render_show_calibration(g: dict) -> str:
+    """(C)◎複勝較正カードのHTML"""
+    def rows(items):
+        out = []
+        for x in items:
+            diff = x["implied"] - x["actual"]
+            cls = "neg" if diff > 0.05 else ("pos" if abs(diff) <= 0.05 else "")
+            out.append(
+                f"<tr><td>{x['lo']:.0%}〜{x['hi']:.0%}</td><td class='num'>{x['n']}</td>"
+                f"<td class='num'>{x['implied']:.1%}</td><td class='num'>{x['actual']:.1%}</td>"
+                f"<td class='num {cls}'>{diff:+.1%}</td></tr>")
+        return "".join(out) or "<tr><td colspan='5'>データなし</td></tr>"
+
+    return f"""
+<div class="card">
+  <h2>(g) ◎複勝較正: 予測1位の複勝(3着以内)確率 vs 実際の複勝率</h2>
+  <p style="font-size:.9rem"><b>判定: {g['verdict']}</b></p>
+  <table>
+    <tr><th>予測複勝確率ビン</th><th class="num">n</th><th class="num">予測平均</th>
+        <th class="num">実際の複勝率</th><th class="num">予測-実際(+は過大評価)</th></tr>
+    <tr><th colspan="5">全レース({g['n']}件)</th></tr>
+    {rows(g['all'])}
+    <tr><th colspan="5">荒れ注意レース限定({g['n_are']}件)</th></tr>
+    {rows(g['are'])}
+  </table>
+  <p class="note">複勝確率はBenter展開(現行モデルで再計算)の3着以内周辺化。
+  「軸飛び」の多さがモデル想定内か想定超かをこの表で裁く。判定はn≥10のビンのみ。</p>
+</div>"""
+
+
+def _render_gami_watch(h: dict) -> str:
+    """(D)ガミり監視カードのHTML(表示のみ・自動では何も変えない)"""
+    b = h["baseline"]
+    if not b:
+        body = ("<p>基準値待ち: 先に py -X utf8 test/verify_challengers.py を実行すると"
+                "バックテスト基準値(チャンピオンの順当決着率)が保存される。</p>")
+    else:
+        th = b["junto_rate"] + 0.10
+        r30 = f"{h['rate30']:.1%}({h['hits30']}的中)" if h["rate30"] is not None else "的中なし"
+        r60 = f"{h['rate60']:.1%}({h['hits60']}的中)" if h["rate60"] is not None else "的中なし"
+        status = ("<span style='color:#cf222e;font-weight:bold'>『選別再検証の発動条件に到達』"
+                  "(基準値+10pt超が60日継続)</span>" if h["triggered"]
+                  else f"未到達(閾値{th:.1%}超の連続日数: {h['streak']}日/60日。"
+                       f"実戦データ{h['n_days']}日分)")
+        body = f"""
+  <table>
+    <tr><th>指標</th><th class="num">値</th></tr>
+    <tr><td>バックテスト基準値(チャンピオン順当決着率)</td><td class="num">{b['junto_rate']:.1%}
+      (foldσ {b['fold_std']:.1%})</td></tr>
+    <tr><td>実戦・直近30日の順当決着率</td><td class="num">{r30}</td></tr>
+    <tr><td>実戦・直近60日の順当決着率</td><td class="num">{r60}</td></tr>
+    <tr><td>発動判定</td><td class="num">{status}</td></tr>
+  </table>
+  <p class="note">順当決着率=本命勝負所の的中のうち払戻&lt;掛金(ガミ)だった割合。
+  これが上がる=「荒れ注意と選んだのに順当に決まる」=選別のエッジ鈍化のシグナル。
+  10ptは暫定(foldσの約2σ)。発動しても表示のみで、再検証の実施は人間が判断する。</p>"""
+    return f"""
+<div class="card">
+  <h2>(h) ガミり監視(選別エッジ鈍化の引き金・表示のみ)</h2>
+  {body}
+</div>"""
+
+
+def _render_paper_challengers(pc: dict) -> str:
+    """(E)紙上対決への追記: 選別・構成チャレンジャーの行"""
+    def stat_row(name, s):
+        if "pending" in s:
+            return f"<tr><td>{name}</td><td colspan='6'>{s['pending']}</td></tr>"
+        n, hits, stake, ret = s["n"], s["hits"], s["stake"], s["ret"]
+        roi = ret / stake if stake else 0.0
+        profit = ret - stake
+        extra = f"(判定不能{s['unjudgeable']}件)" if "unjudgeable" in s else ""
+        return (f"<tr><td>{name}{extra}</td><td class='num'>{n}</td>"
+                f"<td class='num'>{hits / n if n else 0:.1%}</td>"
+                f"<td class='num'>{stake:,}円</td><td class='num'>{ret:,}円</td>"
+                f"<td class='num {'pos' if roi >= 1 else 'neg'}'>{roi:.1%}</td>"
+                f"<td class='num {'pos' if profit >= 0 else 'neg'}'>{profit:+,}円</td></tr>")
+
+    sel_rows = "".join(stat_row(k, v) for k, v in pc["selectors"].items())
+    comp_rows = "".join(stat_row(f"構成:{k}", v) for k, v in pc["compositions"].items())
+    return f"""
+  <h3 style="font-size:.9rem">選別・構成チャレンジャー(検証⑪の日次紙上採点)</h3>
+  <table>
+    <tr><th>打ち手</th><th class="num">レース数</th><th class="num">的中率</th>
+        <th class="num">投資</th><th class="num">回収</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><th colspan="7">選別チャレンジャー(全picksレースから日次選別・上限10)</th></tr>
+    {sel_rows}
+    <tr><td>挑戦者③C条件型</td><td colspan="6">蓄積待ち(大穴一撃フラグ構想と同件)</td></tr>
+    <tr><th colspan="7">構成4案(選別=本番の本命勝負所に固定・券面は当時の実データから復元)</th></tr>
+    {comp_rows}
+  </table>
+  <p class="note">固定注記: ①②の選別はモデル確率を現行版で再計算(当時版と完全一致しない)。
+  ①の閾値は暫定(8月末に(d)層別で確定)。{SMALL_SAMPLE_NOTE}
+  構成のr1〜r4復元不能レース: {pc['unrecoverable']}件。</p>"""
 
 
 def render_report(d: dict) -> str:
@@ -616,6 +943,10 @@ def render_report(d: dict) -> str:
   </table>
 </div>
 
+{_render_show_calibration(d["g"])}
+
+{_render_gami_watch(d["h"])}
+
 <div class="card">
   <h2>紙上対決(遡及シミュレーション・本番成績とは別枠)</h2>
   <h3 style="font-size:.9rem">全レース(スナップショットのある5場レース)</h3>
@@ -633,6 +964,7 @@ def render_report(d: dict) -> str:
   <p class="note">{SMALL_SAMPLE_NOTE}<br>
   A/Bの購入判断は15分前スナップショットのオッズのみ・払戻は実際の確定払戻。
   kenはpicks JSON(=採点対象の朝版プラン)の実額。明細は paper_results.json。</p>
+  {_render_paper_challengers(d["paper_ch"])}
 </div>
 
 <p class="note">再実行手順: py -X utf8 test/collect_final_odds.py → py -X utf8 test/analyze_market.py</p>
@@ -672,7 +1004,10 @@ def main():
         "d": sec_d_rank_gap(pairs, picks, model_probs, payout),
         "e": sec_e_miss_breakdown(picks, actual, payout),
         "f": sec_f_c_hits(picks, model_probs),
+        "g": sec_g_show_calibration(picks, model_probs, actual),
+        "h": sec_h_gami_watch(picks, payout),
         "paper": paper_battle(pairs, picks, payout),
+        "paper_ch": paper_challengers(picks, model_probs, payout),
     }
     conn.close()
 

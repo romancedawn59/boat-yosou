@@ -23,7 +23,7 @@
 </head>
 <body>
 <h1>市場分析レポート(約束①+紙上対決)</h1>
-<p class="note">生成: 2026-07-12 02:43 / 対象: 15分前スナップショットと最終オッズが揃った 84レース
+<p class="note">生成: 2026-07-12 17:00 / 対象: 15分前スナップショットと最終オッズが揃った 84レース
 (2026-07-08 〜 2026-07-10)。本番の予想・購入・採点には一切影響しない読み取り専用の分析。</p>
 <div class="warn">⚠ 少サンプル注意: スナップショット蓄積開始直後のため、ここの数字は傾向の参考に留め、断定しないこと。本レポートは再実行のたびに全期間を再計算する。</div>
 
@@ -109,6 +109,39 @@
   </table>
 </div>
 
+
+<div class="card">
+  <h2>(g) ◎複勝較正: 予測1位の複勝(3着以内)確率 vs 実際の複勝率</h2>
+  <p style="font-size:.9rem"><b>判定: ◎複勝圏の過大評価あり(v2で選別・構成の再考材料)。過大ビン: 70%〜80%</b></p>
+  <table>
+    <tr><th>予測複勝確率ビン</th><th class="num">n</th><th class="num">予測平均</th>
+        <th class="num">実際の複勝率</th><th class="num">予測-実際(+は過大評価)</th></tr>
+    <tr><th colspan="5">全レース(176件)</th></tr>
+    <tr><td>60%〜70%</td><td class='num'>11</td><td class='num'>68.7%</td><td class='num'>81.8%</td><td class='num '>-13.1%</td></tr><tr><td>70%〜80%</td><td class='num'>26</td><td class='num'>76.0%</td><td class='num'>65.4%</td><td class='num neg'>+10.6%</td></tr><tr><td>80%〜101%</td><td class='num'>139</td><td class='num'>90.3%</td><td class='num'>87.1%</td><td class='num pos'>+3.2%</td></tr>
+    <tr><th colspan="5">荒れ注意レース限定(30件)</th></tr>
+    <tr><td>60%〜70%</td><td class='num'>10</td><td class='num'>68.6%</td><td class='num'>80.0%</td><td class='num '>-11.4%</td></tr><tr><td>70%〜80%</td><td class='num'>14</td><td class='num'>75.6%</td><td class='num'>50.0%</td><td class='num neg'>+25.6%</td></tr><tr><td>80%〜101%</td><td class='num'>6</td><td class='num'>83.8%</td><td class='num'>100.0%</td><td class='num '>-16.2%</td></tr>
+  </table>
+  <p class="note">複勝確率はBenter展開(現行モデルで再計算)の3着以内周辺化。
+  「軸飛び」の多さがモデル想定内か想定超かをこの表で裁く。判定はn≥10のビンのみ。</p>
+</div>
+
+
+<div class="card">
+  <h2>(h) ガミり監視(選別エッジ鈍化の引き金・表示のみ)</h2>
+  
+  <table>
+    <tr><th>指標</th><th class="num">値</th></tr>
+    <tr><td>バックテスト基準値(チャンピオン順当決着率)</td><td class="num">52.3%
+      (foldσ 5.1%)</td></tr>
+    <tr><td>実戦・直近30日の順当決着率</td><td class="num">60.0%(15的中)</td></tr>
+    <tr><td>実戦・直近60日の順当決着率</td><td class="num">60.0%(15的中)</td></tr>
+    <tr><td>発動判定</td><td class="num">未到達(閾値62.3%超の連続日数: 0日/60日。実戦データ5日分)</td></tr>
+  </table>
+  <p class="note">順当決着率=本命勝負所の的中のうち払戻&lt;掛金(ガミ)だった割合。
+  これが上がる=「荒れ注意と選んだのに順当に決まる」=選別のエッジ鈍化のシグナル。
+  10ptは暫定(foldσの約2σ)。発動しても表示のみで、再検証の実施は人間が判断する。</p>
+</div>
+
 <div class="card">
   <h2>紙上対決(遡及シミュレーション・本番成績とは別枠)</h2>
   <h3 style="font-size:.9rem">全レース(スナップショットのある5場レース)</h3>
@@ -126,6 +159,20 @@
   <p class="note">⚠ 少サンプル注意: スナップショット蓄積開始直後のため、ここの数字は傾向の参考に留め、断定しないこと。本レポートは再実行のたびに全期間を再計算する。<br>
   A/Bの購入判断は15分前スナップショットのオッズのみ・払戻は実際の確定払戻。
   kenはpicks JSON(=採点対象の朝版プラン)の実額。明細は paper_results.json。</p>
+  
+  <h3 style="font-size:.9rem">選別・構成チャレンジャー(検証⑪の日次紙上採点)</h3>
+  <table>
+    <tr><th>打ち手</th><th class="num">レース数</th><th class="num">的中率</th>
+        <th class="num">投資</th><th class="num">回収</th><th class="num">回収率</th><th class="num">損益</th></tr>
+    <tr><th colspan="7">選別チャレンジャー(全picksレースから日次選別・上限10)</th></tr>
+    <tr><td>挑戦者②β1(差)</td><td class='num'>39</td><td class='num'>46.2%</td><td class='num'>39,000円</td><td class='num'>51,050円</td><td class='num pos'>130.9%</td><td class='num pos'>+12,050円</td></tr><tr><td>挑戦者②β2(エントロピー)</td><td class='num'>48</td><td class='num'>41.7%</td><td class='num'>48,000円</td><td class='num'>56,230円</td><td class='num pos'>117.1%</td><td class='num pos'>+8,230円</td></tr><tr><td>挑戦者①市場相違(暫定閾値)(判定不能108件)</td><td class='num'>5</td><td class='num'>0.0%</td><td class='num'>5,000円</td><td class='num'>0円</td><td class='num neg'>0.0%</td><td class='num neg'>-5,000円</td></tr>
+    <tr><td>挑戦者③C条件型</td><td colspan="6">蓄積待ち(大穴一撃フラグ構想と同件)</td></tr>
+    <tr><th colspan="7">構成4案(選別=本番の本命勝負所に固定・券面は当時の実データから復元)</th></tr>
+    <tr><td>構成:現行</td><td class='num'>40</td><td class='num'>37.5%</td><td class='num'>40,000円</td><td class='num'>39,030円</td><td class='num neg'>97.6%</td><td class='num neg'>-970円</td></tr><tr><td>構成:攻撃型</td><td class='num'>40</td><td class='num'>35.0%</td><td class='num'>40,000円</td><td class='num'>31,600円</td><td class='num neg'>79.0%</td><td class='num neg'>-8,400円</td></tr><tr><td>構成:守備型</td><td class='num'>40</td><td class='num'>45.0%</td><td class='num'>40,000円</td><td class='num'>23,320円</td><td class='num neg'>58.3%</td><td class='num neg'>-16,680円</td></tr><tr><td>構成:軸分散型</td><td class='num'>40</td><td class='num'>40.0%</td><td class='num'>40,000円</td><td class='num'>38,920円</td><td class='num neg'>97.3%</td><td class='num neg'>-1,080円</td></tr>
+  </table>
+  <p class="note">固定注記: ①②の選別はモデル確率を現行版で再計算(当時版と完全一致しない)。
+  ①の閾値は暫定(8月末に(d)層別で確定)。⚠ 少サンプル注意: スナップショット蓄積開始直後のため、ここの数字は傾向の参考に留め、断定しないこと。本レポートは再実行のたびに全期間を再計算する。
+  構成のr1〜r4復元不能レース: 0件。</p>
 </div>
 
 <p class="note">再実行手順: py -X utf8 test/collect_final_odds.py → py -X utf8 test/analyze_market.py</p>
