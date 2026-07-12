@@ -35,6 +35,11 @@ DATA_DIR = PROJECT_DIR / "docs" / "data"
 
 DEDUCTION = 500_000  # 一時所得の特別控除
 
+# 実購入の開始日(2026-07-12ケンさん申告)。2026-07-07はシステム試運転日で
+# 実際には購入していないため、申告集計から除外する。ledger(システム成績)は
+# 7/7を含むが、税金は「実際に買った券」だけが対象。
+PURCHASE_START = "2026-07-08"
+
 # 的中行ラベル「3連複 1=2=5（200円）」から(券種, 買い目, 購入額)を取り出す
 _LINE_RE = re.compile(r"^(\S+)\s+(\S+)（(\d+)円）$")
 
@@ -113,12 +118,19 @@ def main():
         print("ledger.jsonが見つかりません(採点がまだ動いていない環境)")
         return
     ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    # 実購入開始日より前(試運転期間)は申告対象外
+    excluded = [d["date"] for d in ledger if d["date"] < PURCHASE_START]
+    ledger = [d for d in ledger if d["date"] >= PURCHASE_START]
+    if not ledger:
+        print("実購入開始日以降の採点記録がまだありません")
+        return
     years = sorted({d["date"][:4] for d in ledger})
-    missing = missing_grade_dates(ledger)
+    missing = [d for d in missing_grade_dates(ledger) if d >= PURCHASE_START]
 
     for year in years:
         year_ledger = [d for d in ledger if d["date"].startswith(year)]
         report = {"year": year, "scopes": {}, "missing": missing,
+                  "excluded": [d for d in excluded if d.startswith(year)],
                   "period": f"{year_ledger[0]['date']} 〜 {year_ledger[-1]['date']}",
                   "updated": datetime.now(JST).strftime("%Y-%m-%d %H:%M")}
 
@@ -217,8 +229,9 @@ def render_report(r: dict) -> str:
 </head>
 <body>
 <h1>{r['year']}年 確定申告用集計(舟券払戻・一時所得)</h1>
-<p class="note">対象期間: {r['period']}(採点済みの実戦記録) / 生成: {r['updated']} /
-再実行: py -X utf8 test/tax_summary.py(冪等・毎回全期間を再集計)</p>
+<p class="note">対象期間: {r['period']}(採点済みの実戦記録・実購入開始日{PURCHASE_START}以降のみ) /
+生成: {r['updated']} / 再実行: py -X utf8 test/tax_summary.py(冪等・毎回全期間を再集計)</p>
+{f'<p class="note">除外した試運転日(未購入): {", ".join(r["excluded"])}</p>' if r["excluded"] else ''}
 {missing_html}
 
 <div class="card">

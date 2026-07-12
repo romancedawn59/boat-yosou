@@ -46,6 +46,14 @@ class TestCollectHits(unittest.TestCase):
         self.assertEqual(collect_hits([LEDGER_DAY], ["ken_jun"]), [])
 
 
+class TestPurchaseStart(unittest.TestCase):
+    def test_trial_day_is_before_purchase_start(self):
+        # 2026-07-07は試運転日(未購入)。実購入開始日の定数がそれを除外する値であること
+        from tax_summary import PURCHASE_START
+        self.assertEqual(PURCHASE_START, "2026-07-08")
+        self.assertLess(LEDGER_DAY["date"], PURCHASE_START)
+
+
 class TestIchijiShotoku(unittest.TestCase):
     def test_below_deduction_is_zero(self):
         # 払戻45万・当たり券費1万 → 50万控除以下なので一時所得0
