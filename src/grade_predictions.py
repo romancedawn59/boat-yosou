@@ -10,11 +10,11 @@
 """
 import json
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import db
-from config import DB_PATH, PROJECT_DIR, VENUE_NAMES, jst_today
+from config import DB_PATH, JST, PROJECT_DIR, VENUE_NAMES, jst_today
 
 SITE_DIR = PROJECT_DIR / "reports" / "site"
 DATA_DIR = SITE_DIR / "data"
@@ -151,6 +151,8 @@ SHOW_DAYS = 4
 
 
 def render_stats(ledger: list) -> str:
+    # 表示専用の生成時刻(JST)。採点結果そのものには影響しない
+    updated = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     totals = {k: _zero() for k in PREDICTOR_LABELS}
     for entry in ledger:
         for k, s in entry["stats"].items():
@@ -267,6 +269,7 @@ def render_stats(ledger: list) -> str:
 </head>
 <body>
 <h1>通算成績</h1>
+<p class="note">最終更新: {updated}(自動採点は毎晩23時台)</p>
 <div class="nav">
   <a href="index.html">平和島</a><a href="edogawa.html">江戸川</a>
   <a href="tokoname.html">常滑</a><a href="amagasaki.html">尼崎</a>
@@ -296,7 +299,15 @@ def render_stats(ledger: list) -> str:
     {''.join(daily_rows)}
   </table>
 </div>
-<p class="note">毎晩23時台に自動更新。舟券の購入は自己責任で。</p>
+<p style="text-align:center;margin:16px 0">
+  <a href="https://github.com/romancedawn59/boat-yosou/actions/workflows/grade.yml"
+     style="display:inline-block;background:#1a7f37;color:#fff;font-weight:bold;
+            padding:10px 22px;border-radius:20px;text-decoration:none;font-size:.9rem">
+    ▶ 手動で採点を更新(GitHubが開きます)</a>
+</p>
+<p class="note">上のボタン→「Run workflow」→日付欄に採点したい日(YYYY-MM-DD、空なら今日)→緑のボタン。
+1〜2分でこのページに反映されます。夜間の自動採点が日付をまたいで飛んだ日の復旧にも同じ手順を使えます。</p>
+<p class="note">最終更新: {updated} / 毎晩23時台に自動更新。舟券の購入は自己責任で。</p>
 <script>
 const HITS = {hits_json};
 const DAYS = {days_json};

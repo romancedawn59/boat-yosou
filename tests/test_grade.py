@@ -152,5 +152,22 @@ class TestLedgerAndStats(unittest.TestCase):
         self.assertIn("日別(直近4日)", html)
 
 
+class TestStatsPageChrome(unittest.TestCase):
+    """更新時刻と手動更新ボタン(2026-07-14ユーザー要望・表示のみの凍結例外)"""
+
+    def _html(self):
+        stats = {k: {"stake": 1000, "ret": 500, "races": 1, "hits": 1}
+                 for k in G.PREDICTOR_LABELS}
+        return G.render_stats([{"date": "2026-07-07", "stats": stats}])
+
+    def test_shows_last_updated(self):
+        self.assertIn("最終更新:", self._html())
+
+    def test_has_manual_run_button(self):
+        html = self._html()
+        self.assertIn("手動で採点を更新", html)
+        self.assertIn("actions/workflows/grade.yml", html)
+
+
 if __name__ == "__main__":
     unittest.main()
