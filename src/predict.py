@@ -280,9 +280,10 @@ def _summary_html(races: list[dict]) -> str:
 def _picks_html(title: str, picks: list[tuple[str, str, float]]) -> str:
     if not picks:
         return ""
+    # 小数点以下3桁表示(2026-07-18ユーザー指示・表示のみの凍結例外)。
+    # C勝万舟の閾値0.5%際で「0.50%に見えて実は0.495%」の情報が潰れるのを防ぐ
     items = " / ".join(
-        f"{bt}{comb}<span class='p'>({p:.1%})</span>" if p >= 0.001
-        else f"{bt}{comb}<span class='p'>({p:.2%})</span>"
+        f"{bt}{comb}<span class='p'>({p:.3%})</span>"
         for bt, comb, p in picks
     )
     return f"<div class='picks'><h3>{title}</h3><div class='items'>{items}</div></div>"
