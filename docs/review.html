@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>実戦レビュー 2026-07-18(公平版)</title>
+<style>
+  body { font-family: sans-serif; margin: 0 auto; padding: 10px; background: #f6f8fa; max-width: 720px; }
+  h1 { font-size: 1.15rem; margin: 10px 4px; }
+  h2 { font-size: .95rem; margin: 0 0 8px; }
+  .card { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  th { background: #f6f8fa; text-align: left; padding: 5px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 5px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .hot { background: #d6efff55; }
+  .note { font-size: .75rem; color: #57606a; margin: 6px 2px; }
+  .warn { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+          padding: 8px 10px; font-size: .82rem; margin-bottom: 12px; }
+  .opt { border: 1px solid #d0d7de; border-radius: 8px; padding: 8px 10px; margin: 8px 0;
+         font-size: .85rem; }
+  .opt b { display: block; margin-bottom: 2px; }
+  .nav a { text-decoration: none; font-size: .8rem; color: #0969da; }
+</style>
+</head>
+<body>
+<h1>実戦レビュー 2026-07-18(公平版)</h1>
+<p class="nav"><a href="index.html">← 今日の予想</a> / <a href="stats.html">通算成績</a></p>
+<p class="note">実購入(7/8〜7/17・本命勝負所のみ)10日間の検証。システム擁護のバイアスを排して作成。</p>
+
+<div class="card">
+  <h2>成績サマリー</h2>
+  <table>
+    <tr><th>項目</th><th class="num">実戦</th><th class="num">バックテスト基準</th></tr>
+    <tr><td>累計損益(69R)</td><td class="num neg">-44,380円</td><td class="num">期待+3.5万円前後</td></tr>
+    <tr><td>連敗日数</td><td class="num neg">10日</td><td class="num">最長10日(正常域の縁)</td></tr>
+    <tr><td>的中率</td><td class="num">37.7%</td><td class="num">44.7%(誤差圏)</td></tr>
+    <tr class="hot"><td><b>ガミ率(的中中)</b></td><td class="num neg"><b>80.8%</b></td><td class="num"><b>52.3%(+28pt・約2.6σ)</b></td></tr>
+    <tr><td>利益の出た的中</td><td class="num">5回/69R</td><td class="num">—</td></tr>
+  </table>
+  <p class="note">負けの型は「当たらない」ではなく「当たっても払戻が掛金未満(ガミ)」。
+  荒れ注意と選んだレースが順当に決まりすぎている。</p>
+</div>
+
+<div class="card">
+  <h2>公平な評価</h2>
+  <p style="font-size:.85rem">この10日は「150%システムの不運」とも「エッジのないシステム」とも
+  整合するが、<b>どちらかと言えば後者寄り</b>(期待から約2.7σ下振れ+ガミ率2.6σ逸脱の同時発生)。
+  さらにバックテスト自体に上方バイアスがある:</p>
+  <ul style="font-size:.82rem;margin:6px 0;padding-left:1.2em">
+    <li>5場は成績を見た後に選んだ(全24場なら122%水準)</li>
+    <li>利益は数発の万舟に集中(最大1発除きで139〜150%)</li>
+    <li>税引きでさらに目減り(一時所得・外れ券は経費不可)</li>
+  </ul>
+  <p style="font-size:.85rem"><b>公平な期待レンジ: 「やや優位〜優位なし」の間。</b>170%を額面で信じる段階ではない。</p>
+</div>
+
+<div class="card">
+  <h2>発見: エッジの本体は「超混戦」だけ</h2>
+  <p class="note">選別バイアスなしのウォークフォワード1,194レースを1位勝率帯で層別:</p>
+  <table>
+    <tr><th>1位勝率帯</th><th class="num">R数</th><th class="num">回収率</th><th class="num">最大1発除き</th><th class="num">ガミ率</th></tr>
+    <tr class="hot"><td><b>〜20%(超混戦)</b></td><td class="num">113</td><td class="num pos">743.4%</td><td class="num pos">378.7%</td><td class="num">37.3%</td></tr>
+    <tr><td>20〜25%</td><td class="num">175</td><td class="num pos">143.2%</td><td class="num neg">62.6%</td><td class="num">60.3%</td></tr>
+    <tr><td>25〜30%</td><td class="num">350</td><td class="num neg">97.0%</td><td class="num neg">84.0%</td><td class="num">52.8%</td></tr>
+    <tr><td>30〜35%(上端)</td><td class="num">556</td><td class="num pos">116.7%</td><td class="num pos">103.8%</td><td class="num">58.6%</td></tr>
+  </table>
+  <p class="note">現行の「35%未満は全部買う」は、濃いエッジ(全体の9%)を大量の無エッジで薄めた構造。
+  実戦10日は超混戦が6Rしか出現せず、薄い帯を買い続けた期間だった。
+  <b>v2候補=閾値を25%(or 20%)に絞る濃縮版</b>。ただしこの層別は負けた後の後知恵分析のため
+  8月の残りで確認してから採否を決める。濃縮すると1日1〜2Rに減り、数週間ゼロが普通の
+  ジャックポット型になる点も要覚悟。</p>
+</div>
+
+<div class="card">
+  <h2>いま決めること(どれかを選ぶ。選んだら動かさない)</h2>
+  <div class="opt"><b>案A: 続行+ハードストップ</b>
+    実損-6万円(バックテスト最大の谷-5万円超え=正常域を出たの機械判定)に達したら購入停止。
+    紙上観測は継続し9/1で判断。</div>
+  <div class="opt"><b>案B: 半額運用</b>
+    各券面を半分(1R=500円)。ロジック不変で答え合わせを続けながら被弾を半減。</div>
+  <div class="opt"><b>案C: 購入停止・紙上のみ</b>
+    観測は毎日自動で貯まる。8月末に濃縮版の確認結果を見てから再開判断。</div>
+  <p class="note">どれを選んでも検証・観測は同じに進む。事前に決めたラインは以後動かさない
+  (これまで資金目安が3万→5万→10万と動いたことへの反省を込めて)。</p>
+</div>
+
+<p class="note">生成: 2026-07-18 / 詳細データ: リポジトリのtest/配下(市場レポート・検証⑪ほか)。
+このページは振り返り専用で、予想・採点・通算成績には影響しない。</p>
+</body>
+</html>
