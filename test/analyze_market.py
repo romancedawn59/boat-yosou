@@ -578,6 +578,13 @@ def paper_challengers(picks: dict, model_probs: dict, payout: dict) -> dict:
         "WHERE bet_type = '3連単' AND fetched_at != 'final-backfill' AND odds > 0"
     ):
         market_orders[rid][int(comb.split("-")[0])] += 1.0 / odds
+    # 回収ラインフィルタ用: 15分前スナップショットの3連複オッズ
+    trio_snap: dict[str, dict[str, float]] = defaultdict(dict)
+    for rid, comb, odds in conn.execute(
+        "SELECT race_id, combination, odds FROM odds "
+        "WHERE bet_type = '3連複' AND fetched_at != 'final-backfill' AND odds > 0"
+    ):
+        trio_snap[rid][comb] = odds
     conn.close()
     market_order = {rid: sorted(d, key=lambda l: -d[l]) for rid, d in market_orders.items()}
 
@@ -614,8 +621,35 @@ def paper_challengers(picks: dict, model_probs: dict, payout: dict) -> dict:
             s["stake"] += stake
             s["ret"] += ret
             s["hits"] += 1 if ret else 0
+    # 回収ラインフィルタ(2026-07-18ケンさん発案。8月宿題「ガミ条件のオッズ形状層別」の測定):
+    # 本命勝負所のうち「主力3連複(1点目)の15分前オッズ×掛金 ≥ 1,000円」のレースだけ買う。
+    # ガミ的中の多く(初回検証で11中8)は購入時点のオッズで回収不能と分かっていたため、
+    # 「市場が予測できているレース=実は荒れない」の除外効果を毎日測る。紙上のみ
+    filter_stats = {"買う(主力3連複が回収ライン以上)": {"n": 0, "hits": 0, "stake": 0, "ret": 0},
+                    "見送る(オッズ不足=市場が順当視)": {"n": 0, "hits": 0, "stake": 0, "ret": 0}}
+    filter_unjudgeable = 0
+    for rid, r in picks.items():
+        if r.get("shobusho") != "本命" or not r.get("ken"):
+            continue
+        trios = [(comb, yen) for bt, comb, yen, _ in r["ken"] if bt == "3連複"]
+        o = trio_snap.get(rid, {}).get(trios[0][0]) if trios else None
+        if o is None:
+            filter_unjudgeable += 1
+            continue
+        key = ("買う(主力3連複が回収ライン以上)" if o * trios[0][1] >= 1000
+               else "見送る(オッズ不足=市場が順当視)")
+        pay = payout.get(rid, {})
+        stake = sum(y for _, _, y, _ in r["ken"])
+        ret = sum(pay.get((bt, comb), 0) * yen // 100 for bt, comb, yen, _ in r["ken"])
+        s = filter_stats[key]
+        s["n"] += 1
+        s["stake"] += stake
+        s["ret"] += ret
+        s["hits"] += 1 if ret else 0
+    filter_stats["買う(主力3連複が回収ライン以上)"]["unjudgeable"] = filter_unjudgeable
+
     return {"selectors": rows, "compositions": comp_stats,
-            "unrecoverable": unrecoverable}
+            "unrecoverable": unrecoverable, "odds_filter": filter_stats}
 
 
 def paper_battle(pairs: dict, picks: dict, payout: dict) -> dict:
@@ -751,6 +785,7 @@ def _render_paper_challengers(pc: dict) -> str:
 
     sel_rows = "".join(stat_row(k, v) for k, v in pc["selectors"].items())
     comp_rows = "".join(stat_row(f"構成:{k}", v) for k, v in pc["compositions"].items())
+    filter_rows = "".join(stat_row(k, v) for k, v in pc.get("odds_filter", {}).items())
     return f"""
   <h3 style="font-size:.9rem">選別・構成チャレンジャー(検証⑪の日次紙上採点)</h3>
   <table>
@@ -761,6 +796,8 @@ def _render_paper_challengers(pc: dict) -> str:
     <tr><td>挑戦者③C条件型</td><td colspan="6">蓄積待ち(大穴一撃フラグ構想と同件)</td></tr>
     <tr><th colspan="7">構成4案(選別=本番の本命勝負所に固定・券面は当時の実データから復元)</th></tr>
     {comp_rows}
+    <tr><th colspan="7">回収ラインフィルタ(本命のうち主力3連複の15分前オッズで買う/見送るを分けた場合)</th></tr>
+    {filter_rows}
   </table>
   <p class="note">固定注記: ①②の選別はモデル確率を現行版で再計算(当時版と完全一致しない)。
   ①の閾値は暫定(8月末に(d)層別で確定)。{SMALL_SAMPLE_NOTE}
