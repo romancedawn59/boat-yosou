@@ -20,9 +20,14 @@
   .note { font-size: .75rem; color: #57606a; margin: 6px 2px; }
   .warn { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
           padding: 8px 10px; font-size: .82rem; margin-bottom: 12px; }
-  .opt { border: 1px solid #d0d7de; border-radius: 8px; padding: 8px 10px; margin: 8px 0;
-         font-size: .85rem; }
-  .opt b { display: block; margin-bottom: 2px; }
+  .opt { border: 1px solid #d0d7de; border-radius: 8px; margin: 8px 0; font-size: .85rem; }
+  .opt > summary { padding: 10px; font-weight: bold; cursor: pointer; list-style: none;
+                   display: flex; justify-content: space-between; align-items: center; }
+  .opt > summary::-webkit-details-marker { display: none; }
+  .opt > summary::after { content: "＋"; color: #0969da; font-weight: bold; }
+  .opt[open] > summary::after { content: "－"; }
+  .opt > summary:hover { background: #f6f8fa; }
+  .opt .body { padding: 0 10px 10px; }
   .nav a { text-decoration: none; font-size: .8rem; color: #0969da; }
 </style>
 </head>
@@ -77,13 +82,14 @@
 
 <div class="card">
   <h2>いま決めること(どれかを選ぶ。選んだら動かさない)</h2>
-  <div class="opt"><b>案A: 続行+ハードストップ</b>
-    実損-6万円(バックテスト最大の谷-5万円超え=正常域を出たの機械判定)に達したら購入停止。
-    紙上観測は継続し9/1で判断。</div>
-  <div class="opt"><b>案B: 半額運用</b>
-    各券面を半分(1R=500円)。ロジック不変で答え合わせを続けながら被弾を半減。</div>
-  <div class="opt"><b>案C: 購入停止・紙上のみ</b>
-    観測は毎日自動で貯まる。8月末に濃縮版の確認結果を見てから再開判断。</div>
+  <p class="note">タイトルをタップで詳細が開きます。</p>
+  <details class="opt"><summary>案A: 続行+ハードストップ</summary>
+    <div class="body">実損-6万円(バックテスト最大の谷-5万円超え=正常域を出たの機械判定)に達したら購入停止。
+    紙上観測は継続し9/1で判断。</div></details>
+  <details class="opt"><summary>案B: 半額運用</summary>
+    <div class="body">各券面を半分(1R=500円)。ロジック不変で答え合わせを続けながら被弾を半減。</div></details>
+  <details class="opt"><summary>案C: 購入停止・紙上のみ</summary>
+    <div class="body">観測は毎日自動で貯まる。8月末に濃縮版の確認結果を見てから再開判断。</div></details>
   <p class="note">どれを選んでも検証・観測は同じに進む。事前に決めたラインは以後動かさない
   (これまで資金目安が3万→5万→10万と動いたことへの反省を込めて)。</p>
 </div>
