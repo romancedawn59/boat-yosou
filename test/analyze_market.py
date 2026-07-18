@@ -472,10 +472,12 @@ def sec_h_gami_watch(picks: dict, payout: dict) -> dict:
     rate30, hits30, _ = window_rate(30)
     rate60, hits60, _ = window_rate(60)
 
-    # 30日移動順当率が閾値超の「連続日数」(直近から遡る)
+    # 30日移動順当率が閾値超の「連続日数」(直近から遡る)。
+    # 許容ラインは70%固定(2026-07-18ケンさん決定: 「ガミる幅を70%は許容」。
+    # それまでの基準値+10pt=62.3%より緩い、ユーザー承認済みのライン)
     streak = 0
     if baseline:
-        th = baseline["junto_rate"] + 0.10
+        th = 0.70
         for i in range(len(dates), 0, -1):
             seg = dates[max(0, i - 30):i]
             hits = sum(daily[d][0] for d in seg)
@@ -742,13 +744,13 @@ def _render_gami_watch(h: dict) -> str:
         body = ("<p>基準値待ち: 先に py -X utf8 test/verify_challengers.py を実行すると"
                 "バックテスト基準値(チャンピオンの順当決着率)が保存される。</p>")
     else:
-        th = b["junto_rate"] + 0.10
+        th = 0.70  # ユーザー許容ライン(2026-07-18決定)
         r30 = f"{h['rate30']:.1%}({h['hits30']}的中)" if h["rate30"] is not None else "的中なし"
         r60 = f"{h['rate60']:.1%}({h['hits60']}的中)" if h["rate60"] is not None else "的中なし"
         status = ("<span style='color:#cf222e;font-weight:bold'>『選別再検証の発動条件に到達』"
-                  "(基準値+10pt超が60日継続)</span>" if h["triggered"]
-                  else f"未到達(閾値{th:.1%}超の連続日数: {h['streak']}日/60日。"
-                       f"実戦データ{h['n_days']}日分)")
+                  "(許容ライン70%超が60日継続)</span>" if h["triggered"]
+                  else f"未到達(許容ライン{th:.0%}超の連続日数: {h['streak']}日/60日。"
+                       f"実戦データ{h['n_days']}日分。許容70%は2026-07-18ケンさん設定)")
         body = f"""
   <table>
     <tr><th>指標</th><th class="num">値</th></tr>
