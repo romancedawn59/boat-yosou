@@ -115,7 +115,9 @@ def run(d: date, include_all: bool = False) -> bool:
     fetched_label = now.strftime("%H:%M")
     odds_panes: dict[str, str] = {}
     for race in races:
-        if not race["bets"]["plan"]:
+        # v2: 全場を予測するため、オッズ取得は勝負所(本命/超混戦/要注目)に限定する
+        # (全約200レースへのアクセスを避けるサーバー負荷配慮)
+        if not race.get("shobusho") or not race["bets"]["plan"]:
             continue
         if not include_all:
             deadline = race["deadline"]
@@ -138,8 +140,9 @@ def run(d: date, include_all: bool = False) -> bool:
     for venue, slug in predict.VENUE_SLUGS.items():
         html = predict.render_venue_page(d, venue, races, odds_panes)
         (predict.SITE_DIR / f"{slug}.html").write_text(html, encoding="utf-8")
+    # トップ=買い目一覧(v2)
     (predict.SITE_DIR / "index.html").write_text(
-        predict.render_venue_page(d, predict.TOP_VENUE, races, odds_panes), encoding="utf-8")
+        predict.render_shopping_page(d, races, odds_panes), encoding="utf-8")
 
     # オッズを1レースでも反映できたら通知文を書き出す(送信判断はワークフロー側。
     # *.htmlしかdocsへコピーされないため、このファイルがサイトに載ることはない)

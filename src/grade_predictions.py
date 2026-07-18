@@ -4,7 +4,7 @@
     python grade_predictions.py 2026-07-08  # 日付指定
 
 - A/B/Cは各点100円の均等買いとして採点(通算成績の見える化用)
-- 予想屋kenはポートフォリオの実額で採点(全レース、勝負所[本命/準]の内訳つき)
+- 予想屋kenはポートフォリオの実額で採点(全レース、本命/超混戦/要注目の内訳つき)
 - 結果は docs用の ledger.json に日次追記(再実行時は同日を上書き=冪等)
 - stats.html(通算成績ページ)を再生成する
 """
@@ -24,8 +24,9 @@ PREDICTOR_LABELS = {
     "b": "B 山田三連単",
     "c": "C 勝万舟",
     "ken": "予想屋ken(全レース)",
-    "ken_hon": "ken 本命勝負所",
-    "ken_jun": "ken 準勝負所",
+    "ken_hon": "ken 本命",
+    "ken_konsen": "ken 超混戦",
+    "ken_jun": "ken 要注目(観測・購入なし)",
 }
 
 
@@ -60,7 +61,8 @@ def grade_day(picks: dict, conn) -> dict | None:
             ret = sum(payout.get((bt, comb), 0) * y // 100 for bt, comb, y, _ in ken)
             for key in ["ken"] + (
                 ["ken_hon"] if race["shobusho"] == "本命"
-                else ["ken_jun"] if race["shobusho"] == "準" else []
+                else ["ken_konsen"] if race["shobusho"] == "超混戦"
+                else ["ken_jun"] if race["shobusho"] in ("準", "要注目") else []
             ):
                 s = day[key]
                 s["races"] += 1
@@ -126,7 +128,8 @@ def collect_hits(picks: dict, conn, day_iso: str) -> dict:
                 detail = {**base, "stake": stake, "ret": ret, "lines": lines}
                 hits["ken"].append(detail)
                 sub = ("ken_hon" if race["shobusho"] == "本命"
-                       else "ken_jun" if race["shobusho"] == "準" else None)
+                       else "ken_konsen" if race["shobusho"] == "超混戦"
+                       else "ken_jun" if race["shobusho"] in ("準", "要注目") else None)
                 if sub:
                     hits[sub].append(detail)
 
@@ -216,7 +219,9 @@ def render_stats(ledger: list) -> str:
 
     daily_rows = []
     for entry in sorted(ledger, key=lambda e: e["date"], reverse=True)[:SHOW_DAYS]:
-        ken = entry["stats"].get("ken_hon", _zero())
+        hon = entry["stats"].get("ken_hon", _zero())
+        kon = entry["stats"].get("ken_konsen", _zero())
+        ken = {k: hon[k] + kon[k] for k in hon}  # 実購入=本命+超混戦(v2)
         all_ken = entry["stats"].get("ken", _zero())
         pnl = ken["ret"] - ken["stake"]
         color = "pos" if pnl >= 0 else "neg"
@@ -283,7 +288,7 @@ def render_stats(ledger: list) -> str:
     {total_rows}
   </table>
   <p class="note">A/B/Cは1点100円の均等買い換算。予想屋kenはポートフォリオ実額(1レース1,000円)。
-  水色行がken。推奨運用は「ken 本命勝負所」のみ購入。
+  水色行がken。実購入は「本命」+「超混戦」(v2)。要注目は観測専用で買わない。
   <b>予想者の行をタップ→日付→その日の当たったレースの順で、的中履歴が見られます</b>
   (表示は直近{SHOW_DAYS}日分。記録自体は全期間保存)。</p>
 </div>
@@ -294,7 +299,7 @@ def render_stats(ledger: list) -> str:
 <div class="card">
   <h2 style="margin-top:0">日別(直近{SHOW_DAYS}日)</h2>
   <table>
-    <tr><th>日付</th><th class="num">本命勝負所</th><th class="num">本命損益</th>
+    <tr><th>日付</th><th class="num">購入(本命+超混戦)</th><th class="num">購入損益</th>
         <th class="num">全レース</th><th class="num">全レース損益</th></tr>
     {''.join(daily_rows)}
   </table>
@@ -407,5 +412,13 @@ def main(d: date) -> None:
 
 
 if __name__ == "__main__":
-    target = date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else jst_today()
+    if len(sys.argv) > 1:
+        target = date.fromisoformat(sys.argv[1])
+    else:
+        # 夜間採点cron(21:30/23:30)がGitHub遅延で0時を跨ぐと「今日」を採点して
+        # 空振りする事故が多発した(7/10・7/13)。JST6時前の実行は前日を採点する
+        from datetime import datetime, timedelta
+        from config import JST
+        now = datetime.now(JST)
+        target = (now - timedelta(days=1)).date() if now.hour < 6 else now.date()
     main(target)

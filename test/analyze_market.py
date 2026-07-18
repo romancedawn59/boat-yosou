@@ -451,7 +451,8 @@ def sec_h_gami_watch(picks: dict, payout: dict) -> dict:
     # 日別の(的中数, 順当数)系列を作る
     daily: dict[str, list[int]] = {}
     for rid, r in picks.items():
-        if r.get("shobusho") != "本命" or not r.get("ken"):
+        # v2から実購入=本命+超混戦(旧データは本命のみなので自然に連続)
+        if r.get("shobusho") not in ("本命", "超混戦") or not r.get("ken"):
             continue
         stake, ret = ken_return(r, payout.get(rid, {}))
         if not ret:

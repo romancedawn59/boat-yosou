@@ -14,7 +14,7 @@ from datetime import date, datetime, timedelta
 import db
 import exhibition
 import odds as odds_mod
-from config import DB_PATH, JST, TARGET_VENUE_CODES
+from config import DB_PATH, JST
 
 LOOKAHEAD_MIN = 15  # 締切のこの分数前から取得対象(展示は締切約20分前に確定済み)
 
@@ -41,11 +41,12 @@ def _collect_race_odds(conn, race_id: str, venue_code: int, race_no: int, today:
 
 def collect_today(today: date, now: datetime) -> None:
     conn = db.connect(DB_PATH)
-    ph = ",".join("?" * len(TARGET_VENUE_CODES))
+    # v2: 購入対象(超混戦)が全場から出るため、スナップショットも全24場で取る。
+    # 締切15分前の窓に入るレースは同時刻でも数レースなので負荷は許容範囲
     rows = conn.execute(
-        f"SELECT race_id, venue_code, race_no, deadline_time FROM races "
-        f"WHERE date = ? AND venue_code IN ({ph}) ORDER BY venue_code, race_no",
-        (today.isoformat(), *TARGET_VENUE_CODES),
+        "SELECT race_id, venue_code, race_no, deadline_time FROM races "
+        "WHERE date = ? ORDER BY venue_code, race_no",
+        (today.isoformat(),),
     ).fetchall()
 
     for race_id, venue_code, race_no, deadline_str in rows:

@@ -72,7 +72,6 @@ jobs:
           pick_date=$(basename "$picks" | sed 's/picks_\(.*\)\.json/\1/')
           for f in reports/site/*.html; do
             base=$(basename "$f")
-            [ "$base" = "index.html" ] && continue
             cp "$f" "docs/archive/${pick_date}_${base}"
           done
           git config user.name "github-actions[bot]"
