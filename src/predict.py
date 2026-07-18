@@ -25,7 +25,8 @@ import db
 import predictors as P
 import weather
 from config import (
-    DB_PATH, MODEL_PATH, PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES, jst_today,
+    ATTENTION_CAP, DB_PATH, HONMEI_CAP, KONSEN_PROB_MAX, MODEL_PATH, PAGES_URL,
+    PROJECT_DIR, TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, jst_today,
 )
 from downloader import download_day
 from features import FEATURE_COLUMNS, build_program_features
@@ -33,18 +34,17 @@ from parser_b import parse_program
 
 SITE_DIR = PROJECT_DIR / "reports" / "site"
 
-# 場コード -> ページファイル名。トップページ(index.html)は平和島
+# 場コード -> ページファイル名(検証済み5場のみ個別ページを持つ)。
+# v2(2026-07)からトップページ(index.html)は「本日の買い目一覧」。
+# 他19場のレース(超混戦)は一覧ページにだけ載せ、場別ページは作らない
 VENUE_SLUGS = {4: "heiwajima", 3: "edogawa", 8: "tokoname", 13: "amagasaki", 20: "wakamatsu"}
-TOP_VENUE = 4
 
 
 def _ensure_program(conn, d: date) -> bool:
-    """指定日の対象場の番組表がDBになければダウンロードして格納する"""
+    """指定日の番組表がDBになければダウンロードして格納する(v2: 全場が予測対象)"""
     def target_count():
-        ph = ",".join("?" * len(TARGET_VENUE_CODES))
         return conn.execute(
-            f"SELECT COUNT(*) FROM races WHERE date = ? AND venue_code IN ({ph})",
-            (d.isoformat(), *TARGET_VENUE_CODES),
+            "SELECT COUNT(*) FROM races WHERE date = ?", (d.isoformat(),),
         ).fetchone()[0]
 
     if target_count():
@@ -64,9 +64,12 @@ def _ensure_program(conn, d: date) -> bool:
 
 
 def _fetch_weather_by_race(conn, race_meta: dict) -> dict[str, dict]:
-    """レースIDごとのレース前予報(Open-Meteo)。表示専用(モデルには使わない)"""
+    """レースIDごとのレース前予報(Open-Meteo)。表示専用(モデルには使わない)。
+    座標登録のある場(検証済み5場)のみ取得し、他場は表示なし"""
     hourly_by_venue = {}
     for venue in {meta["venue_code"] for meta in race_meta.values()}:
+        if venue not in VENUE_COORDS:
+            continue
         try:
             hourly_by_venue[venue] = weather.fetch_hourly(venue)
         except Exception as e:
@@ -91,17 +94,16 @@ def _fetch_weather_by_race(conn, race_meta: dict) -> dict[str, dict]:
 
 
 def predict_day(d: date) -> list[dict] | None:
-    """1日分・対象5場の予測。どの場も開催がなければNone"""
+    """1日分・全24場の予測(v2)。開催がなければNone"""
     conn = db.connect(DB_PATH)
     if not _ensure_program(conn, d):
         conn.close()
         return None
 
-    ph = ",".join("?" * len(TARGET_VENUE_CODES))
     rows = conn.execute(
-        f"SELECT race_id, venue_code, race_no, deadline_time FROM races "
-        f"WHERE date = ? AND venue_code IN ({ph}) ORDER BY venue_code, race_no",
-        (d.isoformat(), *TARGET_VENUE_CODES),
+        "SELECT race_id, venue_code, race_no, deadline_time FROM races "
+        "WHERE date = ? ORDER BY venue_code, race_no",
+        (d.isoformat(),),
     ).fetchall()
     race_meta = {
         r[0]: {"venue_code": r[1], "race_no": r[2], "deadline": r[3]} for r in rows
@@ -148,33 +150,39 @@ def predict_day(d: date) -> list[dict] | None:
             "bets": {"confidence": confidence, "plan": ken},
         })
 
-    P.select_shobusho(races, max_races=10)
+    P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
+                      honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
+                      attention_cap=ATTENTION_CAP)
     return races
 
 
-def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], int]:
-    """(本命ラベル一覧, 準ラベル一覧, 本命+準の合計予算円)"""
-    honmei = [f"{r['venue_name']}{r['race_no']}R" for r in races if r.get("shobusho") == "本命"]
-    jun = [f"{r['venue_name']}{r['race_no']}R" for r in races if r.get("shobusho") == "準"]
+def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], int]:
+    """(本命一覧, 超混戦一覧, 要注目一覧, 購入予算円)。予算は本命+超混戦のみ
+    (要注目は観測専用・購入なし)"""
+    def names(mark):
+        return [f"{r['venue_name']}{r['race_no']}R" for r in races
+                if r.get("shobusho") == mark]
+
     budget = sum(
         sum(y for _, _, y, _ in r["bets"]["plan"])
-        for r in races if r.get("shobusho")
+        for r in races if r.get("shobusho") in ("本命", "超混戦")
     )
-    return honmei, jun, budget
+    return names("本命"), names("超混戦"), names("要注目"), budget
 
 
 def build_notify_text(d: date, races: list[dict]) -> str:
-    """LINE通知用のプレーンテキスト"""
-    honmei, jun, budget = shobu_summary(races)
+    """LINE通知用のプレーンテキスト(v2: 本命+超混戦が購入対象)"""
+    honmei, konsen, attention, budget = shobu_summary(races)
     lines = [f"【競艇予想】{d}"]
     if honmei:
-        lines.append(f"本命勝負所: {'、'.join(honmei)}")
-    if jun:
-        lines.append(f"準勝負所: {'、'.join(jun)}")
-    if honmei or jun:
-        lines.append(f"予算: {budget:,}円(1R=1,000円)")
+        lines.append(f"本命: {'、'.join(honmei)}")
+    if konsen:
+        lines.append(f"超混戦: {'、'.join(konsen)}")
+    if honmei or konsen:
+        lines.append(f"購入予算: {budget:,}円(1レース1,000円)")
     else:
-        lines.append("本日は勝負所なし(全レース見送り推奨)")
+        lines.append("本日は購入対象なし(全レース見送り推奨)")
+    # 要注目は通知しない(2026-07-18ユーザー指示。観測枠はサイト下部のみ)
     lines.append("")
     lines.append(PAGES_URL)
     return "\n".join(lines)
@@ -199,7 +207,10 @@ _CSS = """
           border-radius: 12px; }
   .sho { font-size: .75rem; padding: 3px 10px; border-radius: 12px; color: #fff; font-weight: bold; }
   .sho.hon { background: #cf222e; }
-  .sho.jun { background: #bc4c00; }
+  .sho.kon { background: #6f42c1; }
+  .sho.att { background: #6e7781; }
+  .sec-h { font-size: .95rem; margin: 14px 4px 8px; }
+  .venue-tag { font-size: .8rem; color: #57606a; font-weight: bold; }
   table { width: 100%; border-collapse: collapse; font-size: .9rem; }
   td { padding: 4px 6px; border-bottom: 1px solid #eee; }
   .lane { width: 2em; text-align: center; font-weight: bold; border-radius: 4px; }
@@ -253,27 +264,29 @@ function swTab(btn, paneId) {
 """
 
 
-def _nav_html(active_venue: int, venues_today: set[int]) -> str:
-    links = []
+def _nav_html(active_venue: int | None, venues_today: set[int]) -> str:
+    """ナビ。v2からトップ=買い目一覧、5場は各自のページを持つ"""
+    cls_top = ' class="active"' if active_venue is None else ""
+    links = [f'<a href="index.html"{cls_top}>本日の買い目</a>']
     for venue, slug in VENUE_SLUGS.items():
-        href = "index.html" if venue == TOP_VENUE else f"{slug}.html"
         cls = " class=\"active\"" if venue == active_venue else ""
         mark = "" if venue in venues_today else "・休"
-        links.append(f'<a href="{href}"{cls}>{VENUE_NAMES[venue]}{mark}</a>')
+        links.append(f'<a href="{slug}.html"{cls}>{VENUE_NAMES[venue]}{mark}</a>')
     links.append('<a href="stats.html">通算成績</a>')
     return '<div class="nav">' + "".join(links) + "</div>"
 
 
 def _summary_html(races: list[dict]) -> str:
-    honmei, jun, budget = shobu_summary(races)
-    if not honmei and not jun:
-        return '<div class="summary">本日は勝負所なし(全レース見送り推奨)。</div>'
+    honmei, konsen, attention, budget = shobu_summary(races)
+    if not honmei and not konsen:
+        return '<div class="summary">本日は購入対象なし(全レース見送り推奨)。</div>'
     parts = []
     if honmei:
-        parts.append(f"本命勝負所(検証済みエッジ): <b>{'、'.join(honmei)}</b>")
-    if jun:
-        parts.append(f"準勝負所(補充・期待値は本命より低い): {'、'.join(jun)}")
-    parts.append(f"予算 {budget:,}円(1レース1,000円)")
+        parts.append(f"🔴本命(5場・上位{HONMEI_CAP}): <b>{'、'.join(honmei)}</b>")
+    if konsen:
+        parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満): <b>{'、'.join(konsen)}</b>")
+    parts.append(f"購入予算 {budget:,}円(1レース1,000円)")
+    # 要注目はサマリーに載せない(ユーザー指示。ページ下部の観測セクションのみ)
     return '<div class="summary">' + "<br>".join(parts) + "</div>"
 
 
@@ -314,7 +327,8 @@ def _render_odds_pane(view: dict) -> str:
       </div>"""
 
 
-def _render_race_card(race: dict, odds_pane: str | None = None) -> str:
+def _render_race_card(race: dict, odds_pane: str | None = None,
+                      show_venue: bool = False) -> str:
     deadline = (race["deadline"] or "")[-8:-3]
     conf = race["bets"]["confidence"]
     color = _CONFIDENCE_COLORS[conf]
@@ -322,9 +336,11 @@ def _render_race_card(race: dict, odds_pane: str | None = None) -> str:
 
     sho_html = ""
     if shobusho == "本命":
-        sho_html = "<span class='sho hon'>本命勝負所</span>"
-    elif shobusho == "準":
-        sho_html = "<span class='sho jun'>準勝負所</span>"
+        sho_html = "<span class='sho hon'>本命</span>"
+    elif shobusho == "超混戦":
+        sho_html = "<span class='sho kon'>超混戦</span>"
+    elif shobusho == "要注目":
+        sho_html = "<span class='sho att'>要注目(観測)</span>"
 
     boat_rows = "".join(
         f"<tr><td class='lane l{b['lane']}'>{b['lane']}</td>"
@@ -374,10 +390,11 @@ def _render_race_card(race: dict, odds_pane: str | None = None) -> str:
     <div id="m-{rid}" class="pane active">{morning_pane}</div>
     <div id="o-{rid}" class="pane">{odds_pane}</div>"""
 
+    venue_html = f"<span class='venue-tag'>{race['venue_name']}</span>" if show_venue else ""
     return f"""
   <div class="card">
     <div class="head">
-      <span class="rno">{race['race_no']}R</span>
+      {venue_html}<span class="rno">{race['race_no']}R</span>
       <span class="deadline">締切 {deadline}</span>
       {sho_html}
       <span class="conf" style="background:{color}">{conf}</span>
@@ -423,6 +440,49 @@ def render_venue_page(d: date, venue: int, races: list[dict],
 """
 
 
+def render_shopping_page(d: date, races: list[dict],
+                         odds_panes: dict[str, str] | None = None) -> str:
+    """トップページ「本日の買い目一覧」(v2)。区分ごとに締切時刻順で並べた買い物リスト"""
+    odds_panes = odds_panes or {}
+    venues_today = {r["venue_code"] for r in races}
+
+    def section(title, mark):
+        rs = sorted((r for r in races if r.get("shobusho") == mark),
+                    key=lambda r: r["deadline"] or "9999")
+        if not rs:
+            return ""
+        cards = "".join(
+            _render_race_card(r, odds_panes.get(r["race_id"]), show_venue=True)
+            for r in rs)
+        return f"<h2 class='sec-h'>{title}</h2>{cards}"
+
+    body = (section(f"🔴 本命(検証済み5場・上位{HONMEI_CAP})", "本命")
+            + section(f"🟣 超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満)", "超混戦")
+            + section("👀 要注目(観測のみ・購入0点)", "要注目"))
+    if not body:
+        body = '<div class="card">本日は購入対象なし(全レース見送り推奨)。</div>'
+
+    return f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{d} 本日の買い目</title>
+<style>{_CSS}</style>
+</head>
+<body>
+<h1>{d} 本日の買い目</h1>
+{_nav_html(None, venues_today)}
+{_summary_html(races)}
+<p class="note">上から締切順。購入対象は🔴本命と🟣超混戦(各1,000円)。👀要注目は観測専用で買いません。
+確率はモデル予測値。購入は自己責任で。</p>
+{body}
+{_TAB_JS}
+</body>
+</html>
+"""
+
+
 def _picks_json(d: date, races: list[dict]) -> dict:
     return {
         "date": d.isoformat(),
@@ -455,9 +515,9 @@ def run(d: date) -> Path | None:
     for venue, slug in VENUE_SLUGS.items():
         html = render_venue_page(d, venue, races)
         (SITE_DIR / f"{slug}.html").write_text(html, encoding="utf-8")
-    # トップページ=平和島
+    # トップページ=本日の買い目一覧(v2)
     (SITE_DIR / "index.html").write_text(
-        render_venue_page(d, TOP_VENUE, races), encoding="utf-8")
+        render_shopping_page(d, races), encoding="utf-8")
 
     picks_path = SITE_DIR / "data" / f"picks_{d.isoformat()}.json"
     picks_path.write_text(

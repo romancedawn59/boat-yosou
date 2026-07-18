@@ -175,27 +175,54 @@ def ken_portfolio(
     return plan
 
 
-def select_shobusho(races: list[dict], max_races: int = 10) -> None:
-    """勝負所を選定し、各レースに shobusho キー(None/'本命'/'準')を設定する。
+def select_shobusho(races: list[dict], honmei_venues: list[int],
+                    honmei_cap: int = 6, konsen_max: float = 0.20,
+                    attention_cap: int = 4) -> None:
+    """v2選別(ケンさん案・2026-07-18): 各レースに shobusho キーを設定する。
 
-    - 荒れ注意レースは全て「本命」(検証済みエッジ)。10を超える場合は1位勝率が低い順に10まで
-    - 枠が余れば、標準レースから1位勝率が低い順(波乱含みの順)に「準」で補充
+    - 超混戦: 全場で1位勝率(モデル生値)がkonsen_max未満。市場も予測できない本物の
+      混戦=エッジの本体(walk-forward 387%/最大1発除き312%。検証はtest/verify_ken_v2*.py)
+    - 本命: honmei_venues(検証済み5場)の荒れ注意から1位勝率が低い順にhonmei_cap件。
+      cap6はcap10より回収率・ドローダウンとも良い(薄い30〜35%帯の尻尾が削れるため)
+    - 要注目: 観測専用・購入なし。本命から溢れた対象場の荒れ注意+対象場の標準
+      (1位勝率が低い順)で計attention_cap件。「注目に値したか(中波乱・万舟で決着)/
+      標準だったか」を採点で記録し、荒れ判定境界の教師データにする(旧・準勝負所の再定義)
+    購入対象は「本命+超混戦」のみ。対象場のレースが両条件を満たす場合は本命と表示する
+    (購入は1回。和集合の意味は変わらない)。
     """
     for r in races:
         r["shobusho"] = None
 
+    # 超混戦(全場)。プランが組めるレースのみ
+    for r in races:
+        if r["ranked"][0]["prob"] < konsen_max and r["bets"]["plan"]:
+            r["shobusho"] = "超混戦"
+
+    # 本命(対象場の荒れ注意・1位勝率が低い順にcap件)。超混戦と重複したら本命表示を優先
     are = sorted(
-        (r for r in races if r["bets"]["confidence"] == "荒れ注意" and r["bets"]["plan"]),
+        (r for r in races
+         if r["venue_code"] in honmei_venues
+         and r["bets"]["confidence"] == "荒れ注意" and r["bets"]["plan"]),
         key=lambda r: r["ranked"][0]["prob"],
     )
-    for r in are[:max_races]:
+    for r in are[:honmei_cap]:
         r["shobusho"] = "本命"
 
-    remaining = max_races - min(len(are), max_races)
-    if remaining > 0:
+    # 要注目(観測専用): 買わない超混戦(プラン不成立等)は購入0点として必ず載せ、
+    # 続いて本命から溢れた荒れ注意 → 足りなければ標準から補充
+    konsen_unbought = [r for r in races
+                       if r["ranked"][0]["prob"] < konsen_max
+                       and r["shobusho"] is None]
+    for r in konsen_unbought:
+        r["shobusho"] = "要注目"
+    attention = [r for r in are[honmei_cap:] if r["shobusho"] is None]
+    if len(attention) < attention_cap:
         standards = sorted(
-            (r for r in races if r["bets"]["confidence"] == "標準" and r["bets"]["plan"]),
+            (r for r in races
+             if r["venue_code"] in honmei_venues
+             and r["bets"]["confidence"] == "標準" and r["bets"]["plan"]),
             key=lambda r: r["ranked"][0]["prob"],
         )
-        for r in standards[:remaining]:
-            r["shobusho"] = "準"
+        attention += standards[:attention_cap - len(attention)]
+    for r in attention[:attention_cap]:
+        r["shobusho"] = "要注目"

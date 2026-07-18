@@ -97,7 +97,9 @@ def build_rows() -> tuple[list[dict], dict]:
     total = {"races": 0, "hits": 0, "score_sum": 0, "perfect": 0}
     for day in ledger:
         total["races"] += day["stats"]["ken_hon"]["races"]
-        for h in day.get("hits", {}).get("ken_hon", []):
+        total["races"] += day["stats"].get("ken_konsen", {}).get("races", 0)
+        for h in (day.get("hits", {}).get("ken_hon", [])
+                  + day.get("hits", {}).get("ken_konsen", [])):
             lines = []
             for ln in h.get("lines", []):
                 parsed = parse_line(ln["label"])
@@ -163,7 +165,7 @@ def render(rows: list[dict], total: dict) -> str:
 </style>
 </head>
 <body>
-<h1>評価点と学びのログ(本命勝負所の的中)</h1>
+<h1>評価点と学びのログ(実購入=本命+超混戦の的中)</h1>
 <p class="nav"><a href="index.html">← 今日の予想</a> / <a href="stats.html">通算成績</a> / <a href="review.html">実戦レビュー</a></p>
 <p class="note">評価点=払戻率(100%以上は100点)。100点未満の1件ずつに「なぜか」を記録し、
 選別・モデル改善の糧にする(2026-07-18ケンさん発案)。ガミ許容ラインは70%(市場レポートで監視)。

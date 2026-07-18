@@ -113,7 +113,7 @@ class TestLedgerAndStats(unittest.TestCase):
         html = G.render_stats([{"date": "2026-07-07", "stats": stats}])
         self.assertIn("A 石橋渡", html)
         self.assertIn("予想屋ken(全レース)", html)
-        self.assertIn("ken 本命勝負所", html)
+        self.assertIn("ken 本命", html)
         self.assertIn("120.0%", html)
         self.assertIn("viewport", html)
 
@@ -167,6 +167,24 @@ class TestStatsPageChrome(unittest.TestCase):
         html = self._html()
         self.assertIn("手動で採点を更新", html)
         self.assertIn("actions/workflows/grade.yml", html)
+
+
+class TestKonsenBucket(unittest.TestCase):
+    def test_konsen_goes_to_own_bucket(self):
+        import tempfile
+        from pathlib import Path as P_
+        import db
+        picks = _picks(shobusho="超混戦")
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = db.connect(P_(tmp) / "t.db")
+            rid = picks["races"][0]["race_id"]
+            db.upsert_payout(conn, {"race_id": rid, "bet_type": "3連複",
+                                    "combination": "1=2=3", "amount_yen": 500})
+            day = G.grade_day(picks, conn)
+            conn.close()
+        self.assertEqual(day["ken_konsen"]["races"], 1)
+        self.assertEqual(day["ken_hon"]["races"], 0)   # 本命には入らない
+        self.assertEqual(day["ken"]["races"], 1)
 
 
 if __name__ == "__main__":

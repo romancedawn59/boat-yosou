@@ -42,42 +42,47 @@ KATAME = [0.60, 0.2, 0.1, 0.05, 0.03, 0.02]
 
 
 class TestShobuSummary(unittest.TestCase):
-    def test_lists_and_budget(self):
+    def test_lists_and_budget_v2(self):
         races = [
             _race(ARERU, 4, 5, shobusho="本命"),
-            _race(ARERU, 13, 2, shobusho="準"),
+            _race(ARERU, 1, 2, shobusho="超混戦"),   # 全場対象(桐生)
+            _race(ARERU, 13, 3, shobusho="要注目"),  # 観測のみ・予算に入らない
             _race(KATAME, 20, 1),
         ]
-        honmei, jun, budget = shobu_summary(races)
+        honmei, konsen, attention, budget = shobu_summary(races)
         self.assertEqual(honmei, ["平和島5R"])
-        self.assertEqual(jun, ["尼崎2R"])
-        self.assertEqual(budget, 2000)  # 本命+準の2レース×1000円
+        self.assertEqual(konsen, ["桐生2R"])
+        self.assertEqual(attention, ["尼崎3R"])
+        self.assertEqual(budget, 2000)  # 購入=本命+超混戦の2レース×1000円
 
     def test_empty(self):
-        honmei, jun, budget = shobu_summary([_race(KATAME)])
-        self.assertEqual((honmei, jun, budget), ([], [], 0))
+        honmei, konsen, attention, budget = shobu_summary([_race(KATAME)])
+        self.assertEqual((honmei, konsen, attention, budget), ([], [], [], 0))
 
 
 class TestBuildNotifyText(unittest.TestCase):
     def test_includes_shobusho_and_url(self):
-        races = [_race(ARERU, 4, 5, shobusho="本命"), _race(ARERU, 13, 2, shobusho="準")]
+        races = [_race(ARERU, 4, 5, shobusho="本命"), _race(ARERU, 1, 2, shobusho="超混戦"),
+                 _race(ARERU, 13, 3, shobusho="要注目")]
         text = build_notify_text(date(2026, 7, 5), races)
-        self.assertIn("本命勝負所: 平和島5R", text)
-        self.assertIn("準勝負所: 尼崎2R", text)
-        self.assertIn("予算: 2,000円", text)
+        self.assertIn("本命: 平和島5R", text)
+        self.assertIn("超混戦: 桐生2R", text)
+        self.assertIn("購入予算: 2,000円(1レース1,000円)", text)  # 要注目は予算外
+        self.assertNotIn("要注目", text)  # 要注目は通知しない(ユーザー指示)
         self.assertIn("https://", text)
 
     def test_no_shobusho_day(self):
         text = build_notify_text(date(2026, 7, 5), [_race(KATAME)])
-        self.assertIn("本日は勝負所なし", text)
+        self.assertIn("本日は購入対象なし", text)
 
 
 class TestRenderVenuePage(unittest.TestCase):
     def test_page_has_nav_picks_and_ken_box(self):
         races = [_race(ARERU, 4, 5, shobusho="本命"), _race(KATAME, 13, 1)]
         html = render_venue_page(date(2026, 7, 5), 4, races)
-        # ナビゲーション(トップ=平和島はindex.html)
-        self.assertIn('href="index.html"', html)
+        # ナビゲーション(v2: トップ=買い目一覧、平和島は自分のページを持つ)
+        self.assertIn('href="index.html"', html)      # 本日の買い目
+        self.assertIn('href="heiwajima.html"', html)
         self.assertIn('href="amagasaki.html"', html)
         self.assertIn('href="stats.html"', html)
         # A/B/Cの順で掲載
@@ -89,7 +94,7 @@ class TestRenderVenuePage(unittest.TestCase):
         # kenは水色ボックス+金額
         self.assertIn("class='ken'", html)
         self.assertIn("計1,000円", html)
-        self.assertIn("本命勝負所", html)
+        self.assertIn(">本命</span>", html)  # v2バッジ
         self.assertIn("viewport", html)
 
     def test_non_racing_venue_page(self):
@@ -103,6 +108,33 @@ class TestRenderVenuePage(unittest.TestCase):
         html = render_venue_page(date(2026, 7, 5), 4, [_race(ARERU, 4, 1, wx=wx)])
         self.assertIn("風速3.5m/s(南東の風)", html)
         self.assertIn("予測には未使用", html)
+
+
+class TestShoppingPage(unittest.TestCase):
+    def test_sections_and_order(self):
+        from predict import render_shopping_page
+        races = [
+            _race(ARERU, 1, 2, shobusho="超混戦"),
+            _race(ARERU, 4, 5, shobusho="本命"),
+            _race(ARERU, 13, 3, shobusho="要注目"),
+            _race(KATAME, 20, 1),  # 選外は載らない
+        ]
+        html = render_shopping_page(date(2026, 7, 5), races)
+        self.assertIn("本日の買い目", html)
+        pos_hon = html.find("🔴 本命")
+        pos_kon = html.find("🟣 超混戦")
+        pos_att = html.find("👀 要注目")
+        self.assertTrue(0 < pos_hon < pos_kon < pos_att)
+        self.assertIn("venue-tag", html)     # 一覧では場名を表示
+        self.assertIn("桐生", html)           # 他19場のレースも載る
+        self.assertNotIn("若松1R", html)      # 選外レースは載らない
+        self.assertIn("購入予算 2,000円", html)
+        self.assertNotIn("要注目(観測のみ・購入なし): ", html)  # サマリーには載せない
+
+    def test_empty_day(self):
+        from predict import render_shopping_page
+        html = render_shopping_page(date(2026, 7, 5), [_race(KATAME, 20, 1)])
+        self.assertIn("購入対象なし", html)
 
 
 if __name__ == "__main__":

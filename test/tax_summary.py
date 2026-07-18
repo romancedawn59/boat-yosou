@@ -8,7 +8,7 @@ docs/data/ledger.json(夜間採点の確定明細)から、暦年ごとに
 - 当たり舟券の購入費合計(一時所得で経費にできるのはここだけ。外れ舟券は不可)
 - 参考: 総投資額・実収支
 - 一時所得の試算((払戻 − 当たり券費 − 特別控除50万円) × 1/2)
-を「本命勝負所のみ / 本命+準 / 全レース(紙上参考)」の3スコープで集計する。
+を「実購入(本命+超混戦) / 要注目(観測) / 全レース(紙上参考)」の3スコープで集計する。
 
 重要な注意(レポートにも明記):
 - 申告の一次資料はテレボートの投票履歴(公式サイトからCSVで取得可能)。
@@ -43,10 +43,11 @@ PURCHASE_START = "2026-07-08"
 # 的中行ラベル「3連複 1=2=5（200円）」から(券種, 買い目, 購入額)を取り出す
 _LINE_RE = re.compile(r"^(\S+)\s+(\S+)（(\d+)円）$")
 
+# v2(2026-07-18〜): 実購入=本命+超混戦。要注目(旧・準)は観測専用で購入なし
 SCOPES = {
-    "本命勝負所のみ(推奨運用)": "ken_hon",
-    "本命+準勝負所": None,  # ken_hon + ken_jun を合算
-    "全レース(紙上・参考)": "ken",
+    "実購入(本命+超混戦)": ["ken_hon", "ken_konsen"],
+    "要注目(観測・参考)": ["ken_jun"],
+    "全レース(紙上・参考)": ["ken"],
 }
 
 
@@ -134,8 +135,7 @@ def main():
                   "period": f"{year_ledger[0]['date']} 〜 {year_ledger[-1]['date']}",
                   "updated": datetime.now(JST).strftime("%Y-%m-%d %H:%M")}
 
-        for scope_name, key in SCOPES.items():
-            keys = ["ken_hon", "ken_jun"] if key is None else [key]
+        for scope_name, keys in SCOPES.items():
             hits = [h for h in collect_hits(year_ledger, keys)]
             stats = scope_stats(year_ledger, keys)
             payout = sum(h["line_payout"] for h in hits)
@@ -152,21 +152,22 @@ def main():
             }
 
         # 明細CSV(税理士・申告書作成の根拠資料)。
-        # ケンさんの実購入は本命勝負所のみ(2026-07-12確認・準は買っていない)ため、
-        # 明細も本命のみに絞る(準を混ぜると未購入の的中が申告根拠に紛れるため)
+        # 実購入スコープの的中明細(v2: 本命+超混戦。旧期間はken_konsenが無いため自然に本命のみ)
         csv_path = TEST_DIR / f"tax_details_{year}.csv"
         with csv_path.open("w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f)
-            w.writerow(["日付", "場", "レース", "決着", "券種", "買い目",
+            w.writerow(["日付", "場", "レース", "区分", "決着", "券種", "買い目",
                         "当たり券購入額(経費側)", "払戻額"])
-            for h in collect_hits(year_ledger, ["ken_hon"]):
-                w.writerow([h["date"], h["venue"], f"{h['race_no']}R", h["chaku"],
+            label = {"ken_hon": "本命", "ken_konsen": "超混戦"}
+            for h in collect_hits(year_ledger, ["ken_hon", "ken_konsen"]):
+                w.writerow([h["date"], h["venue"], f"{h['race_no']}R",
+                            label.get(h["scope_key"], h["scope_key"]), h["chaku"],
                             h["bt"], h["comb"], h["line_stake"], h["line_payout"]])
 
         html_path = TEST_DIR / f"tax_report_{year}.html"
         html_path.write_text(render_report(report), encoding="utf-8")
-        s = report["scopes"]["本命勝負所のみ(推奨運用)"]
-        print(f"{year}年(本命のみ): 払戻{s['payout']:,}円 / 当たり券費{s['winning_cost']:,}円 / "
+        s = report["scopes"]["実購入(本命+超混戦)"]
+        print(f"{year}年(実購入): 払戻{s['payout']:,}円 / 当たり券費{s['winning_cost']:,}円 / "
               f"一時所得{s['ichiji']:,}円 / 課税対象{s['taxable']:,}円")
         print(f"出力: {html_path}")
         print(f"出力: {csv_path}")
@@ -179,7 +180,7 @@ def render_report(r: dict) -> str:
     for name, s in r["scopes"].items():
         profit = s["ret"] - s["stake"]
         scope_rows.append(
-            f"<tr{' class=adopt' if '本命勝負所のみ' in name else ''}>"
+            f"<tr{' class=adopt' if '実購入' in name else ''}>"
             f"<td>{name}</td>"
             f"<td class='num'>{s['payout']:,}円</td>"
             f"<td class='num'>{s['winning_cost']:,}円</td>"
@@ -188,7 +189,7 @@ def render_report(r: dict) -> str:
             f"<td class='num'>{s['stake']:,}円</td>"
             f"<td class='num {'pos' if profit >= 0 else 'neg'}'>{profit:+,}円</td></tr>")
 
-    hon = r["scopes"]["本命勝負所のみ(推奨運用)"]
+    hon = r["scopes"]["実購入(本命+超混戦)"]
     month_rows = []
     for m, s in hon["monthly"].items():
         profit = s["ret"] - s["stake"]
@@ -242,13 +243,13 @@ def render_report(r: dict) -> str:
         <th class="num">参考:総投資</th><th class="num">参考:実収支</th></tr>
     {''.join(scope_rows)}
   </table>
-  <p class="note"><b>実購入は「本命勝負所のみ」(2026-07-12ケンさん確認。準は未購入)</b>。
-  申告にはこの行と明細CSVを使う。「本命+準」「全レース」はシステムの紙上採点の参考値で
+  <p class="note"><b>実購入は「本命+超混戦」(v2・2026-07-18〜。それ以前は本命のみで数字は連続)</b>。
+  申告にはこの行と明細CSVを使う。「要注目」「全レース」はシステムの紙上採点の参考値で
   申告対象ではない。一時所得がマイナスの場合は0(他の所得との損益通算は不可)。</p>
 </div>
 
 <div class="card">
-  <h2 style="margin-top:0">月別(本命勝負所)</h2>
+  <h2 style="margin-top:0">月別(実購入=本命+超混戦)</h2>
   <table>
     <tr><th>月</th><th class="num">レース数</th><th class="num">的中数</th>
         <th class="num">投資</th><th class="num">払戻</th><th class="num">実収支</th></tr>

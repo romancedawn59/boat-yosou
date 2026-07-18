@@ -147,29 +147,56 @@ class TestFlatProbsRegression(unittest.TestCase):
 
 
 class TestShobusho(unittest.TestCase):
-    def _race(self, conf, top_prob, has_plan=True):
+    """v2選別(ケンさん案): 本命=対象場×荒れ注意×上位cap / 超混戦=全場×top<20% /
+    要注目=観測専用(本命の溢れ+標準の補充)"""
+
+    VENUES = [3, 4, 8, 13, 20]
+
+    def _race(self, conf, top_prob, venue=4, has_plan=True):
         return {
+            "venue_code": venue,
             "bets": {"confidence": conf, "plan": [("x", "y", 100, "z")] if has_plan else []},
             "ranked": [{"lane": 1, "prob": top_prob}],
         }
 
-    def test_areru_marked_honmei_standards_fill(self):
-        races = [self._race("荒れ注意", 0.30), self._race("標準", 0.40),
-                 self._race("堅め", 0.60), self._race("標準", 0.36)]
-        P.select_shobusho(races, max_races=3)
-        self.assertEqual(races[0]["shobusho"], "本命")
-        self.assertEqual(races[3]["shobusho"], "準")   # 標準のうち1位勝率が低い方
-        self.assertEqual(races[1]["shobusho"], "準")
-        self.assertIsNone(races[2]["shobusho"])        # 堅めは選ばれない
+    def _select(self, races, **kw):
+        P.select_shobusho(races, honmei_venues=self.VENUES, **kw)
 
-    def test_cap_at_max(self):
-        races = [self._race("荒れ注意", 0.2 + i * 0.01) for i in range(12)]
-        P.select_shobusho(races, max_races=10)
-        marked = [r for r in races if r["shobusho"] == "本命"]
-        self.assertEqual(len(marked), 10)
-        # 1位勝率が低い(=より荒れそうな)順に選ばれる
-        self.assertIsNone(races[10]["shobusho"])
-        self.assertIsNone(races[11]["shobusho"])
+    def test_konsen_selected_from_any_venue(self):
+        races = [self._race("荒れ注意", 0.18, venue=1),   # 対象外の場でも超混戦
+                 self._race("荒れ注意", 0.30, venue=1)]   # 対象外の場×20%以上は選外
+        self._select(races)
+        self.assertEqual(races[0]["shobusho"], "超混戦")
+        self.assertIsNone(races[1]["shobusho"])
+
+    def test_honmei_cap_and_priority(self):
+        # 対象場の荒れ注意7レース: 1位勝率が低い順にcap=6が本命、溢れは要注目
+        races = [self._race("荒れ注意", 0.34 - i * 0.01) for i in range(7)]
+        self._select(races)
+        marks = [r["shobusho"] for r in races]
+        self.assertEqual(marks.count("本命"), 6)
+        self.assertEqual(races[0]["shobusho"], "要注目")  # 最も高い0.34が溢れる
+
+    def test_target_venue_konsen_shows_as_honmei(self):
+        # 対象場×20%未満は本命枠に入る(購入は1回・表示は本命を優先)
+        races = [self._race("荒れ注意", 0.15)]
+        self._select(races)
+        self.assertEqual(races[0]["shobusho"], "本命")
+
+    def test_attention_fills_from_standards(self):
+        races = [self._race("荒れ注意", 0.30), self._race("標準", 0.40),
+                 self._race("標準", 0.36), self._race("堅め", 0.60)]
+        self._select(races, attention_cap=2)
+        self.assertEqual(races[0]["shobusho"], "本命")
+        self.assertEqual(races[2]["shobusho"], "要注目")  # 標準のうち1位勝率が低い方から
+        self.assertEqual(races[1]["shobusho"], "要注目")
+        self.assertIsNone(races[3]["shobusho"])           # 堅めは選ばれない
+
+    def test_unbought_konsen_goes_to_attention(self):
+        # プランが組めない超混戦は「購入0点」の要注目として観測に載せる(ユーザー指示)
+        races = [self._race("荒れ注意", 0.15, has_plan=False)]
+        self._select(races)
+        self.assertEqual(races[0]["shobusho"], "要注目")
 
 
 if __name__ == "__main__":
