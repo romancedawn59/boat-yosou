@@ -67,8 +67,8 @@ class TestBuildNotifyText(unittest.TestCase):
         text = build_notify_text(date(2026, 7, 5), races)
         self.assertIn("本命: 平和島5R", text)
         self.assertIn("超混戦: 桐生2R", text)
-        self.assertIn("購入予算: 2,000円", text)      # 要注目は予算に含まれない
-        self.assertIn("要注目(観測のみ): 尼崎3R", text)
+        self.assertIn("購入予算: 2,000円(1レース1,000円)", text)  # 要注目は予算外
+        self.assertNotIn("要注目", text)  # 要注目は通知しない(ユーザー指示)
         self.assertIn("https://", text)
 
     def test_no_shobusho_day(self):
@@ -129,6 +129,7 @@ class TestShoppingPage(unittest.TestCase):
         self.assertIn("桐生", html)           # 他19場のレースも載る
         self.assertNotIn("若松1R", html)      # 選外レースは載らない
         self.assertIn("購入予算 2,000円", html)
+        self.assertNotIn("要注目(観測のみ・購入なし): ", html)  # サマリーには載せない
 
     def test_empty_day(self):
         from predict import render_shopping_page

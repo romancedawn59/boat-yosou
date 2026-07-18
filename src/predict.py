@@ -179,11 +179,10 @@ def build_notify_text(d: date, races: list[dict]) -> str:
     if konsen:
         lines.append(f"超混戦: {'、'.join(konsen)}")
     if honmei or konsen:
-        lines.append(f"購入予算: {budget:,}円(1R=1,000円)")
+        lines.append(f"購入予算: {budget:,}円(1レース1,000円)")
     else:
         lines.append("本日は購入対象なし(全レース見送り推奨)")
-    if attention:
-        lines.append(f"要注目(観測のみ): {'、'.join(attention)}")
+    # 要注目は通知しない(2026-07-18ユーザー指示。観測枠はサイト下部のみ)
     lines.append("")
     lines.append(PAGES_URL)
     return "\n".join(lines)
@@ -287,8 +286,7 @@ def _summary_html(races: list[dict]) -> str:
     if konsen:
         parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満): <b>{'、'.join(konsen)}</b>")
     parts.append(f"購入予算 {budget:,}円(1レース1,000円)")
-    if attention:
-        parts.append(f"👀要注目(観測のみ・購入なし): {'、'.join(attention)}")
+    # 要注目はサマリーに載せない(ユーザー指示。ページ下部の観測セクションのみ)
     return '<div class="summary">' + "<br>".join(parts) + "</div>"
 
 
@@ -460,7 +458,7 @@ def render_shopping_page(d: date, races: list[dict],
 
     body = (section(f"🔴 本命(検証済み5場・上位{HONMEI_CAP})", "本命")
             + section(f"🟣 超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満)", "超混戦")
-            + section("👀 要注目(観測のみ・購入なし)", "要注目"))
+            + section("👀 要注目(観測のみ・購入0点)", "要注目"))
     if not body:
         body = '<div class="card">本日は購入対象なし(全レース見送り推奨)。</div>'
 

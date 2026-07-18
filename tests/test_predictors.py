@@ -192,10 +192,11 @@ class TestShobusho(unittest.TestCase):
         self.assertEqual(races[1]["shobusho"], "要注目")
         self.assertIsNone(races[3]["shobusho"])           # 堅めは選ばれない
 
-    def test_no_plan_race_is_never_selected(self):
+    def test_unbought_konsen_goes_to_attention(self):
+        # プランが組めない超混戦は「購入0点」の要注目として観測に載せる(ユーザー指示)
         races = [self._race("荒れ注意", 0.15, has_plan=False)]
         self._select(races)
-        self.assertIsNone(races[0]["shobusho"])
+        self.assertEqual(races[0]["shobusho"], "要注目")
 
 
 if __name__ == "__main__":

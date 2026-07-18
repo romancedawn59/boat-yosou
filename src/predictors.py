@@ -208,7 +208,13 @@ def select_shobusho(races: list[dict], honmei_venues: list[int],
     for r in are[:honmei_cap]:
         r["shobusho"] = "本命"
 
-    # 要注目(観測専用): 本命から溢れた荒れ注意 → 足りなければ標準から補充
+    # 要注目(観測専用): 買わない超混戦(プラン不成立等)は購入0点として必ず載せ、
+    # 続いて本命から溢れた荒れ注意 → 足りなければ標準から補充
+    konsen_unbought = [r for r in races
+                       if r["ranked"][0]["prob"] < konsen_max
+                       and r["shobusho"] is None]
+    for r in konsen_unbought:
+        r["shobusho"] = "要注目"
     attention = [r for r in are[honmei_cap:] if r["shobusho"] is None]
     if len(attention) < attention_cap:
         standards = sorted(
