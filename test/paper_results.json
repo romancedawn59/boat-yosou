@@ -1,5 +1,5 @@
 {
- "updated": "2026-07-18T08:31:11+09:00",
+ "updated": "2026-07-18T09:08:37+09:00",
  "races": [
   {
    "race_id": "20260708_08_01",
@@ -2024,59 +2024,2704 @@
     "stake": 1000,
     "ret": 0
    }
+  },
+  {
+   "race_id": "20260712_03_05",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 14.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-6",
+    "odds": 100.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_03_06",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "2-3-1",
+    "odds": 8.2,
+    "stake": 1000,
+    "ret": 9000
+   },
+   "b": {
+    "comb": "3-1-6",
+    "odds": 103.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2370
+   }
+  },
+  {
+   "race_id": "20260712_03_07",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 7,
+   "shobusho": null,
+   "a": {
+    "comb": "3-1-5",
+    "odds": 8.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-3",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2200
+   }
+  },
+  {
+   "race_id": "20260712_03_08",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 8,
+   "shobusho": null,
+   "a": {
+    "comb": "1-6-3",
+    "odds": 13.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-4-1",
+    "odds": 101.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 3120
+   }
+  },
+  {
+   "race_id": "20260712_03_09",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-6",
+    "odds": 8.8,
+    "stake": 1000,
+    "ret": 9600
+   },
+   "b": {
+    "comb": "3-1-2",
+    "odds": 101.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_03_10",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-5-6",
+    "odds": 12.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-5-6",
+    "odds": 102.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_03_11",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-6",
+    "odds": 8.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-3-6",
+    "odds": 109.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2070
+   }
+  },
+  {
+   "race_id": "20260712_03_12",
+   "date": "2026-07-12",
+   "venue": "江戸川",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-2",
+    "odds": 6.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-4",
+    "odds": 100.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_01",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "1-5-2",
+    "odds": 15.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-3",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_02",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 8.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-1-2",
+    "odds": 102.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_03",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 3,
+   "shobusho": "本命",
+   "a": {
+    "comb": "3-2-1",
+    "odds": 12.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-2",
+    "odds": 104.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 440
+   }
+  },
+  {
+   "race_id": "20260712_04_04",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 4,
+   "shobusho": null,
+   "a": {
+    "comb": "1-5-4",
+    "odds": 13.8,
+    "stake": 1000,
+    "ret": 9600
+   },
+   "b": {
+    "comb": "4-1-2",
+    "odds": 106.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 3120
+   }
+  },
+  {
+   "race_id": "20260712_04_05",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "2-4-5",
+    "odds": 15.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-3",
+    "odds": 104.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_06",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 13.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-5-6",
+    "odds": 107.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 3040
+   }
+  },
+  {
+   "race_id": "20260712_04_07",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 7,
+   "shobusho": null,
+   "a": {
+    "comb": "4-1-2",
+    "odds": 10.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-4",
+    "odds": 100.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 570
+   }
+  },
+  {
+   "race_id": "20260712_04_08",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 8,
+   "shobusho": null,
+   "a": {
+    "comb": "4-1-5",
+    "odds": 8.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-5-3",
+    "odds": 102.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_09",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 6.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-2-1",
+    "odds": 106.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_10",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-5-2",
+    "odds": 11.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-6",
+    "odds": 103.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_11",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 10.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-3-1",
+    "odds": 100.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_04_12",
+   "date": "2026-07-12",
+   "venue": "平和島",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 10.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-3-1",
+    "odds": 100.5,
+    "stake": 1000,
+    "ret": 87000
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_02",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-2",
+    "odds": 9.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-4-3",
+    "odds": 100.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_03",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 3,
+   "shobusho": "本命",
+   "a": {
+    "comb": "4-2-5",
+    "odds": 18.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-3",
+    "odds": 101.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_04",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 4,
+   "shobusho": "本命",
+   "a": {
+    "comb": "3-1-6",
+    "odds": 14.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-5",
+    "odds": 107.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_05",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 5,
+   "shobusho": "本命",
+   "a": {
+    "comb": "1-2-4",
+    "odds": 14.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-2",
+    "odds": 103.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_06",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 4.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-4",
+    "odds": 105.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1520
+   }
+  },
+  {
+   "race_id": "20260712_08_07",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 7,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-3-4",
+    "odds": 12.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-4",
+    "odds": 109.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 800
+   }
+  },
+  {
+   "race_id": "20260712_08_08",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 8,
+   "shobusho": "本命",
+   "a": {
+    "comb": "1-3-4",
+    "odds": 10.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-5",
+    "odds": 115.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_09",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 9,
+   "shobusho": "本命",
+   "a": {
+    "comb": "1-2-3",
+    "odds": 14.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-3-6",
+    "odds": 103.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 5340
+   }
+  },
+  {
+   "race_id": "20260712_08_10",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 7.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-6",
+    "odds": 108.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_08_11",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 12.4,
+    "stake": 1000,
+    "ret": 7600
+   },
+   "b": {
+    "comb": "3-5-2",
+    "odds": 103.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2560
+   }
+  },
+  {
+   "race_id": "20260712_08_12",
+   "date": "2026-07-12",
+   "venue": "常滑",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 6.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-2",
+    "odds": 107.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_01",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 11.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-4-3",
+    "odds": 105.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_02",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 18.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-4-2",
+    "odds": 101.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1380
+   }
+  },
+  {
+   "race_id": "20260712_20_03",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 3,
+   "shobusho": null,
+   "a": {
+    "comb": "1-5-2",
+    "odds": 12.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-6",
+    "odds": 108.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_04",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 4,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 7.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-6-1",
+    "odds": 106.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_05",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 5.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-5-4",
+    "odds": 105.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_06",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-5",
+    "odds": 10.5,
+    "stake": 1000,
+    "ret": 6100
+   },
+   "b": {
+    "comb": "1-6-4",
+    "odds": 100.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2420
+   }
+  },
+  {
+   "race_id": "20260712_20_07",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 7,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-6",
+    "odds": 17.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-3-1",
+    "odds": 103.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 5910
+   }
+  },
+  {
+   "race_id": "20260712_20_08",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 8,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 5.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-6",
+    "odds": 117.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_09",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-6-5",
+    "odds": 13.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-4",
+    "odds": 104.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260712_20_10",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 13.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-3-1",
+    "odds": 101.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1020
+   }
+  },
+  {
+   "race_id": "20260712_20_11",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 11.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-2",
+    "odds": 106.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1590
+   }
+  },
+  {
+   "race_id": "20260712_20_12",
+   "date": "2026-07-12",
+   "venue": "若松",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 6.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-5-6",
+    "odds": 105.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1320
+   }
+  },
+  {
+   "race_id": "20260713_03_01",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 6.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-3-2",
+    "odds": 105.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1230
+   }
+  },
+  {
+   "race_id": "20260713_03_02",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 2,
+   "shobusho": "本命",
+   "a": {
+    "comb": "1-3-4",
+    "odds": 18.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-3-5",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_03_03",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 3,
+   "shobusho": null,
+   "a": {
+    "comb": "3-4-5",
+    "odds": 11.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-2",
+    "odds": 106.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_03_04",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 4,
+   "shobusho": null,
+   "a": {
+    "comb": "2-4-5",
+    "odds": 13.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-5",
+    "odds": 102.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1780
+   }
+  },
+  {
+   "race_id": "20260713_03_05",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "2-3-1",
+    "odds": 8.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-4-1",
+    "odds": 102.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1880
+   }
+  },
+  {
+   "race_id": "20260713_03_06",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "2-1-4",
+    "odds": 9.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-5-4",
+    "odds": 100.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1900
+   }
+  },
+  {
+   "race_id": "20260713_03_07",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 7,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-3-4",
+    "odds": 9.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-2-1",
+    "odds": 100.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_03_08",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 8,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-6-3",
+    "odds": 16.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-5-2",
+    "odds": 102.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_03_09",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-6",
+    "odds": 7.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-5-3",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_03_10",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 11.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-3",
+    "odds": 101.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 840
+   }
+  },
+  {
+   "race_id": "20260713_03_11",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-5",
+    "odds": 8.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-3-4",
+    "odds": 101.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 920
+   }
+  },
+  {
+   "race_id": "20260713_03_12",
+   "date": "2026-07-13",
+   "venue": "江戸川",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-5",
+    "odds": 9.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-6",
+    "odds": 129.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_01",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "4-6-5",
+    "odds": 17.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "6-5-1",
+    "odds": 104.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_02",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 6.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-4-1",
+    "odds": 101.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_03",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 3,
+   "shobusho": "準",
+   "a": {
+    "comb": "3-4-6",
+    "odds": 12.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-4-2",
+    "odds": 104.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_04",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 4,
+   "shobusho": "本命",
+   "a": {
+    "comb": "3-1-6",
+    "odds": 14.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-2-6",
+    "odds": 100.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_05",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-6",
+    "odds": 12.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-3",
+    "odds": 104.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_06",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 6,
+   "shobusho": "準",
+   "a": {
+    "comb": "2-1-3",
+    "odds": 9.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-4-1",
+    "odds": 100.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_07",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 7,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-4-6",
+    "odds": 10.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-4-6",
+    "odds": 104.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 460
+   }
+  },
+  {
+   "race_id": "20260713_04_08",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 8,
+   "shobusho": null,
+   "a": {
+    "comb": "4-1-5",
+    "odds": 8.9,
+    "stake": 1000,
+    "ret": 9400
+   },
+   "b": {
+    "comb": "6-1-4",
+    "odds": 104.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 960
+   }
+  },
+  {
+   "race_id": "20260713_04_09",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 8.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-2-5",
+    "odds": 103.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_10",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-5",
+    "odds": 11.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-3-1",
+    "odds": 101.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2400
+   }
+  },
+  {
+   "race_id": "20260713_04_11",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-5",
+    "odds": 6.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-3",
+    "odds": 102.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_04_12",
+   "date": "2026-07-13",
+   "venue": "平和島",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 10.1,
+    "stake": 1000,
+    "ret": 12700
+   },
+   "b": {
+    "comb": "2-1-3",
+    "odds": 102.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 4340
+   }
+  },
+  {
+   "race_id": "20260713_13_01",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 6.5,
+    "stake": 1000,
+    "ret": 6200
+   },
+   "b": {
+    "comb": "4-2-3",
+    "odds": 100.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 660
+   }
+  },
+  {
+   "race_id": "20260713_13_02",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 9.9,
+    "stake": 1000,
+    "ret": 6900
+   },
+   "b": {
+    "comb": "2-1-4",
+    "odds": 103.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2010
+   }
+  },
+  {
+   "race_id": "20260713_13_03",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 3,
+   "shobusho": "準",
+   "a": {
+    "comb": "3-1-5",
+    "odds": 10.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-5",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_13_04",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 4,
+   "shobusho": "準",
+   "a": {
+    "comb": "1-3-6",
+    "odds": 14.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-5",
+    "odds": 100.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 800
+   }
+  },
+  {
+   "race_id": "20260713_13_05",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 3.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-4-3",
+    "odds": 100.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 480
+   }
+  },
+  {
+   "race_id": "20260713_13_06",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-2",
+    "odds": 5.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-4-1",
+    "odds": 102.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1440
+   }
+  },
+  {
+   "race_id": "20260713_13_07",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 7,
+   "shobusho": null,
+   "a": {
+    "comb": "2-1-3",
+    "odds": 13.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-5",
+    "odds": 102.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1410
+   }
+  },
+  {
+   "race_id": "20260713_13_08",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 8,
+   "shobusho": "本命",
+   "a": {
+    "comb": "3-4-5",
+    "odds": 7.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-2-3",
+    "odds": 101.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_13_09",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-5-2",
+    "odds": 9.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-6-4",
+    "odds": 103.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2010
+   }
+  },
+  {
+   "race_id": "20260713_13_10",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-3",
+    "odds": 5.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-5-6",
+    "odds": 100.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_13_11",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 7.8,
+    "stake": 1000,
+    "ret": 8100
+   },
+   "b": {
+    "comb": "2-1-3",
+    "odds": 105.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260713_13_12",
+   "date": "2026-07-13",
+   "venue": "尼崎",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 10.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-2-5",
+    "odds": 102.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1530
+   }
+  },
+  {
+   "race_id": "20260714_03_01",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 11.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-5-2",
+    "odds": 101.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_03_02",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 8.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-6",
+    "odds": 106.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_03_03",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 3,
+   "shobusho": null,
+   "a": {
+    "comb": "2-1-5",
+    "odds": 8.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-5",
+    "odds": 103.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 780
+   }
+  },
+  {
+   "race_id": "20260714_03_04",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 4,
+   "shobusho": null,
+   "a": {
+    "comb": "5-1-2",
+    "odds": 17.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-4-1",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 510
+   }
+  },
+  {
+   "race_id": "20260714_03_05",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-2",
+    "odds": 5.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-4",
+    "odds": 104.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 560
+   }
+  },
+  {
+   "race_id": "20260714_03_06",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 13.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-3",
+    "odds": 100.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_03_07",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 7,
+   "shobusho": null,
+   "a": {
+    "comb": "2-5-1",
+    "odds": 11.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-1-3",
+    "odds": 102.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 440
+   }
+  },
+  {
+   "race_id": "20260714_03_08",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 8,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-2",
+    "odds": 7.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-4",
+    "odds": 100.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 880
+   }
+  },
+  {
+   "race_id": "20260714_03_09",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-5",
+    "odds": 8.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-5-2",
+    "odds": 100.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_03_10",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 4.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-2",
+    "odds": 107.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 32410
+   }
+  },
+  {
+   "race_id": "20260714_03_11",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-6",
+    "odds": 5.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-2",
+    "odds": 100.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2120
+   }
+  },
+  {
+   "race_id": "20260714_03_12",
+   "date": "2026-07-14",
+   "venue": "江戸川",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 9.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-3",
+    "odds": 104.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_04_01",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 1,
+   "shobusho": "本命",
+   "a": {
+    "comb": "3-5-2",
+    "odds": 12.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-2-5",
+    "odds": 101.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 520
+   }
+  },
+  {
+   "race_id": "20260714_04_02",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 2,
+   "shobusho": null,
+   "a": {
+    "comb": "3-2-4",
+    "odds": 8.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "1-6-2",
+    "odds": 100.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 840
+   }
+  },
+  {
+   "race_id": "20260714_04_03",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 3,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-4-3",
+    "odds": 12.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-2-1",
+    "odds": 102.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_04_04",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 4,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 10.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-6-1",
+    "odds": 104.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_04_05",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 5,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-4-3",
+    "odds": 14.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-5-3",
+    "odds": 100.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 520
+   }
+  },
+  {
+   "race_id": "20260714_04_06",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 6,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-4-5",
+    "odds": 16.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-2",
+    "odds": 100.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_04_07",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 7,
+   "shobusho": "本命",
+   "a": {
+    "comb": "4-2-3",
+    "odds": 10.4,
+    "stake": 1000,
+    "ret": 9700
+   },
+   "b": {
+    "comb": "2-4-6",
+    "odds": 115.3,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_04_08",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 8,
+   "shobusho": "本命",
+   "a": {
+    "comb": "1-4-3",
+    "odds": 25.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-6",
+    "odds": 100.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 860
+   }
+  },
+  {
+   "race_id": "20260714_04_09",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 9,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-1-4",
+    "odds": 14.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-3-6",
+    "odds": 101.2,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_04_10",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-3",
+    "odds": 12.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-5-6",
+    "odds": 101.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 960
+   }
+  },
+  {
+   "race_id": "20260714_04_11",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 11.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-1-2",
+    "odds": 103.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 3290
+   }
+  },
+  {
+   "race_id": "20260714_04_12",
+   "date": "2026-07-14",
+   "venue": "平和島",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 7.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-6",
+    "odds": 104.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1720
+   }
+  },
+  {
+   "race_id": "20260714_13_01",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 1,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 5.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-3",
+    "odds": 113.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 840
+   }
+  },
+  {
+   "race_id": "20260714_13_02",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 2,
+   "shobusho": "本命",
+   "a": {
+    "comb": "4-2-3",
+    "odds": 13.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "5-3-4",
+    "odds": 109.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_13_03",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 3,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-4",
+    "odds": 10.0,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-1-3",
+    "odds": 100.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_13_04",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 4,
+   "shobusho": "本命",
+   "a": {
+    "comb": "4-2-3",
+    "odds": 11.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-5-1",
+    "odds": 102.1,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 2440
+   }
+  },
+  {
+   "race_id": "20260714_13_05",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 5,
+   "shobusho": null,
+   "a": {
+    "comb": "3-4-6",
+    "odds": 12.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-5-6",
+    "odds": 104.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 6100
+   }
+  },
+  {
+   "race_id": "20260714_13_06",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 6,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 6.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-5-6",
+    "odds": 101.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_13_07",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 7,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-5",
+    "odds": 10.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-3-1",
+    "odds": 102.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_13_08",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 8,
+   "shobusho": "本命",
+   "a": {
+    "comb": "2-6-3",
+    "odds": 10.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "6-4-2",
+    "odds": 111.9,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_13_09",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 9,
+   "shobusho": null,
+   "a": {
+    "comb": "1-2-6",
+    "odds": 6.9,
+    "stake": 1000,
+    "ret": 6400
+   },
+   "b": {
+    "comb": "4-2-1",
+    "odds": 100.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 1040
+   }
+  },
+  {
+   "race_id": "20260714_13_10",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 10,
+   "shobusho": null,
+   "a": {
+    "comb": "1-4-2",
+    "odds": 4.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "2-1-6",
+    "odds": 108.6,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
+  },
+  {
+   "race_id": "20260714_13_11",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 11,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 5.8,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "3-5-4",
+    "odds": 104.7,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 780
+   }
+  },
+  {
+   "race_id": "20260714_13_12",
+   "date": "2026-07-14",
+   "venue": "尼崎",
+   "race_no": 12,
+   "shobusho": null,
+   "a": {
+    "comb": "1-3-4",
+    "odds": 7.5,
+    "stake": 1000,
+    "ret": 0
+   },
+   "b": {
+    "comb": "4-6-3",
+    "odds": 102.4,
+    "stake": 1000,
+    "ret": 0
+   },
+   "ken": {
+    "stake": 1000,
+    "ret": 0
+   }
   }
  ],
  "summary": {
   "全レース": {
    "a": {
-    "n": 88,
-    "hits": 5,
-    "hit_rate": 0.056818181818181816,
-    "stake": 88000,
-    "ret": 34300,
-    "roi": 0.38977272727272727
+    "n": 203,
+    "hits": 17,
+    "hit_rate": 0.08374384236453201,
+    "stake": 203000,
+    "ret": 135600,
+    "roi": 0.6679802955665025
    },
    "b": {
-    "n": 88,
-    "hits": 0,
-    "hit_rate": 0.0,
-    "stake": 88000,
-    "ret": 0,
-    "roi": 0.0
+    "n": 203,
+    "hits": 1,
+    "hit_rate": 0.0049261083743842365,
+    "stake": 203000,
+    "ret": 87000,
+    "roi": 0.42857142857142855
    },
    "ken": {
-    "n": 88,
-    "hits": 47,
-    "hit_rate": 0.5340909090909091,
-    "stake": 88000,
-    "ret": 67030,
-    "roi": 0.7617045454545455
+    "n": 203,
+    "hits": 102,
+    "hit_rate": 0.5024630541871922,
+    "stake": 203000,
+    "ret": 192480,
+    "roi": 0.9481773399014778
    }
   },
   "本命勝負所のみ": {
    "a": {
-    "n": 17,
-    "hits": 0,
-    "hit_rate": 0.0,
-    "stake": 17000,
-    "ret": 0,
-    "roi": 0.0
+    "n": 40,
+    "hits": 1,
+    "hit_rate": 0.025,
+    "stake": 40000,
+    "ret": 9700,
+    "roi": 0.2425
    },
    "b": {
-    "n": 17,
+    "n": 40,
     "hits": 0,
     "hit_rate": 0.0,
-    "stake": 17000,
+    "stake": 40000,
     "ret": 0,
     "roi": 0.0
    },
    "ken": {
-    "n": 17,
-    "hits": 8,
-    "hit_rate": 0.47058823529411764,
-    "stake": 17000,
-    "ret": 7630,
-    "roi": 0.44882352941176473
+    "n": 40,
+    "hits": 16,
+    "hit_rate": 0.4,
+    "stake": 40000,
+    "ret": 19010,
+    "roi": 0.47525
    }
   }
  }
