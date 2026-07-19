@@ -42,8 +42,10 @@ class TestGradeDay(unittest.TestCase):
                                      "combination": "1=2=3", "amount_yen": 500})
         db.upsert_payout(self.conn, {"race_id": "20260707_04_01", "bet_type": "3連単",
                                      "combination": "4-1-2", "amount_yen": 12000})
-        day = G.grade_day(_picks(), self.conn)
+        day, gaps = G.grade_day(_picks(), self.conn)
 
+        self.assertEqual(gaps, [])  # 全レース買えた日=取りこぼしなし
+        self.assertEqual(day["ken_jissai"]["ret"], 13000)  # 実際=理想(買えた)
         self.assertEqual(day["a"], {"stake": 100, "ret": 0, "races": 1, "hits": 0})
         self.assertEqual(day["c"], {"stake": 100, "ret": 12000, "races": 1, "hits": 1})
         # ken: 3連複200円->1000円、3連単100円->12000円
@@ -52,7 +54,8 @@ class TestGradeDay(unittest.TestCase):
         self.assertEqual(day["ken_jun"]["races"], 0)
 
     def test_returns_none_when_no_payouts(self):
-        self.assertIsNone(G.grade_day(_picks(), self.conn))
+        day, gaps = G.grade_day(_picks(), self.conn)
+        self.assertIsNone(day)
 
 
 class TestCollectHits(unittest.TestCase):
@@ -180,11 +183,34 @@ class TestKonsenBucket(unittest.TestCase):
             rid = picks["races"][0]["race_id"]
             db.upsert_payout(conn, {"race_id": rid, "bet_type": "3連複",
                                     "combination": "1=2=3", "amount_yen": 500})
-            day = G.grade_day(picks, conn)
+            day, _gaps = G.grade_day(picks, conn)
             conn.close()
         self.assertEqual(day["ken_konsen"]["races"], 1)
         self.assertEqual(day["ken_hon"]["races"], 0)   # 本命には入らない
         self.assertEqual(day["ken"]["races"], 1)
+
+
+class TestIdealActualSplit(unittest.TestCase):
+    """理想と実際の分離(2026-07-19): 買えないレースは実際から除外され理由が記録される"""
+
+    def test_unbuyable_race_goes_to_gaps_not_jissai(self):
+        import tempfile
+        from pathlib import Path as P_
+        import db
+        picks = _picks(shobusho="本命")
+        picks["races"][0]["buyable"] = False  # メンテ窓に締切がある想定
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = db.connect(P_(tmp) / "t.db")
+            rid = picks["races"][0]["race_id"]
+            db.upsert_payout(conn, {"race_id": rid, "bet_type": "3連複",
+                                    "combination": "1=2=3", "amount_yen": 500})
+            day, gaps = G.grade_day(picks, conn)
+            conn.close()
+        self.assertEqual(day["ken_hon"]["races"], 1)      # 理想には残る
+        self.assertEqual(day["ken_jissai"]["races"], 0)   # 実際からは除外
+        self.assertEqual(len(gaps), 1)
+        self.assertEqual(gaps[0]["reason"], "メンテナンス")
+        self.assertEqual(gaps[0]["ret"], 1000)            # 買えていた場合の払戻を記録
 
 
 if __name__ == "__main__":

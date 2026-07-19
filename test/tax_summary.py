@@ -43,12 +43,21 @@ PURCHASE_START = "2026-07-08"
 # 的中行ラベル「3連複 1=2=5（200円）」から(券種, 買い目, 購入額)を取り出す
 _LINE_RE = re.compile(r"^(\S+)\s+(\S+)（(\d+)円）$")
 
-# v2(2026-07-18〜): 実購入=本命+超混戦。要注目(旧・準)は観測専用で購入なし
+# v2(2026-07-18〜): 実購入=実際に買えたレース(ken_jissai)。旧日はken_jissaiが無いため
+# 本命+超混戦(さらに旧v1日は本命のみ=konsen 0)へ自動フォールバックする。
+# "JISSAI"は日ごとにキーを解決する特別スコープ。
 SCOPES = {
-    "実購入(本命+超混戦)": ["ken_hon", "ken_konsen"],
+    "実購入(実際に買えた分)": "JISSAI",
     "要注目(観測・参考)": ["ken_jun"],
     "全レース(紙上・参考)": ["ken"],
 }
+
+
+def jissai_keys(day: dict) -> list[str]:
+    """その日の「実際」を表すキー(理想と実際の分離。2026-07-19導入)"""
+    if "ken_jissai" in day.get("stats", {}):
+        return ["ken_jissai"]
+    return ["ken_hon", "ken_konsen"]
 
 
 def parse_line(label: str) -> tuple[str, str, int] | None:
@@ -59,11 +68,12 @@ def parse_line(label: str) -> tuple[str, str, int] | None:
     return m.group(1), m.group(2), int(m.group(3))
 
 
-def collect_hits(ledger: list[dict], keys: list[str]) -> list[dict]:
-    """指定スコープの的中明細を行単位に展開する"""
+def collect_hits(ledger: list[dict], keys) -> list[dict]:
+    """指定スコープの的中明細を行単位に展開する。keys="JISSAI"なら日ごとに解決"""
     rows = []
     for day in ledger:
-        for key in keys:
+        day_keys = jissai_keys(day) if keys == "JISSAI" else keys
+        for key in day_keys:
             for h in day.get("hits", {}).get(key, []):
                 for line in h.get("lines", []):
                     parsed = parse_line(line["label"])
@@ -82,11 +92,11 @@ def collect_hits(ledger: list[dict], keys: list[str]) -> list[dict]:
     return rows
 
 
-def scope_stats(ledger: list[dict], keys: list[str]) -> dict[str, dict]:
+def scope_stats(ledger: list[dict], keys) -> dict[str, dict]:
     """日別statsから総投資・総回収を年・月に積み上げる {期間キー: {stake, ret}}"""
     agg: dict[str, dict] = defaultdict(lambda: {"stake": 0, "ret": 0, "races": 0, "hits": 0})
     for day in ledger:
-        for key in keys:
+        for key in (jissai_keys(day) if keys == "JISSAI" else keys):
             s = day.get("stats", {}).get(key)
             if not s:
                 continue
@@ -158,15 +168,15 @@ def main():
             w = csv.writer(f)
             w.writerow(["日付", "場", "レース", "区分", "決着", "券種", "買い目",
                         "当たり券購入額(経費側)", "払戻額"])
-            label = {"ken_hon": "本命", "ken_konsen": "超混戦"}
-            for h in collect_hits(year_ledger, ["ken_hon", "ken_konsen"]):
+            label = {"ken_hon": "本命", "ken_konsen": "超混戦", "ken_jissai": "実購入"}
+            for h in collect_hits(year_ledger, "JISSAI"):
                 w.writerow([h["date"], h["venue"], f"{h['race_no']}R",
                             label.get(h["scope_key"], h["scope_key"]), h["chaku"],
                             h["bt"], h["comb"], h["line_stake"], h["line_payout"]])
 
         html_path = TEST_DIR / f"tax_report_{year}.html"
         html_path.write_text(render_report(report), encoding="utf-8")
-        s = report["scopes"]["実購入(本命+超混戦)"]
+        s = report["scopes"]["実購入(実際に買えた分)"]
         print(f"{year}年(実購入): 払戻{s['payout']:,}円 / 当たり券費{s['winning_cost']:,}円 / "
               f"一時所得{s['ichiji']:,}円 / 課税対象{s['taxable']:,}円")
         print(f"出力: {html_path}")
@@ -189,7 +199,7 @@ def render_report(r: dict) -> str:
             f"<td class='num'>{s['stake']:,}円</td>"
             f"<td class='num {'pos' if profit >= 0 else 'neg'}'>{profit:+,}円</td></tr>")
 
-    hon = r["scopes"]["実購入(本命+超混戦)"]
+    hon = r["scopes"]["実購入(実際に買えた分)"]
     month_rows = []
     for m, s in hon["monthly"].items():
         profit = s["ret"] - s["stake"]
@@ -243,13 +253,14 @@ def render_report(r: dict) -> str:
         <th class="num">参考:総投資</th><th class="num">参考:実収支</th></tr>
     {''.join(scope_rows)}
   </table>
-  <p class="note"><b>実購入は「本命+超混戦」(v2・2026-07-18〜。それ以前は本命のみで数字は連続)</b>。
+  <p class="note"><b>実購入=実際に買えたレースのみ(メンテ・寝坊等で買えなかった日は自動除外。
+  2026-07-19から理想/実際を分離)</b>。
   申告にはこの行と明細CSVを使う。「要注目」「全レース」はシステムの紙上採点の参考値で
   申告対象ではない。一時所得がマイナスの場合は0(他の所得との損益通算は不可)。</p>
 </div>
 
 <div class="card">
-  <h2 style="margin-top:0">月別(実購入=本命+超混戦)</h2>
+  <h2 style="margin-top:0">月別(実購入=実際に買えた分)</h2>
   <table>
     <tr><th>月</th><th class="num">レース数</th><th class="num">的中数</th>
         <th class="num">投資</th><th class="num">払戻</th><th class="num">実収支</th></tr>

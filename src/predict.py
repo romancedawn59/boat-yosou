@@ -26,7 +26,7 @@ import predictors as P
 import weather
 from config import (
     ATTENTION_CAP, DB_PATH, HONMEI_CAP, KONSEN_PROB_MAX, MODEL_PATH, PAGES_URL,
-    PROJECT_DIR, TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, jst_today,
+    PROJECT_DIR, TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable, jst_today,
 )
 from downloader import download_day
 from features import FEATURE_COLUMNS, build_program_features
@@ -142,6 +142,7 @@ def predict_day(d: date) -> list[dict] | None:
             "venue_name": VENUE_NAMES[meta["venue_code"]],
             "race_no": meta["race_no"],
             "deadline": meta["deadline"],
+            "buyable": is_buyable(meta["deadline"]),  # メンテ等の購入不可窓に締切があればFalse
             "weather": race_weather.get(race_id),
             "ranked": ranked,
             "picks_a": a,
@@ -156,23 +157,34 @@ def predict_day(d: date) -> list[dict] | None:
     return races
 
 
-def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], int]:
-    """(本命一覧, 超混戦一覧, 要注目一覧, 購入予算円)。予算は本命+超混戦のみ
-    (要注目は観測専用・購入なし)"""
-    def names(mark):
-        return [f"{r['venue_name']}{r['race_no']}R" for r in races
-                if r.get("shobusho") == mark]
+def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], int, list[str]]:
+    """(買える本命, 買える超混戦, 要注目, 購入予算円, 購入不可の本命・超混戦)。
 
+    理想(システム推奨=本命/超混戦のラベル)は不変のまま、メンテ等で買えないレース
+    (buyable=False)は予算と①②のリストから外し、別枠(blocked)で返す。
+    「理想と実際の分離」: 採点側は理想全体と実際(買えた分)を両方記録する。
+    """
+    def label(r):
+        return f"{r['venue_name']}{r['race_no']}R"
+
+    def names(mark, buyable_only=True):
+        return [label(r) for r in races
+                if r.get("shobusho") == mark and (not buyable_only or r.get("buyable", True))]
+
+    blocked = [label(r) for r in races
+               if r.get("shobusho") in ("本命", "超混戦") and not r.get("buyable", True)]
     budget = sum(
         sum(y for _, _, y, _ in r["bets"]["plan"])
-        for r in races if r.get("shobusho") in ("本命", "超混戦")
+        for r in races
+        if r.get("shobusho") in ("本命", "超混戦") and r.get("buyable", True)
     )
-    return names("本命"), names("超混戦"), names("要注目"), budget
+    return names("本命"), names("超混戦"), names("要注目", False), budget, blocked
 
 
 def build_notify_text(d: date, races: list[dict]) -> str:
-    """LINE通知用のプレーンテキスト(v2: 本命+超混戦が購入対象)"""
-    honmei, konsen, attention, budget = shobu_summary(races)
+    """LINE通知(v2): ①本命 ②超混戦 ③購入予算。メンテ等で買えないレースがある日だけ
+    「購入不可」行を追加して知らせる(買い間違い防止)"""
+    honmei, konsen, attention, budget, blocked = shobu_summary(races)
     lines = [f"【競艇予想】{d}"]
     if honmei:
         lines.append(f"本命: {'、'.join(honmei)}")
@@ -182,6 +194,8 @@ def build_notify_text(d: date, races: list[dict]) -> str:
         lines.append(f"購入予算: {budget:,}円(1レース1,000円)")
     else:
         lines.append("本日は購入対象なし(全レース見送り推奨)")
+    if blocked:
+        lines.append(f"⚠メンテ等で購入不可: {'、'.join(blocked)}(買わないこと)")
     # 要注目は通知しない(2026-07-18ユーザー指示。観測枠はサイト下部のみ)
     lines.append("")
     lines.append(PAGES_URL)
@@ -209,6 +223,7 @@ _CSS = """
   .sho.hon { background: #cf222e; }
   .sho.kon { background: #6f42c1; }
   .sho.att { background: #6e7781; }
+  .sho.blk { background: #8250df; border: 2px solid #fff; }
   .sec-h { font-size: .95rem; margin: 14px 4px 8px; }
   .venue-tag { font-size: .8rem; color: #57606a; font-weight: bold; }
   table { width: 100%; border-collapse: collapse; font-size: .9rem; }
@@ -277,15 +292,18 @@ def _nav_html(active_venue: int | None, venues_today: set[int]) -> str:
 
 
 def _summary_html(races: list[dict]) -> str:
-    honmei, konsen, attention, budget = shobu_summary(races)
-    if not honmei and not konsen:
-        return '<div class="summary">本日は購入対象なし(全レース見送り推奨)。</div>'
+    honmei, konsen, attention, budget, blocked = shobu_summary(races)
     parts = []
     if honmei:
         parts.append(f"🔴本命(5場・上位{HONMEI_CAP}): <b>{'、'.join(honmei)}</b>")
     if konsen:
         parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満): <b>{'、'.join(konsen)}</b>")
-    parts.append(f"購入予算 {budget:,}円(1レース1,000円)")
+    if honmei or konsen:
+        parts.append(f"購入予算 {budget:,}円(1レース1,000円)")
+    else:
+        parts.append("本日は購入対象なし(全レース見送り推奨)。")
+    if blocked:
+        parts.append(f"🚫メンテ等で購入不可(買わないこと): {'、'.join(blocked)}")
     # 要注目はサマリーに載せない(ユーザー指示。ページ下部の観測セクションのみ)
     return '<div class="summary">' + "<br>".join(parts) + "</div>"
 
@@ -341,6 +359,9 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
         sho_html = "<span class='sho kon'>超混戦</span>"
     elif shobusho == "要注目":
         sho_html = "<span class='sho att'>要注目(観測)</span>"
+    if shobusho in ("本命", "超混戦") and not race.get("buyable", True):
+        # 理想(推奨)ラベルは残し、買えないことだけ明示(理想と実際の分離)
+        sho_html += "<span class='sho blk'>🚫購入不可</span>"
 
     boat_rows = "".join(
         f"<tr><td class='lane l{b['lane']}'>{b['lane']}</td>"
@@ -462,6 +483,13 @@ def render_shopping_page(d: date, races: list[dict],
     if not body:
         body = '<div class="card">本日は購入対象なし(全レース見送り推奨)。</div>'
 
+    # 購入不可窓(メンテ等)で買い目から外れたレースがあれば注記
+    maint = ""
+    if any(r.get("buyable") is False for r in races):
+        maint = ('<div class="summary" style="background:#ffe9e0;border-color:#cf222e55">'
+                 '⚠ システムメンテナンス等で購入できない時間帯のレースは買い目から外し、'
+                 '要注目(観測・購入0点)に回しています。</div>')
+
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -474,6 +502,7 @@ def render_shopping_page(d: date, races: list[dict],
 <h1>{d} 本日の買い目</h1>
 {_nav_html(None, venues_today)}
 {_summary_html(races)}
+{maint}
 <p class="note">上から締切順。購入対象は🔴本命と🟣超混戦(各1,000円)。👀要注目は観測専用で買いません。
 確率はモデル予測値。購入は自己責任で。</p>
 {body}
@@ -493,6 +522,7 @@ def _picks_json(d: date, races: list[dict]) -> dict:
                 "race_no": r["race_no"],
                 "confidence": r["bets"]["confidence"],
                 "shobusho": r.get("shobusho"),
+                "buyable": r.get("buyable", True),
                 "a": [[bt, comb, p] for bt, comb, p in r["picks_a"]],
                 "b": [[bt, comb, p] for bt, comb, p in r["picks_b"]],
                 "c": [[bt, comb, p] for bt, comb, p in r["picks_c"]],

@@ -96,10 +96,16 @@ def build_rows() -> tuple[list[dict], dict]:
     rows = []
     total = {"races": 0, "hits": 0, "score_sum": 0, "perfect": 0}
     for day in ledger:
-        total["races"] += day["stats"]["ken_hon"]["races"]
-        total["races"] += day["stats"].get("ken_konsen", {}).get("races", 0)
-        for h in (day.get("hits", {}).get("ken_hon", [])
-                  + day.get("hits", {}).get("ken_konsen", [])):
+        # 実際(買えた分)を採点対象に。ken_jissaiが無い旧日は本命+超混戦=実際
+        if "ken_jissai" in day.get("stats", {}):
+            total["races"] += day["stats"]["ken_jissai"]["races"]
+            day_hits = day.get("hits", {}).get("ken_jissai", [])
+        else:
+            total["races"] += day["stats"]["ken_hon"]["races"]
+            total["races"] += day["stats"].get("ken_konsen", {}).get("races", 0)
+            day_hits = (day.get("hits", {}).get("ken_hon", [])
+                        + day.get("hits", {}).get("ken_konsen", []))
+        for h in day_hits:
             lines = []
             for ln in h.get("lines", []):
                 parsed = parse_line(ln["label"])

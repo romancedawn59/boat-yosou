@@ -24,8 +24,9 @@ PREDICTOR_LABELS = {
     "b": "B 山田三連単",
     "c": "C 勝万舟",
     "ken": "予想屋ken(全レース)",
-    "ken_hon": "ken 本命",
-    "ken_konsen": "ken 超混戦",
+    "ken_hon": "ken 本命(理想)",
+    "ken_konsen": "ken 超混戦(理想)",
+    "ken_jissai": "ken 実際(実購入)",
     "ken_jun": "ken 要注目(観測・購入なし)",
 }
 
@@ -34,9 +35,52 @@ def _zero():
     return {"stake": 0, "ret": 0, "races": 0, "hits": 0}
 
 
-def grade_day(picks: dict, conn) -> dict | None:
-    """1日分のpicksを採点。結果未確定(払戻ゼロ件)ならNone"""
+def load_purchase_gaps() -> list:
+    """購入できなかったレースの理由ログ(docs/data/purchase_gaps.json)。
+
+    形式(手動編集。ケンさんの報告を受けてClaudeが追記する):
+    - {"date": "2026-07-20", "venue": "平和島", "race_no": 4, "reason": "クリックミス"}
+    - {"date": "2026-07-21", "before": "10:30", "reason": "寝坊"}
+      (その日の締切がbeforeより前の購入対象すべてに適用)
+    メンテナンス(config.PURCHASE_BLACKOUTS)はpicksのbuyable=Falseで自動判定され、
+    このファイルには書かない。
+    """
+    path = DATA_DIR / "purchase_gaps.json"
+    if path.exists():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return []
+
+
+def gap_reason(race: dict, gaps: list) -> str | None:
+    """このレースが「買えなかった/買わなかった」ならその理由を返す(実際から除外)。
+
+    優先順位: メンテ等の自動判定(buyable=False) → 手動の理由ログ。
+    理想(本命/超混戦のラベル)には影響しない=理想と実際の分離。
+    """
+    if not race.get("buyable", True):
+        return "メンテナンス"
+    for g in gaps:
+        if g.get("date") != race.get("_date"):
+            continue
+        if "before" in g:
+            deadline = race.get("deadline") or ""
+            if deadline and deadline[11:16] < g["before"]:
+                return g.get("reason", "理由不明")
+        elif (g.get("venue") == VENUE_NAMES.get(race["venue_code"])
+              and g.get("race_no") == race["race_no"]):
+            return g.get("reason", "理由不明")
+    return None
+
+
+def grade_day(picks: dict, conn) -> tuple[dict, list] | tuple[None, list]:
+    """1日分のpicksを採点。(集計, 取りこぼし明細)。結果未確定ならNone。
+
+    理想=本命/超混戦の全レース(ken_hon/ken_konsen)。
+    実際=そのうち買えたレースのみ(ken_jissai)。差分は取りこぼしとして理由つきで返す。
+    """
+    gaps_log = load_purchase_gaps()
     day = {k: _zero() for k in PREDICTOR_LABELS}
+    gap_detail = []
     graded_races = 0
 
     for race in picks["races"]:
@@ -59,11 +103,24 @@ def grade_day(picks: dict, conn) -> dict | None:
         if ken:
             stake = sum(y for _, _, y, _ in ken)
             ret = sum(payout.get((bt, comb), 0) * y // 100 for bt, comb, y, _ in ken)
-            for key in ["ken"] + (
+            race["_date"] = picks["date"]
+            keys = ["ken"] + (
                 ["ken_hon"] if race["shobusho"] == "本命"
                 else ["ken_konsen"] if race["shobusho"] == "超混戦"
                 else ["ken_jun"] if race["shobusho"] in ("準", "要注目") else []
-            ):
+            )
+            reason = None
+            if race["shobusho"] in ("本命", "超混戦"):
+                reason = gap_reason(race, gaps_log)
+                if reason is None:
+                    keys.append("ken_jissai")  # 実際に買えたレース
+                else:
+                    gap_detail.append({
+                        "venue": VENUE_NAMES.get(race["venue_code"]),
+                        "race_no": race["race_no"], "reason": reason,
+                        "stake": stake, "ret": ret,  # 理想上の収支(買えていたら)
+                    })
+            for key in keys:
                 s = day[key]
                 s["races"] += 1
                 s["stake"] += stake
@@ -71,8 +128,8 @@ def grade_day(picks: dict, conn) -> dict | None:
                 s["hits"] += 1 if ret else 0
 
     if graded_races == 0:
-        return None
-    return day
+        return None, []
+    return day, gap_detail
 
 
 def _chaku(payout: dict) -> str:
@@ -84,6 +141,7 @@ def _chaku(payout: dict) -> str:
 
 
 def collect_hits(picks: dict, conn, day_iso: str) -> dict:
+    gaps_log = load_purchase_gaps()
     """1日分のpicksから、各予想者が「的中した(払戻があった)」レースの明細を集める。
 
     返り値: {predictor_key: [ {date,venue,race_no,chaku,stake,ret,lines:[{label,payout}]} ]}
@@ -132,6 +190,10 @@ def collect_hits(picks: dict, conn, day_iso: str) -> dict:
                        else "ken_jun" if race["shobusho"] in ("準", "要注目") else None)
                 if sub:
                     hits[sub].append(detail)
+                if sub in ("ken_hon", "ken_konsen"):
+                    race["_date"] = day_iso
+                    if gap_reason(race, gaps_log) is None:
+                        hits["ken_jissai"].append(detail)  # 実際に買えた的中
 
     return hits
 
@@ -221,16 +283,53 @@ def render_stats(ledger: list) -> str:
     for entry in sorted(ledger, key=lambda e: e["date"], reverse=True)[:SHOW_DAYS]:
         hon = entry["stats"].get("ken_hon", _zero())
         kon = entry["stats"].get("ken_konsen", _zero())
-        ken = {k: hon[k] + kon[k] for k in hon}  # 実購入=本命+超混戦(v2)
-        all_ken = entry["stats"].get("ken", _zero())
-        pnl = ken["ret"] - ken["stake"]
+        ideal = {k: hon[k] + kon[k] for k in hon}          # 理想=本命+超混戦の推奨全部
+        jissai = entry["stats"].get("ken_jissai", ideal)   # 実際=買えた分(旧日は理想=実際)
+        pnl = jissai["ret"] - jissai["stake"]
+        ipnl = ideal["ret"] - ideal["stake"]
         color = "pos" if pnl >= 0 else "neg"
+        icolor = "pos" if ipnl >= 0 else "neg"
         daily_rows.append(
             f"<tr><td>{entry['date']}</td>"
-            f"<td class='num'>{ken['races']}</td>"
+            f"<td class='num'>{jissai['races']}</td>"
             f"<td class='num {color}'>{pnl:+,}円</td>"
-            f"<td class='num'>{all_ken['races']}</td>"
-            f"<td class='num'>{all_ken['ret'] - all_ken['stake']:+,}円</td></tr>")
+            f"<td class='num'>{ideal['races']}</td>"
+            f"<td class='num {icolor}'>{ipnl:+,}円</td></tr>")
+
+    # 取りこぼし(理想と実際の差)を理由別に集計
+    gap_agg: dict = {}
+    gap_recent = []
+    for entry in sorted(ledger, key=lambda e: e["date"]):
+        for g in entry.get("gaps", []):
+            a = gap_agg.setdefault(g["reason"], {"n": 0, "pnl": 0})
+            a["n"] += 1
+            a["pnl"] += g["ret"] - g["stake"]
+            gap_recent.append({**g, "date": entry["date"]})
+    if gap_agg:
+        gap_rows = "".join(
+            f"<tr><td>{reason}</td><td class='num'>{a['n']}</td>"
+            f"<td class='num {'pos' if a['pnl'] >= 0 else 'neg'}'>{a['pnl']:+,}円</td></tr>"
+            for reason, a in gap_agg.items())
+        gap_detail_rows = "".join(
+            f"<tr><td>{g['date']}</td><td>{g['venue']}{g['race_no']}R</td><td>{g['reason']}</td>"
+            f"<td class='num'>{g['ret'] - g['stake']:+,}円</td></tr>"
+            for g in gap_recent[-10:][::-1])
+        gap_html = f"""
+<div class="card">
+  <h2 style="margin-top:0">取りこぼし(理想と実際の差)</h2>
+  <table>
+    <tr><th>理由</th><th class="num">件数</th><th class="num">買えていた場合の損益</th></tr>
+    {gap_rows}
+  </table>
+  <table style="margin-top:8px">
+    <tr><th>日付</th><th>レース</th><th>理由</th><th class="num">理想収支</th></tr>
+    {gap_detail_rows}
+  </table>
+  <p class="note">メンテナンスは自動判定。寝坊・クリックミス等はケンさんの報告で記録
+  (docs/data/purchase_gaps.json)。買えなかったレースは実際の成績・税集計に入らない。</p>
+</div>"""
+    else:
+        gap_html = ""
 
     return f"""<!DOCTYPE html>
 <html lang="ja">
@@ -299,11 +398,14 @@ def render_stats(ledger: list) -> str:
 <div class="card">
   <h2 style="margin-top:0">日別(直近{SHOW_DAYS}日)</h2>
   <table>
-    <tr><th>日付</th><th class="num">購入(本命+超混戦)</th><th class="num">購入損益</th>
-        <th class="num">全レース</th><th class="num">全レース損益</th></tr>
+    <tr><th>日付</th><th class="num">実際(買えた分)</th><th class="num">実際損益</th>
+        <th class="num">理想(推奨全部)</th><th class="num">理想損益</th></tr>
     {''.join(daily_rows)}
   </table>
+  <p class="note">実際=実購入(メンテ・寝坊等で買えなかったレースを除く)。理想=システム推奨の全部。
+  差の内訳は下の「取りこぼし」参照。</p>
 </div>
+{gap_html}
 <p style="text-align:center;margin:16px 0">
   <a href="https://github.com/romancedawn59/boat-yosou/actions/workflows/grade.yml"
      style="display:inline-block;background:#1a7f37;color:#fff;font-weight:bold;
@@ -391,7 +493,7 @@ def main(d: date) -> None:
 
     picks = json.loads(picks_path.read_text(encoding="utf-8"))
     conn = db.connect(DB_PATH)
-    day = grade_day(picks, conn)
+    day, gap_detail = grade_day(picks, conn)
     hits = collect_hits(picks, conn, d.isoformat()) if day is not None else None
     conn.close()
 
@@ -400,14 +502,15 @@ def main(d: date) -> None:
         return
 
     ledger = [e for e in load_ledger() if e["date"] != d.isoformat()]
-    ledger.append({"date": d.isoformat(), "stats": day, "hits": hits})
+    ledger.append({"date": d.isoformat(), "stats": day, "hits": hits,
+                   "gaps": gap_detail})  # 取りこぼし(理想と実際の差・理由つき)
     ledger.sort(key=lambda e: e["date"])
     save_ledger(ledger)
 
     (SITE_DIR / "stats.html").write_text(render_stats(ledger), encoding="utf-8")
 
-    ken = day["ken_hon"]
-    print(f"{d}: 採点完了。本命勝負所 {ken['races']}レース 損益{ken['ret'] - ken['stake']:+,}円。"
+    ken = day.get("ken_jissai", _zero())
+    print(f"{d}: 採点完了。実購入 {ken['races']}レース 損益{ken['ret'] - ken['stake']:+,}円。"
           f"通算 {len(ledger)}日分をstats.htmlへ出力。")
 
 

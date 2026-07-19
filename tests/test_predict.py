@@ -49,15 +49,16 @@ class TestShobuSummary(unittest.TestCase):
             _race(ARERU, 13, 3, shobusho="要注目"),  # 観測のみ・予算に入らない
             _race(KATAME, 20, 1),
         ]
-        honmei, konsen, attention, budget = shobu_summary(races)
+        honmei, konsen, attention, budget, blocked = shobu_summary(races)
+        self.assertEqual(blocked, [])
         self.assertEqual(honmei, ["平和島5R"])
         self.assertEqual(konsen, ["桐生2R"])
         self.assertEqual(attention, ["尼崎3R"])
         self.assertEqual(budget, 2000)  # 購入=本命+超混戦の2レース×1000円
 
     def test_empty(self):
-        honmei, konsen, attention, budget = shobu_summary([_race(KATAME)])
-        self.assertEqual((honmei, konsen, attention, budget), ([], [], [], 0))
+        honmei, konsen, attention, budget, blocked = shobu_summary([_race(KATAME)])
+        self.assertEqual((honmei, konsen, attention, budget, blocked), ([], [], [], 0, []))
 
 
 class TestBuildNotifyText(unittest.TestCase):
@@ -108,6 +109,30 @@ class TestRenderVenuePage(unittest.TestCase):
         html = render_venue_page(date(2026, 7, 5), 4, [_race(ARERU, 4, 1, wx=wx)])
         self.assertIn("風速3.5m/s(南東の風)", html)
         self.assertIn("予測には未使用", html)
+
+
+class TestBlackout(unittest.TestCase):
+    """メンテ等の購入不可: 理想ラベルは残し、①②と予算から外して購入不可に載せる"""
+
+    def test_blocked_race_excluded_from_budget_and_notified(self):
+        blocked_race = _race(ARERU, 4, 2, shobusho="本命")
+        blocked_race["buyable"] = False
+        races = [_race(ARERU, 4, 5, shobusho="本命"), blocked_race]
+        honmei, konsen, attention, budget, blocked = shobu_summary(races)
+        self.assertEqual(honmei, ["平和島5R"])          # 買える本命だけ
+        self.assertEqual(blocked, ["平和島2R"])
+        self.assertEqual(budget, 1000)                  # 買えない分は予算外
+        text = build_notify_text(date(2026, 7, 20), races)
+        self.assertIn("購入不可: 平和島2R", text)
+
+    def test_is_buyable_window(self):
+        from config import is_buyable
+        # 2026-07-19 21:00〜7/20 12:30はメンテで購入不可(ユーザー指定)
+        self.assertFalse(is_buyable("2026-07-20 10:47:00"))
+        self.assertFalse(is_buyable("2026-07-19 22:00:00"))
+        self.assertTrue(is_buyable("2026-07-20 12:30:00"))  # 12:30以降は買える
+        self.assertTrue(is_buyable("2026-07-19 16:45:00"))  # メンテ前は買える
+        self.assertFalse(is_buyable(None))                  # 締切不明は安全側
 
 
 class TestShoppingPage(unittest.TestCase):
