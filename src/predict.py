@@ -25,8 +25,9 @@ import db
 import predictors as P
 import weather
 from config import (
-    ATTENTION_CAP, DB_PATH, HONMEI_CAP, KONSEN_PROB_MAX, MODEL_PATH, PAGES_URL,
-    PROJECT_DIR, TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable, jst_today,
+    ATTENTION_CAP, DB_PATH, HONMEI_CAP, HONMEI_PROB_MAX, KONSEN_PROB_MAX, MODEL_PATH,
+    PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable,
+    jst_today,
 )
 from downloader import download_day
 from features import FEATURE_COLUMNS, build_program_features
@@ -153,7 +154,7 @@ def predict_day(d: date) -> list[dict] | None:
 
     P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
-                      attention_cap=ATTENTION_CAP)
+                      attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX)
     return races
 
 

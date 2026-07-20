@@ -147,8 +147,8 @@ class TestFlatProbsRegression(unittest.TestCase):
 
 
 class TestShobusho(unittest.TestCase):
-    """v2選別(ケンさん案): 本命=対象場×荒れ注意×上位cap / 超混戦=全場×top<20% /
-    要注目=観測専用(本命の溢れ+標準の補充)"""
+    """v2選別(ケンさん案): 本命=対象場×荒れ注意×30%未満×上位cap / 超混戦=全場×top<20% /
+    要注目=観測専用(閾値で外れた30〜35%帯+本命の溢れ+標準の補充)"""
 
     VENUES = [3, 4, 8, 13, 20]
 
@@ -170,12 +170,22 @@ class TestShobusho(unittest.TestCase):
         self.assertIsNone(races[1]["shobusho"])
 
     def test_honmei_cap_and_priority(self):
-        # 対象場の荒れ注意7レース: 1位勝率が低い順にcap=6が本命、溢れは要注目
-        races = [self._race("荒れ注意", 0.34 - i * 0.01) for i in range(7)]
+        # 対象場の荒れ注意×閾値30%未満の7レース: 1位勝率が低い順にcap=6が本命、溢れは要注目
+        races = [self._race("荒れ注意", 0.29 - i * 0.01) for i in range(7)]
         self._select(races)
         marks = [r["shobusho"] for r in races]
         self.assertEqual(marks.count("本命"), 6)
-        self.assertEqual(races[0]["shobusho"], "要注目")  # 最も高い0.34が溢れる
+        self.assertEqual(races[0]["shobusho"], "要注目")  # 最も高い0.29が溢れる
+
+    def test_honmei_threshold_30_band_goes_to_attention(self):
+        # 30〜35%帯は荒れ注意ラベルのまま本命にせず要注目で前向き観測
+        # (2026-07-20閾値変更: 28〜35%帯は利益貢献ゼロの詰め物)
+        races = [self._race("荒れ注意", 0.32), self._race("荒れ注意", 0.30),
+                 self._race("荒れ注意", 0.299)]
+        self._select(races)
+        self.assertEqual(races[0]["shobusho"], "要注目")  # 帯内
+        self.assertEqual(races[1]["shobusho"], "要注目")  # 境界0.30は本命に入れない
+        self.assertEqual(races[2]["shobusho"], "本命")    # 閾値未満
 
     def test_target_venue_konsen_shows_as_honmei(self):
         # 対象場×20%未満は本命枠に入る(購入は1回・表示は本命を優先)
@@ -184,7 +194,7 @@ class TestShobusho(unittest.TestCase):
         self.assertEqual(races[0]["shobusho"], "本命")
 
     def test_attention_fills_from_standards(self):
-        races = [self._race("荒れ注意", 0.30), self._race("標準", 0.40),
+        races = [self._race("荒れ注意", 0.28), self._race("標準", 0.40),
                  self._race("標準", 0.36), self._race("堅め", 0.60)]
         self._select(races, attention_cap=2)
         self.assertEqual(races[0]["shobusho"], "本命")

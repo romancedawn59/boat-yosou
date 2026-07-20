@@ -177,16 +177,19 @@ def ken_portfolio(
 
 def select_shobusho(races: list[dict], honmei_venues: list[int],
                     honmei_cap: int = 6, konsen_max: float = 0.20,
-                    attention_cap: int = 4) -> None:
+                    attention_cap: int = 4, honmei_prob_max: float = 0.30) -> None:
     """v2選別(ケンさん案・2026-07-18): 各レースに shobusho キーを設定する。
 
     - 超混戦: 全場で1位勝率(モデル生値)がkonsen_max未満。市場も予測できない本物の
       混戦=エッジの本体(walk-forward 387%/最大1発除き312%。検証はtest/verify_ken_v2*.py)
-    - 本命: honmei_venues(検証済み5場)の荒れ注意から1位勝率が低い順にhonmei_cap件。
-      cap6はcap10より回収率・ドローダウンとも良い(薄い30〜35%帯の尻尾が削れるため)
-    - 要注目: 観測専用・購入なし。本命から溢れた対象場の荒れ注意+対象場の標準
-      (1位勝率が低い順)で計attention_cap件。「注目に値したか(中波乱・万舟で決着)/
-      標準だったか」を採点で記録し、荒れ判定境界の教師データにする(旧・準勝負所の再定義)
+    - 本命: honmei_venues(検証済み5場)の荒れ注意のうち1位勝率がhonmei_prob_max未満から
+      低い順にhonmei_cap件。閾値は2026-07-20に35%→30%(28〜35%帯は利益貢献ゼロの詰め物。
+      利益維持のまま投資-25%・DD-30%。検証はtest/verify_honmei_threshold.py)。
+      cap6はcap10より回収率・ドローダウンとも良い(薄い帯の尻尾が削れるため)
+    - 要注目: 観測専用・購入なし。閾値で外れた30〜35%帯・本命から溢れた対象場の荒れ注意
+      +対象場の標準(1位勝率が低い順)で計attention_cap件。「注目に値したか(中波乱・万舟で
+      決着)/標準だったか」を採点で記録し、荒れ判定境界の教師データにする。30〜35%帯の
+      観測は閾値30%採用日を起点にした前向き検証を兼ねる(8月末に答え合わせ)
     購入対象は「本命+超混戦」のみ。対象場のレースが両条件を満たす場合は本命と表示する
     (購入は1回。和集合の意味は変わらない)。
     """
@@ -198,24 +201,27 @@ def select_shobusho(races: list[dict], honmei_venues: list[int],
         if r["ranked"][0]["prob"] < konsen_max and r["bets"]["plan"]:
             r["shobusho"] = "超混戦"
 
-    # 本命(対象場の荒れ注意・1位勝率が低い順にcap件)。超混戦と重複したら本命表示を優先
+    # 本命(対象場の荒れ注意×閾値未満・1位勝率が低い順にcap件)。
+    # 超混戦と重複したら本命表示を優先
     are = sorted(
         (r for r in races
          if r["venue_code"] in honmei_venues
          and r["bets"]["confidence"] == "荒れ注意" and r["bets"]["plan"]),
         key=lambda r: r["ranked"][0]["prob"],
     )
-    for r in are[:honmei_cap]:
+    honmei_pool = [r for r in are if r["ranked"][0]["prob"] < honmei_prob_max]
+    for r in honmei_pool[:honmei_cap]:
         r["shobusho"] = "本命"
 
     # 要注目(観測専用): 買わない超混戦(プラン不成立等)は購入0点として必ず載せ、
-    # 続いて本命から溢れた荒れ注意 → 足りなければ標準から補充
+    # 続いて本命に入らなかった対象場の荒れ注意(閾値超の30〜35%帯・capからの溢れ)
+    # → 足りなければ標準から補充
     konsen_unbought = [r for r in races
                        if r["ranked"][0]["prob"] < konsen_max
                        and r["shobusho"] is None]
     for r in konsen_unbought:
         r["shobusho"] = "要注目"
-    attention = [r for r in are[honmei_cap:] if r["shobusho"] is None]
+    attention = [r for r in are if r["shobusho"] is None]
     if len(attention) < attention_cap:
         standards = sorted(
             (r for r in races

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<title>検証: 本命閾値グラデーション(walk-forward 232日)</title>
+<style>
+body{font-family:sans-serif;max-width:960px;margin:2em auto;padding:0 1em}
+table{border-collapse:collapse}td,th{border:1px solid #999;padding:4px 10px;text-align:right}
+th{background:#eee}tr.chosen{background:#e6f4e6;font-weight:bold}
+</style></head><body>
+<h1>検証: 本命の判定閾値グラデーション</h1>
+<p>v2選別(本命=5場×荒れ注意×上位6、超混戦=全場×20%未満固定)の
+本命閾値を振って比較。walk-forward 232日・backtest.py同一fold・
+買い目は全ルール共通の検証済みV2構成6点。再実行:
+<code>py -X utf8 test/verify_honmei_threshold.py</code></p>
+<table>
+<tr><th>本命閾値</th><th>R数</th><th>R/日</th><th>日予算平均</th><th>的中率</th>
+<th>回収率</th><th>最大1発除き</th><th>ガミ率</th><th>損益</th><th>最大DD</th><th>最長連敗</th></tr>
+<tr><td>35%</td><td>1396</td><td>6.0</td><td>5,979円</td><td>47.1%</td><td>232.8%</td><td>203.6%</td><td>50.8%</td><td>+1,841,810円</td><td>-44,530円</td><td>9日</td></tr>
+<tr class=chosen><td>30%</td><td>1050</td><td>4.5</td><td>4,489円</td><td>48.0%</td><td>278.0%</td><td>239.2%</td><td>49.0%</td><td>+1,854,080円</td><td>-31,560円</td><td>7日</td></tr>
+<tr><td>28%</td><td>900</td><td>3.9</td><td>3,843円</td><td>48.1%</td><td>306.9%</td><td>261.5%</td><td>47.3%</td><td>+1,844,750円</td><td>-28,440円</td><td>9日</td></tr>
+<tr><td>25%</td><td>705</td><td>3.0</td><td>3,003円</td><td>50.4%</td><td>346.1%</td><td>288.0%</td><td>45.6%</td><td>+1,714,510円</td><td>-20,780円</td><td>8日</td></tr>
+<tr><td>22%</td><td>582</td><td>2.5</td><td>2,475円</td><td>52.9%</td><td>395.9%</td><td>325.4%</td><td>45.1%</td><td>+1,699,340円</td><td>-16,390円</td><td>8日</td></tr>
+</table>
+<h2>結論(2026-07-20 ユーザー決定)</h2>
+<ul>
+<li><b>30%を採用</b>(config.HONMEI_PROB_MAX)。28〜35%帯は利益貢献ゼロの詰め物で、
+30%は利益を保ったまま投資・DDを減らす。帯別層別(25〜30%帯=回収率97%)・
+他19場の独立再現(20〜35%相当は最大1発除き96.3%)と整合し、
+「利益を追わずリスクだけ捨てる」変更のため後知恵最適化の懸念が小さい</li>
+<li><b>25%・22%は不採用</b>: 効率(回収率)は上がるが損益を削る(25〜28帯は利益貢献あり)。
+8月末の実弾データ(ken_hon/ken_konsen)+要注目の前向き観測で再判断する</li>
+<li>切った30〜35%帯は「要注目」観測枠で毎晩紙上採点を継続
+(採用日を起点にした事前登録の前向き検証)</li>
+<li>注意: DDはfoldモデルの揺らぎに敏感。点推定を過信しない</li>
+</ul>
+</body></html>
