@@ -1,4 +1,4 @@
-"""競走成績JSON(BoatraceOpenAPI results v2)をDB行の辞書へ変換する"""
+"""競走成績JSON(BoatraceOpenAPI results v3)をDB行の辞書へ変換する"""
 from db import make_race_id
 
 BET_TYPE_NAMES = {
@@ -23,19 +23,19 @@ def parse_result(data: dict) -> dict:
     payouts: list[dict] = []
 
     for r in data.get("results", []):
-        race_id = make_race_id(r["race_date"], r["race_stadium_number"], r["race_number"])
+        race_id = make_race_id(r["date"], r["stadium_number"], r["number"])
         races.append({
             "race_id": race_id,
-            "date": r["race_date"],
-            "venue_code": r["race_stadium_number"],
-            "race_no": r["race_number"],
-            "weather_number": r.get("race_weather_number"),
-            "wind_speed_m": r.get("race_wind"),
-            "wind_direction_number": r.get("race_wind_direction_number"),
-            "wave_height_cm": r.get("race_wave"),
-            "temperature": r.get("race_temperature"),
-            "water_temperature": r.get("race_water_temperature"),
-            "winning_technique_number": r.get("race_technique_number"),
+            "date": r["date"],
+            "venue_code": r["stadium_number"],
+            "race_no": r["number"],
+            "weather_number": r.get("weather_number"),
+            "wind_speed_m": r.get("wind_speed"),
+            "wind_direction_number": r.get("wind_direction_number"),
+            "wave_height_cm": r.get("wave_height"),
+            "temperature": r.get("air_temperature"),
+            "water_temperature": r.get("water_temperature"),
+            "winning_technique_number": r.get("technique_number"),
         })
 
         for b in r.get("boats", []):
@@ -58,7 +58,7 @@ def parse_result(data: dict) -> dict:
                     "race_id": race_id,
                     "bet_type": bet_type,
                     "combination": pay["combination"],
-                    "amount_yen": pay.get("payout"),
+                    "amount_yen": pay.get("amount"),
                 })
 
     return {"races": races, "results": results, "payouts": payouts}

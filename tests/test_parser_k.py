@@ -9,16 +9,16 @@ from parser_k import parse_result
 RESULT_FIXTURE = {
     "results": [
         {
-            "race_date": "2025-07-15",
-            "race_stadium_number": 1,
-            "race_number": 1,
-            "race_wind": 4,
-            "race_wind_direction_number": 10,
-            "race_wave": 3,
-            "race_weather_number": 2,
-            "race_temperature": 26,
-            "race_water_temperature": 27,
-            "race_technique_number": 1,
+            "date": "2025-07-15",
+            "stadium_number": 1,
+            "number": 1,
+            "wind_speed": 4,
+            "wind_direction_number": 10,
+            "wave_height": 3,
+            "weather_number": 2,
+            "air_temperature": 26,
+            "water_temperature": 27,
+            "technique_number": 1,
             "boats": [
                 {
                     "racer_boat_number": 1,
@@ -38,18 +38,18 @@ RESULT_FIXTURE = {
                 },
             ],
             "payouts": {
-                "trifecta": [{"combination": "1-5-3", "payout": 12690}],
-                "trio": [{"combination": "1=3=5", "payout": 2110}],
-                "exacta": [{"combination": "1-5", "payout": 1860}],
-                "quinella": [{"combination": "1=5", "payout": 1190}],
+                "trifecta": [{"combination": "1-5-3", "amount": 12690}],
+                "trio": [{"combination": "1=3=5", "amount": 2110}],
+                "exacta": [{"combination": "1-5", "amount": 1860}],
+                "quinella": [{"combination": "1=5", "amount": 1190}],
                 "quinella_place": [
-                    {"combination": "1=5", "payout": 690},
-                    {"combination": "1=3", "payout": 740},
+                    {"combination": "1=5", "amount": 690},
+                    {"combination": "1=3", "amount": 740},
                 ],
-                "win": [{"combination": "1", "payout": 290}],
+                "win": [{"combination": "1", "amount": 290}],
                 "place": [
-                    {"combination": "1", "payout": 320},
-                    {"combination": None, "payout": None},  # 不成立
+                    {"combination": "1", "amount": 320},
+                    {"combination": None, "amount": None},  # 不成立
                 ],
             },
         }

@@ -68,10 +68,11 @@ VENUE_NAMES = {
 # データ源: BoatraceOpenAPI (非公式・MITライセンス・GitHub Pages配信)
 # 旧公式オープンデータ(www1.mbrace.or.jp/od2)は2025-03-05でサービス終了。
 # programs(番組表)v3は2023-05-01以降の全アーカイブあり。
-# results(競走成績)v2は約1年分のローリング保持のみ。
+# results(競走成績)はv3へ移行済み(2026-07: v2はレガシー扱いで将来更新停止の可能性
+# があるため。過去1年分以上のアーカイブがv3にあることは確認済み)。
 BASE_URL = "https://boatraceopenapi.github.io"
 PROGRAMS_URL_TMPL = BASE_URL + "/programs/v3/{yyyy}/{yyyymmdd}.json"
-RESULTS_URL_TMPL = BASE_URL + "/results/v2/{yyyy}/{yyyymmdd}.json"
+RESULTS_URL_TMPL = BASE_URL + "/results/v3/{yyyy}/{yyyymmdd}.json"
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
