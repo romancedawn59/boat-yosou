@@ -1,9 +1,17 @@
 name: 予想レポート更新
 
-# 毎日 JST 6:30(UTC 21:30)に自動実行。加えてスマホ/PCから手動実行も可能。
+# 毎日 JST 6:30(UTC 21:30)に自動実行。上流(BoatraceOpenAPI)の当日番組表の公開が
+# 6:30に間に合わない日がある(7/19・7/20に2日連続で発生)ため、リトライを複数建てし、
+# 既に配信済みなら何もしない(冪等ガード)。最終回(JST13:00)でも未配信ならLINEでアラート。
+# 加えてスマホ/PCから手動実行も可能(このページ→Run workflow)。
 on:
   schedule:
-    - cron: "30 21 * * *"
+    - cron: "30 21 * * *"   # JST 6:30 本命
+    - cron: "15 22 * * *"   # JST 7:15 リトライ(上流公開遅延対策)
+    - cron: "0 23 * * *"    # JST 8:00 リトライ
+    - cron: "0 0 * * *"     # JST 9:00 リトライ
+    - cron: "30 1 * * *"    # JST 10:30 リトライ
+    - cron: "0 4 * * *"     # JST 13:00 最終。未配信ならLINEアラート(スマホ復旧リンク付き)
   workflow_dispatch:
     inputs:
       target_date:
@@ -25,18 +33,35 @@ jobs:
       - name: リポジトリ取得
         uses: actions/checkout@v4
 
+      # リトライの冪等ガード: 定期実行で本日分が既に配信済みなら以降を全てスキップする
+      # (二重生成・LINE二重送信の防止)。手動実行(workflow_dispatch)は過去日の
+      # 動作確認に使うためガードを通さない
+      - name: 配信済みチェック
+        id: guard
+        run: |
+          published=false
+          today=$(TZ=Asia/Tokyo date +%F)
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -f "docs/data/picks_${today}.json" ]; then
+            published=true
+            echo "本日(${today})のpicksは配信済み。何もしない。"
+          fi
+          echo "published=$published" >> "$GITHUB_OUTPUT"
+
       - name: Python準備
+        if: steps.guard.outputs.published != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
 
       - name: 依存インストール
+        if: steps.guard.outputs.published != 'true'
         run: pip install -r requirements.txt
 
       # DB(137MB)はリポジトリに入れられないため、実行の間はキャッシュで持ち回る。
       # キャッシュが無い初回は collect.py が約1年分を取得して作り直す。
       - name: DBキャッシュ復元
+        if: steps.guard.outputs.published != 'true'
         uses: actions/cache/restore@v4
         with:
           path: boat.db
@@ -44,24 +69,27 @@ jobs:
           restore-keys: boatdb-
 
       - name: データ収集(前回の続きから)
+        if: steps.guard.outputs.published != 'true'
         run: python collect.py
         working-directory: src
 
       - name: 予想レポート生成
+        if: steps.guard.outputs.published != 'true'
         run: python predict.py "${{ github.event.inputs.target_date || 'today' }}"
         working-directory: src
 
       - name: DBキャッシュ保存
-        if: always()
+        if: always() && steps.guard.outputs.published != 'true'
         uses: actions/cache/save@v4
         with:
           path: boat.db
           key: boatdb-${{ github.run_id }}
 
       - name: サイトをPagesへ公開
+        if: steps.guard.outputs.published != 'true'
         run: |
           if [ ! -f reports/site/index.html ]; then
-            echo "本日は対象5場すべて非開催。公開はスキップ。"
+            echo "本日は非開催または上流の番組表が未公開。公開はスキップ(後続cronが再試行)。"
             exit 0
           fi
           mkdir -p docs/archive docs/data
@@ -86,14 +114,22 @@ jobs:
           fi
 
       - name: LINE通知
-        if: always()
+        if: always() && steps.guard.outputs.published != 'true'
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
         run: |
           notify_file=$(ls -t reports/site/data/notify_*.txt 2>/dev/null | head -1 || true)
-          if [ -z "$notify_file" ]; then
-            echo "本日は対象5場すべて非開催。通知対象なし。"
+          if [ -n "$notify_file" ]; then
+            echo "通知ファイル: $notify_file"
+            python src/notify_line.py "$(cat "$notify_file")"
             exit 0
           fi
-          echo "通知ファイル: $notify_file"
-          python src/notify_line.py "$(cat "$notify_file")"
+          # 予想が生成できなかった(非開催 or 上流未公開)。最終スロット(JST13時以降の
+          # 定期実行)まで来ても未配信ならLINEでアラートし、スマホ復旧リンクを添える。
+          # cron遅延で前スロットが13時以降にずれた場合はアラートが重複しうるが害はない
+          hour=$(TZ=Asia/Tokyo date +%-H)
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" -ge 13 ]; then
+            python src/notify_line.py $'⚠️ 本日の予想が未配信です(上流の番組表未公開の可能性)。\nスマホ復旧: 下のリンクを開き「Run workflow」→緑のボタンをタップ(要GitHubログイン。配信済みなら再実行しても二重送信されません)\nhttps://github.com/romancedawn59/boat-yosou/actions/workflows/predict.yml'
+          else
+            echo "非開催または上流未公開。後続cronが再試行する。"
+          fi

@@ -120,12 +120,14 @@
   </details>
   <p>以後はホーム画面のアイコンをタップするだけで、アプリのように最新の予想が開きます。</p>
 
-  <h3>予想を今すぐ更新したいとき(手動実行)</h3>
+  <h3>予想を今すぐ更新したいとき(手動実行=スマホ復旧)</h3>
+  <p>朝の予想は6:30〜13:00に自動で最大6回試行するため、通常は何もしなくて大丈夫です。
+  13:00を過ぎても届かない日はLINEに「⚠️未配信」の通知が来るので、そのときだけ以下を実行します。</p>
   <ol>
-    <li>ブラウザで <code>github.com</code> を開き、ログインします。</li>
-    <li>リポジトリ <code>romancedawn59/boat-yosou</code> を開きます。</li>
-    <li><b>Actions</b> タブ →「<b>予想レポート更新</b>」→「<b>Run workflow</b>」→ 緑の「<b>Run workflow</b>」をタップします。</li>
-    <li>1〜2分待ってから予想ページを再読み込みします。</li>
+    <li>LINE通知内のリンク(または
+      <a href="https://github.com/romancedawn59/boat-yosou/actions/workflows/predict.yml">Actionsの「予想レポート更新」ページ</a>)を開き、GitHubにログインします。</li>
+    <li>「<b>Run workflow</b>」→ 緑の「<b>Run workflow</b>」をタップします。</li>
+    <li>2〜3分待ってから予想ページを再読み込みします。配信済みの日に押しても二重送信はされません。</li>
   </ol>
 
   <h3>過去の予想を見る</h3>
