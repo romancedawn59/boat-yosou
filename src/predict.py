@@ -504,8 +504,6 @@ def render_shopping_page(d: date, races: list[dict],
 {_nav_html(None, venues_today)}
 {_summary_html(races)}
 {maint}
-<p class="note">上から締切順。購入対象は🔴本命と🟣超混戦(各1,000円)。👀要注目は観測専用で買いません。
-確率はモデル予測値。購入は自己責任で。</p>
 {body}
 {_TAB_JS}
 </body>
