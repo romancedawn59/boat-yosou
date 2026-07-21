@@ -16921,6 +16921,12 @@
     "races": 0,
     "hits": 0
    },
+   "ken_extra": {
+    "stake": 0,
+    "ret": 0,
+    "races": 0,
+    "hits": 0
+   },
    "ken_jun": {
     "stake": 4000,
     "ret": 1050,
@@ -20646,6 +20652,7 @@
     }
    ],
    "ken_jissai": [],
+   "ken_extra": [],
    "ken_jun": [
     {
      "date": "2026-07-20",

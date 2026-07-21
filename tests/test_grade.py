@@ -212,6 +212,52 @@ class TestIdealActualSplit(unittest.TestCase):
         self.assertEqual(gaps[0]["reason"], "メンテナンス")
         self.assertEqual(gaps[0]["ret"], 1000)            # 買えていた場合の払戻を記録
 
+    def test_before_gap_uses_deadline_from_db(self):
+        """時刻指定の一括除外(寝坊など)が効くこと。
+
+        締切はpicksに無くDBから補う。ここが壊れると除外が黙って無効化され、
+        買っていないレースが実キャッシュに混ざる(2026-07-20の事故の回帰テスト)
+        """
+        import tempfile
+        from pathlib import Path as P_
+        picks = _picks(shobusho="本命")
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = db.connect(P_(tmp) / "t.db")
+            rid = picks["races"][0]["race_id"]
+            db.upsert_race(conn, {"race_id": rid, "date": "2026-07-07", "venue_code": 4,
+                                  "race_no": 1, "deadline_time": "2026-07-07 10:47:00"})
+            db.upsert_payout(conn, {"race_id": rid, "bet_type": "3連複",
+                                    "combination": "1=2=3", "amount_yen": 500})
+            gaps_log = [{"date": "2026-07-07", "before": "12:00", "reason": "寝坊"}]
+            with patch.object(G, "load_purchase_gaps", return_value=gaps_log):
+                day, gaps = G.grade_day(picks, conn)
+            conn.close()
+        self.assertEqual(day["ken_hon"]["races"], 1)      # 理想には残る
+        self.assertEqual(day["ken_jissai"]["races"], 0)   # 締切10:47 < 12:00 → 除外
+        self.assertEqual(gaps[0]["reason"], "寝坊")
+
+    def test_extra_purchase_counts_into_jissai(self):
+        """推奨外の自己判断買いは実キャッシュ(ken_jissai)に合算し内訳を残す"""
+        import tempfile
+        from pathlib import Path as P_
+        picks = _picks(shobusho="本命")
+        extra = [{"date": "2026-07-07", "venue": "桐生", "race_no": 5,
+                  "stake": 2000, "ret": 5000, "note": "自己判断"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            conn = db.connect(P_(tmp) / "t.db")
+            rid = picks["races"][0]["race_id"]
+            db.upsert_payout(conn, {"race_id": rid, "bet_type": "3連複",
+                                    "combination": "1=2=3", "amount_yen": 500})
+            with patch.object(G, "load_extra_purchases", return_value=extra):
+                day, _gaps = G.grade_day(picks, conn)
+            conn.close()
+        self.assertEqual(day["ken_extra"]["stake"], 2000)
+        self.assertEqual(day["ken_extra"]["ret"], 5000)
+        # 実キャッシュ=推奨分(1,000円→1,000円)+推奨外(2,000円→5,000円)
+        self.assertEqual(day["ken_jissai"]["stake"], 300 + 2000)
+        self.assertEqual(day["ken_jissai"]["ret"], 1000 + 5000)
+        self.assertEqual(day["ken_hon"]["stake"], 300)    # 理想は推奨分のみで不変
+
 
 if __name__ == "__main__":
     unittest.main()

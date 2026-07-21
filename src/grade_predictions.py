@@ -27,6 +27,7 @@ PREDICTOR_LABELS = {
     "ken_hon": "ken 本命(理想)",
     "ken_konsen": "ken 超混戦(理想)",
     "ken_jissai": "ken 実際(実購入)",
+    "ken_extra": "ken 推奨外(自己判断)",
     "ken_jun": "ken 要注目(観測・購入なし)",
 }
 
@@ -51,6 +52,21 @@ def load_purchase_gaps() -> list:
     return []
 
 
+def load_extra_purchases() -> list:
+    """推奨外に自己判断で買ったレースの記録(docs/data/extra_purchases.json)。
+
+    形式: {"date": "2026-07-21", "venue": "桐生", "race_no": 5,
+           "stake": 2000, "ret": 5000, "note": "自己判断"}
+    推奨レースは買い目が分かるので払戻を自動計算するが、こちらは買い目が不明なため
+    投資額と払戻額をケンさんの報告どおりに記録する(ret=0なら全外れ)。
+    実キャッシュ(ken_jissai)に合算し、内訳をken_extraで別に持つ。
+    """
+    path = DATA_DIR / "extra_purchases.json"
+    if path.exists():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return []
+
+
 def gap_reason(race: dict, gaps: list) -> str | None:
     """このレースが「買えなかった/買わなかった」ならその理由を返す(実際から除外)。
 
@@ -63,7 +79,10 @@ def gap_reason(race: dict, gaps: list) -> str | None:
         if g.get("date") != race.get("_date"):
             continue
         if "before" in g:
-            deadline = race.get("deadline") or ""
+            # 締切時刻はpicks JSONに入っていないため採点時にDBから補う(_deadline)。
+            # ここが空のままだと時刻指定の一括除外が黙って無効化され、買っていない
+            # レースが実キャッシュに混ざる(2026-07-20に実際に起きた事故)
+            deadline = race.get("_deadline") or race.get("deadline") or ""
             if deadline and deadline[11:16] < g["before"]:
                 return g.get("reason", "理由不明")
         elif (g.get("venue") == VENUE_NAMES.get(race["venue_code"])
@@ -75,8 +94,10 @@ def gap_reason(race: dict, gaps: list) -> str | None:
 def grade_day(picks: dict, conn) -> tuple[dict, list] | tuple[None, list]:
     """1日分のpicksを採点。(集計, 取りこぼし明細)。結果未確定ならNone。
 
-    理想=本命/超混戦の全レース(ken_hon/ken_konsen)。
-    実際=そのうち買えたレースのみ(ken_jissai)。差分は取りこぼしとして理由つきで返す。
+    理想=本命/超混戦の全レース(ken_hon/ken_konsen)。買う買わないと無関係の固定値。
+    実際=実キャッシュ(ken_jissai)。推奨レースのうち買えた分+推奨外の自己判断買い
+    (ken_extra)の合算。買えなかった分は取りこぼしとして理由つきで返す。
+    既定は「言及がなければ推奨どおり買った」(ユーザー運用・2026-07-21確認)。
     """
     gaps_log = load_purchase_gaps()
     day = {k: _zero() for k in PREDICTOR_LABELS}
@@ -90,6 +111,10 @@ def grade_day(picks: dict, conn) -> tuple[dict, list] | tuple[None, list]:
         if not payout:
             continue  # 未確定 or 中止
         graded_races += 1
+        # 時刻指定の一括除外(gapのbefore形式)で使う締切。picksには入っていない
+        drow = conn.execute(
+            "SELECT deadline_time FROM races WHERE race_id = ?", (rid,)).fetchone()
+        race["_deadline"] = drow[0] if drow and drow[0] else ""
 
         for key in ("a", "b", "c"):
             s = day[key]
@@ -127,7 +152,21 @@ def grade_day(picks: dict, conn) -> tuple[dict, list] | tuple[None, list]:
                 s["ret"] += ret
                 s["hits"] += 1 if ret else 0
 
-    if graded_races == 0:
+    # 推奨外の自己判断買い(報告ベース)。実キャッシュに合算し内訳も残す
+    extra_added = 0
+    for e in load_extra_purchases():
+        if e.get("date") != picks["date"]:
+            continue
+        stake, ret = int(e.get("stake", 0)), int(e.get("ret", 0))
+        for key in ("ken_jissai", "ken_extra"):
+            s = day[key]
+            s["races"] += 1
+            s["stake"] += stake
+            s["ret"] += ret
+            s["hits"] += 1 if ret else 0
+        extra_added += 1
+
+    if graded_races == 0 and extra_added == 0:
         return None, []
     return day, gap_detail
 
@@ -270,9 +309,11 @@ def render_stats(ledger: list) -> str:
                 f"<td class='num {color}'>{roi:.1%}</td>"
                 f"<td class='num {color}'>{s['ret'] - s['stake']:+,}円</td></tr>")
 
+    # 推奨外(自己判断)は報告があった時だけの枠。0件の間は行を出さない
     total_rows = "".join(
         row(k, PREDICTOR_LABELS[k], totals[k], highlight=k.startswith("ken"))
         for k in PREDICTOR_LABELS
+        if not (k == "ken_extra" and totals[k]["races"] == 0)
     )
 
     hits_json = json.dumps(all_hits, ensure_ascii=False)
