@@ -214,12 +214,21 @@ def collect_hits(picks: dict, conn, day_iso: str) -> dict:
         ken = race["ken"]
         if ken:
             stake = sum(y for _, _, y, _ in ken)
+            # 自信ポイント(モデルの発生確率)。オッズを見ない設計なので、
+            # 「自信X%と言った目が実際いくら付いたか」を的中のたびに記録して
+            # 較正を継続監視する(2026-07-21ケンさん指示)。旧日のpicksには無い
+            confs = race.get("ken_conf") or []
             lines, ret = [], 0
-            for bt, comb, y, _ in ken:
+            for i, (bt, comb, y, _) in enumerate(ken):
                 amt = payout.get((bt, comb), 0)
                 if amt:
                     r = amt * y // 100
-                    lines.append({"label": f"{bt} {comb}（{y}円）", "payout": r})
+                    line = {"label": f"{bt} {comb}（{y}円）", "payout": r}
+                    if i < len(confs) and confs[i]:
+                        line["conf"] = confs[i]          # 自信(発生確率)
+                        line["odds"] = amt / 100         # 実際の配当(倍)
+                        line["implied"] = 0.75 / confs[i]  # 自信から逆算した想定配当
+                    lines.append(line)
                     ret += r
             if ret:
                 detail = {**base, "stake": stake, "ret": ret, "lines": lines}
@@ -405,6 +414,9 @@ def render_stats(ledger: list) -> str:
                 border: 1px solid #d0d7de; border-radius: 12px; background: #fff; }}
   .hit-lines {{ font-size: .8rem; line-height: 1.45; }}
   .hit-lines b {{ color: #1a7f37; }}
+  .conf-cmp {{ font-size: .72rem; color: #57606a; }}
+  .conf-cmp .pos {{ color: #1a7f37; font-weight: bold; }}
+  .conf-cmp .neg {{ color: #cf222e; }}
   tr.day-row {{ cursor: pointer; }}
   tr.day-row:hover td {{ background: #eef4ff; }}
   .back {{ display: inline-block; color: #0969da; cursor: pointer; font-size: .85rem;
@@ -499,7 +511,18 @@ function showDayHits(key, date) {{
   const rows = list.map(h => {{
     const pnl = h.ret - h.stake;
     const cls = pnl >= 0 ? 'pos' : 'neg';
-    const lines = h.lines.map(l => l.label + ' <b>' + yen(l.payout) + '円</b>').join('<br>');
+    // 自信ポイントがある日は「予想した配当 → 実際の配当」を並べて出す。
+    // オッズを見ない設計なので、この対比が唯一の答え合わせになる
+    const lines = h.lines.map(l => {{
+      let s = l.label + ' <b>' + yen(l.payout) + '円</b>';
+      if (l.conf) {{
+        const gap = l.odds >= l.implied ? 'pos' : 'neg';
+        s += '<br><span class="conf-cmp">自信' + (l.conf * 100).toFixed(1) + '%'
+          + '（想定' + Math.round(l.implied).toLocaleString() + '倍）→ 実際'
+          + '<span class="' + gap + '">' + l.odds.toLocaleString() + '倍</span></span>';
+      }}
+      return s;
+    }}).join('<br>');
     return '<tr><td>' + h.venue + h.race_no + 'R</td><td>' + h.chaku + '</td>'
       + '<td class="hit-lines">' + lines + '</td>'
       + '<td class="num ' + cls + '">' + signed(pnl) + '</td></tr>';
