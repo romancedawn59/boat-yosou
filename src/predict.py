@@ -158,6 +158,19 @@ def predict_day(d: date) -> list[dict] | None:
     P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
                       attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX)
+
+    # 超混戦ラベルが確定してからQ案構成へ差し替える(2026-07-21採用)。
+    # 帯は選別後にしか分からないため、いったん現行構成で組んでから作り直す
+    for r in races:
+        if r.get("shobusho") != "超混戦" or not r["bets"]["plan"]:
+            continue
+        probs = P.normalize_probs(r["ranked"])
+        plan = P.ken_portfolio(r["bets"]["confidence"], r["ranked"], [],
+                               P.picks_katsu(probs), konsen=True)
+        if plan:
+            r["bets"]["plan"] = plan
+            r["bets"]["conf"] = [P.combo_prob(bt, comb, probs)
+                                 for bt, comb, _y, _s in plan]
     return races
 
 

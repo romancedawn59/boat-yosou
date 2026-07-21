@@ -145,6 +145,7 @@ def ken_portfolio(
     ranked: list[dict],
     b_picks: list[tuple[str, str, float]],
     c_picks: list[tuple[str, str, float]],
+    konsen: bool = False,
 ) -> list[tuple[str, str, int, str]]:
     """予想屋ken: 1レース1,000円のポートフォリオ。(券種, 組み合わせ, 金額, 出典)のリスト。
 
@@ -152,6 +153,13 @@ def ken_portfolio(
     - 荒れ注意はウォークフォワード検証済みの構成(3連複軸1流し+3連単穴)を核に維持する
     - 堅め・標準は3連複上位を厚く、B(3連単)を添える。2連複は購入しない
       (Aの2連複は判断材料。検証⑦: 3連複置換で標準83.3%→85.7%)
+    - konsen=True(超混戦帯)はQ案構成(2026-07-21ケンさん提案・採用)。
+      現行はC枠以外の5点すべてがr1(1位予想)を含む1軸で、r1が3着圏外に飛ぶと
+      同時に全滅した(超混戦帯では24.9%の頻度)。そこで軸外し(r2=r3=r4)と
+      深い波乱(r3=r4=r5)を各100円で持ち、C枠と引き換える。
+      検証: test/verify_deep_upset.py(除き239.8%→249.3%、的中48.1%→53.1%、
+      DD-31,560→-29,450円、損益+5.7%)。r3=r4=r5は単独では回収率89%の赤字だが、
+      他の6点が全滅する局面だけを拾うためポートフォリオでは効く
     """
     lanes = [r["lane"] for r in ranked]
     # c_picksが空でも検証済みプランは返す。確率が平坦なレース(例: 1位20%)では
@@ -161,10 +169,23 @@ def ken_portfolio(
     if len(lanes) < 4:
         return []
     r1, r2, r3, r4 = lanes[:4]
+    r5 = lanes[4] if len(lanes) >= 5 else None
 
     def trio(a, b, c):
         s = sorted([a, b, c])
         return f"{s[0]}={s[1]}={s[2]}"
+
+    if confidence == "荒れ注意" and konsen and r5 is not None:
+        # Q案: 1軸集中を解いて2種類の保険を持つ(計1,000円・C枠は持たない)
+        return [
+            ("3連複", trio(r1, r2, r3), 200, "検証済み"),
+            ("3連複", trio(r1, r2, r4), 100, "検証済み"),
+            ("3連複", trio(r1, r3, r4), 100, "検証済み"),
+            ("3連複", trio(r2, r3, r4), 100, "軸外し"),
+            ("3連単", f"{r3}-{r1}-{r2}", 200, "検証済み"),
+            ("3連単", f"{r4}-{r1}-{r2}", 200, "検証済み"),
+            ("3連複", trio(r3, r4, r5), 100, "深い波乱"),
+        ]
 
     if confidence == "荒れ注意":
         # 検証済み構成を核に、3点目の3連複を100円に減らしてC枠を捻出(V2案)。

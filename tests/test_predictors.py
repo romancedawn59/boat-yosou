@@ -146,6 +146,64 @@ class TestFlatProbsRegression(unittest.TestCase):
         self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 1)
 
 
+class TestKonsenPortfolio(unittest.TestCase):
+    """超混戦帯のQ案構成(2026-07-21採用): 1軸集中を解き軸外し+深い波乱を持つ"""
+
+    RANKED = _ranked([0.19, 0.18, 0.17, 0.16, 0.15, 0.15])
+
+    def _plan(self, ranked=None):
+        ranked = ranked or self.RANKED
+        probs = P.normalize_probs(ranked)
+        return P.ken_portfolio("荒れ注意", ranked, P.picks_yamada(probs),
+                               P.picks_katsu(probs), konsen=True)
+
+    def test_seven_points_totalling_1000yen(self):
+        plan = self._plan()
+        self.assertEqual(len(plan), 7)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+
+    def test_has_axis_free_and_deep_upset(self):
+        plan = self._plan()
+        lanes = [r["lane"] for r in self.RANKED]
+        r1, r2, r3, r4, r5 = lanes[:5]
+
+        def trio(*xs):
+            s = sorted(xs)
+            return f"{s[0]}={s[1]}={s[2]}"
+
+        combos = {comb for _bt, comb, _y, _s in plan}
+        self.assertIn(trio(r2, r3, r4), combos)   # 軸外し(1位予想が飛ぶ)
+        self.assertIn(trio(r3, r4, r5), combos)   # 深い波乱(1位2位が飛ぶ)
+        self.assertIn(trio(r1, r2, r3), combos)   # 本線は残す
+        # 1位予想を含まない点が2つある=1軸集中が解けている
+        no_axis = [c for c in combos if str(r1) not in c.split("=")
+                   and not c.startswith(f"{r1}-") and f"-{r1}-" not in c]
+        self.assertGreaterEqual(len(no_axis), 2)
+
+    def test_konsen_drops_katsu_slot(self):
+        # Q案はC枠と引き換えに保険2種を持つ(検証で除き回収率が上回った)
+        plan = self._plan()
+        self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 0)
+
+    def test_four_boat_race_falls_back_to_current(self):
+        # r5が無い(4艇立て)レースは深い波乱を組めないので現行構成に戻る。
+        # 確率が平坦なレースはC候補0点で計900円になりうる(既存仕様)
+        ranked4 = _ranked([0.30, 0.25, 0.23, 0.22])
+        plan = self._plan(ranked4)
+        self.assertLessEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertLessEqual(len(plan), 6)
+        self.assertEqual(len([x for x in plan if x[3] == "深い波乱"]), 0)
+
+    def test_honmei_band_is_unchanged(self):
+        # 本命帯(konsen=False)は現行構成のまま。保険2種は付かない
+        probs = P.normalize_probs(self.RANKED)
+        plan = P.ken_portfolio("荒れ注意", self.RANKED, P.picks_yamada(probs),
+                               P.picks_katsu(probs))
+        self.assertLessEqual(len(plan), 6)
+        self.assertEqual(
+            len([x for x in plan if x[3] in ("軸外し", "深い波乱")]), 0)
+
+
 class TestConfidencePoints(unittest.TestCase):
     """自信ポイント(買い目1点の発生確率)と、そこから逆算する想定配当。
     オッズを見ない設計のため、この確率が「いくらつくか」の代替指標になる"""
