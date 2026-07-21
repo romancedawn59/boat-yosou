@@ -146,6 +146,45 @@ class TestFlatProbsRegression(unittest.TestCase):
         self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 1)
 
 
+class TestConfidencePoints(unittest.TestCase):
+    """自信ポイント(買い目1点の発生確率)と、そこから逆算する想定配当。
+    オッズを見ない設計のため、この確率が「いくらつくか」の代替指標になる"""
+
+    RANKED = _ranked([0.30, 0.22, 0.16, 0.13, 0.10, 0.09])
+
+    def setUp(self):
+        self.probs = P.normalize_probs(self.RANKED)
+
+    def test_trifecta_prob_matches_trifecta_probs(self):
+        tri = P.trifecta_probs(self.probs)
+        want = tri[(1, 2, 3)]
+        self.assertAlmostEqual(P.combo_prob("3連単", "1-2-3", self.probs), want)
+
+    def test_trio_prob_sums_all_permutations(self):
+        tri = P.trifecta_probs(self.probs)
+        want = sum(p for k, p in tri.items() if set(k) == {1, 2, 3})
+        got = P.combo_prob("3連複", "1=2=3", self.probs)
+        self.assertAlmostEqual(got, want)
+        # 3連複は同じ組の6通りを含むので、単独の3連単より必ず大きい
+        self.assertGreater(got, P.combo_prob("3連単", "1-2-3", self.probs))
+
+    def test_unknown_or_broken_input_returns_zero(self):
+        self.assertEqual(P.combo_prob("単勝", "1", self.probs), 0.0)
+        self.assertEqual(P.combo_prob("3連単", "こわれた", self.probs), 0.0)
+
+    def test_implied_odds_uses_takeout(self):
+        # 払戻率75%: 確率10%の目は想定7.5倍
+        self.assertAlmostEqual(P.implied_odds(0.10), 7.5)
+        self.assertEqual(P.implied_odds(0.0), 0.0)  # 0除算しない
+
+    def test_ken_plan_points_all_have_confidence(self):
+        c = P.picks_katsu(self.probs)
+        plan = P.ken_portfolio("荒れ注意", self.RANKED, P.picks_yamada(self.probs), c)
+        confs = [P.combo_prob(bt, comb, self.probs) for bt, comb, _y, _s in plan]
+        self.assertEqual(len(confs), len(plan))
+        self.assertTrue(all(p > 0 for p in confs))  # 全点に自信が付く
+
+
 class TestShobusho(unittest.TestCase):
     """v2選別(ケンさん案): 本命=対象場×荒れ注意×30%未満×上位cap / 超混戦=全場×top<20% /
     要注目=観測専用(閾値で外れた30〜35%帯+本命の溢れ+標準の補充)"""

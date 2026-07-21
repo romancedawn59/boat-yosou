@@ -136,6 +136,9 @@ def predict_day(d: date) -> list[dict] | None:
         b = P.picks_yamada(probs) if len(probs) >= 4 else []
         c = P.picks_katsu(probs) if len(probs) >= 4 else []
         ken = P.ken_portfolio(confidence, ranked, b, c)
+        # 各点の自信ポイント(発生確率)。オッズを見ない設計のため、これが
+        # 「この目はいくらつくか」の代替指標になる(較正確認済み)
+        ken_conf = [P.combo_prob(bt, comb, probs) for bt, comb, _y, _s in ken]
 
         races.append({
             "race_id": race_id,
@@ -149,7 +152,7 @@ def predict_day(d: date) -> list[dict] | None:
             "picks_a": a,
             "picks_b": b,
             "picks_c": c,
-            "bets": {"confidence": confidence, "plan": ken},
+            "bets": {"confidence": confidence, "plan": ken, "conf": ken_conf},
         })
 
     P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
@@ -250,6 +253,10 @@ _CSS = """
   .ken-table .src { font-size: .7rem; color: #57606a; width: 5em; }
   .ken-table .bt { font-size: .8rem; color: #57606a; width: 4em; }
   .ken-table .yen { text-align: right; font-weight: bold; }
+  .ken-table .cf { text-align: right; font-size: .8rem; color: #0969da; width: 3.5em; }
+  .ken-table .io { text-align: right; font-size: .8rem; color: #57606a; width: 5em; }
+  .ken-table th { font-size: .68rem; color: #8c959f; font-weight: normal; padding: 0 6px; }
+  .ken-note { font-size: .68rem; color: #57606a; margin: 6px 0 0; }
   .tabs { display: flex; gap: 6px; margin-top: 10px; }
   .tabbtn { font-size: .8rem; padding: 5px 12px; border-radius: 14px 14px 0 0;
             border: 1px solid #d0d7de; border-bottom: none; background: #eef1f4;
@@ -387,14 +394,23 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
     ken_plan = race["bets"]["plan"]
     if ken_plan:
         total = sum(y for _, _, y, _ in ken_plan)
+        # 自信ポイントと、そこから逆算した想定配当(オッズを見ない設計の代替指標)
+        confs = race["bets"].get("conf") or [0.0] * len(ken_plan)
         ken_rows = "".join(
             f"<tr><td class='src'>{src}</td><td class='bt'>{bt}</td>"
-            f"<td>{comb}</td><td class='yen'>{yen}円</td></tr>"
-            for bt, comb, yen, src in ken_plan
+            f"<td>{comb}</td><td class='yen'>{yen}円</td>"
+            f"<td class='cf'>{p:.1%}</td>"
+            f"<td class='io'>{('約' + format(P.implied_odds(p), ',.0f') + '倍') if p > 0 else '—'}</td></tr>"
+            for (bt, comb, yen, src), p in zip(ken_plan, confs)
         )
         ken_html = (
             f"<div class='ken'><h3>予想屋ken のポートフォリオ(計{total:,}円)</h3>"
-            f"<table class='ken-table'>{ken_rows}</table></div>"
+            f"<table class='ken-table'>"
+            f"<tr><th></th><th></th><th></th><th class='yen'>金額</th>"
+            f"<th class='cf'>自信</th><th class='io'>想定配当</th></tr>"
+            f"{ken_rows}</table>"
+            f"<p class='ken-note'>自信=モデルが見た的中確率。想定配当=自信から逆算"
+            f"(オッズは見ない設計)。実際の配当は市場しだいで前後します</p></div>"
         )
     else:
         ken_html = ""
@@ -522,10 +538,14 @@ def _picks_json(d: date, races: list[dict]) -> dict:
                 "confidence": r["bets"]["confidence"],
                 "shobusho": r.get("shobusho"),
                 "buyable": r.get("buyable", True),
+                # 予測順位と1位勝率(生値)。事後分析でモデルの見立てを復元するために残す
+                # (2026-07-21まで未保存で、過去日の分析はwalk-forward再実行が必要だった)
+                "ranked": [[r2["lane"], round(r2["prob"], 6)] for r2 in r["ranked"]],
                 "a": [[bt, comb, p] for bt, comb, p in r["picks_a"]],
                 "b": [[bt, comb, p] for bt, comb, p in r["picks_b"]],
                 "c": [[bt, comb, p] for bt, comb, p in r["picks_c"]],
                 "ken": [[bt, comb, yen, src] for bt, comb, yen, src in r["bets"]["plan"]],
+                "ken_conf": [round(p, 6) for p in r["bets"].get("conf") or []],
             }
             for r in races
         ],

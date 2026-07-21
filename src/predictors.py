@@ -91,6 +91,37 @@ def trio_top(probs: dict[int, float], n: int = 2) -> list[tuple[str, float]]:
     return sorted(agg.items(), key=lambda x: -x[1])[:n]
 
 
+def combo_prob(bet_type: str, combination: str, probs: dict[int, float]) -> float:
+    """買い目1点の発生確率(=自信ポイント)。3連複は同じ組の順列を合算する。
+
+    このシステムは朝買いで締切前のオッズを見ない(見ると市場に引きずられ、
+    検証⑥でEVフィルタ・市場ブレンドとも素通しより悪化した)。そのため
+    「この目はいくらつくか」はオッズではなくこの確率から逆算する。
+    較正はtest/verify_slot_performance.pyで確認済み(自信0.48%→実際0.49%、
+    1.54%→1.43%、14.20%→14.05%)なので、確率はそのまま信頼してよい。
+    """
+    tri = trifecta_probs(probs)
+    try:
+        if bet_type == "3連単":
+            a, b, c = (int(x) for x in combination.split("-"))
+            return tri.get((a, b, c), 0.0)
+        if bet_type == "3連複":
+            s = {int(x) for x in combination.split("=")}
+            return sum(p for k, p in tri.items() if set(k) == s)
+        if bet_type == "2連複":
+            a, b = (int(x) for x in combination.split("="))
+            return quinella_prob(probs, a, b)
+    except (ValueError, KeyError):
+        return 0.0
+    return 0.0
+
+
+def implied_odds(prob: float, takeout: float = 0.75) -> float:
+    """自信ポイントから想定配当(倍)を逆算する。オッズを見ない設計の代替指標。
+    takeout=0.75は3連単・3連複の払戻率(控除率25%)。確率0なら0を返す"""
+    return takeout / prob if prob > 0 else 0.0
+
+
 def picks_katsu(probs: dict[int, float]) -> list[tuple[str, str, float]]:
     """C 勝万舟: 万舟圏(発生確率0.5%以下)の3連単から確率上位5点"""
     tri = trifecta_probs(probs)
