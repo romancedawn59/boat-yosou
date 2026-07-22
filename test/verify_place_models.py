@@ -35,9 +35,16 @@
   ここで初めてボックスやフォーメーションを再検証する意味が生まれる
   (これまでの構成17案は全て「今の確率」を前提にした変形だった)。
 
+■ 検証の枠組みは2本立て(このプロジェクトの標準手順)
+  1. walk-forward(backtest.py同一fold・全期間)
+  2. 2026-05-01〜06-30の固定期間(5/1以前で1回だけ学習)
+     → 検証⑦⑧⑨・verify_ken_v2_202605_06.py・verify_konsen_202605_06.pyと
+       同じ土俵。片方だけで良く見えるものは期間依存を疑う
+  両方で基準を満たして初めて第2段へ進む。
+
 ■ 注意
   本番コードには一切触れない(v1凍結の原則: 新規ファイル+test/出力のみ)。
-  学習は3モデル×5fold=15回でそれなりに時間がかかる。
+  学習は3モデル×(5fold+固定1)=18回でそれなりに時間がかかる。
 """
 import sys
 from collections import defaultdict
@@ -54,6 +61,9 @@ import predictors as P
 from backtest import N_FOLDS, PARAMS, TEST_START
 from config import DB_PATH
 from features import CATEGORICAL_FEATURES, FEATURE_COLUMNS, build_training_set
+
+# 固定期間シミュレーションの評価区間(既存の5〜6月系列と同じ土俵にする)
+FIXED_START, FIXED_END = "2026-05-01", "2026-06-30"
 
 # 直接予測するラベル(列名, 説明, 作り方)
 LABELS = [
@@ -123,55 +133,97 @@ def main() -> None:
     for col, _desc, fn in LABELS:
         df[col] = fn(df["arrival_order"])
 
+    res_wf = run_walkforward(df)
+    res_fx = run_fixed(df, FIXED_START, FIXED_END)
+
+    for title, res in (("枠組み1: walk-forward(全期間・fold別学習)", res_wf),
+                       (f"枠組み2: {FIXED_START}〜{FIXED_END} 固定"
+                        "(5/1以前で1回だけ学習)", res_fx)):
+        print("\n" + "=" * 68)
+        print(f"■ {title}")
+        print(f"  評価行数 {len(res):,}(艇単位) / "
+              f"レース {res['race_id'].nunique():,}")
+        print("=" * 68)
+        report_all(res)
+
+    out = Path(__file__).with_name("place_models_predictions.csv")
+    res_wf.assign(枠組み="walkforward").to_csv(out, index=False, encoding="utf-8")
+    out_fx = Path(__file__).with_name("place_models_predictions_202605_06.csv")
+    res_fx.assign(枠組み="fixed").to_csv(out_fx, index=False, encoding="utf-8")
+    print(f"\n生データ: {out}\n          {out_fx}")
+
+
+def _collect(train_df: pd.DataFrame, eval_df: pd.DataFrame, tag) -> list:
+    """3モデルを学習してeval_dfを予測し、Harville導出値と並べた行を返す"""
+    eval_df = eval_df.copy()
+    for col, _desc, _fn in LABELS:
+        booster = train_with_label(train_df, col)
+        eval_df[f"pred_{col}"] = booster.predict(eval_df[FEATURE_COLUMNS])
+
+    rows = []
+    for rid, g in eval_df.groupby("race_id"):
+        g = g.sort_values("pred_is_winner", ascending=False)
+        ranked = [{"lane": int(r["lane"]), "prob": float(r["pred_is_winner"])}
+                  for _, r in g.iterrows()]
+        probs = P.normalize_probs(ranked)
+        if len(probs) < 4:
+            continue
+        # Harville導出値(現行のやり方)
+        tri = P.trifecta_probs(probs)
+        h_place2 = defaultdict(float)   # その艇が2着になる確率
+        h_top3 = defaultdict(float)     # その艇が3着以内に入る確率
+        for (a, b, c), p in tri.items():
+            h_place2[b] += p
+            h_top3[a] += p
+            h_top3[b] += p
+            h_top3[c] += p
+        for _, r in g.iterrows():
+            lane = int(r["lane"])
+            rows.append({
+                "fold": tag, "race_id": rid, "lane": lane,
+                "y_win": int(r["is_winner"]), "y_place2": int(r["is_place2"]),
+                "y_top3": int(r["is_top3"]),
+                "m_win": float(probs.get(lane, 0.0)),
+                "m_place2": float(r["pred_is_place2"]),
+                "m_top3": float(r["pred_is_top3"]),
+                "h_place2": float(h_place2.get(lane, 0.0)),
+                "h_top3": float(h_top3.get(lane, 0.0)),
+            })
+    return rows
+
+
+def run_walkforward(df: pd.DataFrame) -> pd.DataFrame:
+    """backtest.pyと同一foldのウォークフォワード(学習期間に未来を含めない)"""
     dates = sorted(df[df["date"] >= TEST_START]["date"].unique())
     fold_size = len(dates) // N_FOLDS
     boundaries = [dates[i * fold_size] for i in range(N_FOLDS)] + [dates[-1] + "z"]
-    print(f"評価期間 {dates[0]}〜{dates[-1]}({len(dates)}日) / {N_FOLDS}fold")
-
-    rows = []   # 1行=1艇。予測と実績をためる
+    print(f"\n[walk-forward] 評価 {dates[0]}〜{dates[-1]}"
+          f"({len(dates)}日) / {N_FOLDS}fold")
+    rows = []
     for i in range(N_FOLDS):
         f_start, f_end = boundaries[i], boundaries[i + 1]
         train_df = df[df["date"] < f_start]
-        fold_df = df[(df["date"] >= f_start) & (df["date"] < f_end)].copy()
+        fold_df = df[(df["date"] >= f_start) & (df["date"] < f_end)]
         if fold_df.empty or train_df.empty:
             continue
-        print(f"fold{i+1} 学習中(3モデル)...", flush=True)
-        for col, desc, _fn in LABELS:
-            booster = train_with_label(train_df, col)
-            fold_df[f"pred_{col}"] = booster.predict(fold_df[FEATURE_COLUMNS])
+        print(f"  fold{i+1} 学習中(3モデル)...", flush=True)
+        rows += _collect(train_df, fold_df, i + 1)
+    return pd.DataFrame(rows)
 
-        # Harville導出値(現行のやり方)をレースごとに計算する
-        for rid, g in fold_df.groupby("race_id"):
-            g = g.sort_values("pred_is_winner", ascending=False)
-            ranked = [{"lane": int(r["lane"]), "prob": float(r["pred_is_winner"])}
-                      for _, r in g.iterrows()]
-            probs = P.normalize_probs(ranked)
-            if len(probs) < 4:
-                continue
-            tri = P.trifecta_probs(probs)
-            h_place2 = defaultdict(float)   # その艇が2着になる確率
-            h_top3 = defaultdict(float)     # その艇が3着以内に入る確率
-            for (a, b, c), p in tri.items():
-                h_place2[b] += p
-                h_top3[a] += p
-                h_top3[b] += p
-                h_top3[c] += p
-            for _, r in g.iterrows():
-                lane = int(r["lane"])
-                rows.append({
-                    "fold": i + 1, "race_id": rid, "lane": lane,
-                    "y_win": int(r["is_winner"]), "y_place2": int(r["is_place2"]),
-                    "y_top3": int(r["is_top3"]),
-                    "m_win": float(probs.get(lane, 0.0)),
-                    "m_place2": float(r["pred_is_place2"]),
-                    "m_top3": float(r["pred_is_top3"]),
-                    "h_place2": float(h_place2.get(lane, 0.0)),
-                    "h_top3": float(h_top3.get(lane, 0.0)),
-                })
 
-    res = pd.DataFrame(rows)
-    print(f"\n評価行数 {len(res):,}(艇単位) / レース {res['race_id'].nunique():,}\n")
+def run_fixed(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
+    """固定期間シミュレーション(検証⑦⑧⑨・verify_ken_v2_202605_06.pyと同じ枠組み)。
+    startより前の全データで1回だけ学習し、start〜endを評価する。
+    既存の5〜6月系列と同じ土俵の数字になるため、walk-forwardの補完として見る"""
+    train_df = df[df["date"] < start]
+    eval_df = df[(df["date"] >= start) & (df["date"] <= end)]
+    print(f"\n[{start}〜{end} 固定] 学習 {len(train_df):,}行 / "
+          f"評価 {len(eval_df):,}行")
+    print("  学習中(3モデル)...", flush=True)
+    return pd.DataFrame(_collect(train_df, eval_df, "fixed"))
 
+
+def report_all(res: pd.DataFrame) -> None:
     def report(name, y_col, direct_col, harville_col):
         y = res[y_col]
         print(f"=== {name} ===")
@@ -210,10 +262,6 @@ def main() -> None:
             ya, yb = auc(kon[y_col], kon[h_col]), auc(kon[y_col], kon[d_col])
             print(f"{name:<8} Harville AUC {ya:.4f} / 直接予測 AUC {yb:.4f} "
                   f"({yb - ya:+.4f})")
-
-    out = Path(__file__).with_name("place_models_predictions.csv")
-    res.to_csv(out, index=False, encoding="utf-8")
-    print(f"\n生データ: {out}")
 
 
 if __name__ == "__main__":
