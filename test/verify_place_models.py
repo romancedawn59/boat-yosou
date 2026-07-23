@@ -19,9 +19,11 @@
   A. 現行: 1着モデル + Harville導出
        - Harvilleの「2着になる確率」  = Σ_a P(a-i-*)
        - Harvilleの「3着以内に入る確率」= Σ P(i-*-*)+P(*-i-*)+P(*-*-i)
-  B. 直接予測: ラベルを変えて学習した専用モデル
-       - place2モデル: arrival_order == 2
-       - top3モデル  : arrival_order <= 3
+  B. 直接予測(素): ラベルを変えて学習した専用モデル
+       - place2モデル: arrival_order == 2 / top3モデル: arrival_order <= 3
+  C. 直接予測+レース内正規化: Bの弱点(各艇を独立に評価するため「2着は1艇/
+       3着以内は3艇」の制約を知らず、強い艇が揃うと全員高く出てAUCが鈍る)を、
+       レース内で合計1(2着)/合計3(3着以内)に整えることで補えるか試す
 
 ■ 【事前登録】第1段の判定基準(満たさなければ第2段へ進まない)
   1. 直接予測モデルのAUCが、Harville導出値のAUCを上回る
@@ -168,6 +170,10 @@ def _collect(train_df: pd.DataFrame, eval_df: pd.DataFrame, tag) -> list:
         probs = P.normalize_probs(ranked)
         if len(probs) < 4:
             continue
+        # 超混戦の判定は本番select_shobushoと同じく「正規化前の生の1着予測値」の
+        # 最大値で行う(正規化後で判定すると値が変わり超混戦が激減するバグがあった)
+        top_raw = float(g["pred_is_winner"].iloc[0])
+
         # Harville導出値(現行のやり方)
         tri = P.trifecta_probs(probs)
         h_place2 = defaultdict(float)   # その艇が2着になる確率
@@ -177,15 +183,28 @@ def _collect(train_df: pd.DataFrame, eval_df: pd.DataFrame, tag) -> list:
             h_top3[a] += p
             h_top3[b] += p
             h_top3[c] += p
+
+        # レース内正規化: 直接予測モデルは各艇を独立に評価するため「2着は1艇/
+        # 3着以内は3艇」という制約を知らず、強い艇が揃うと全員高く出てAUCが鈍る。
+        # レース内で合計を1(2着)/3(3着以内)に整え、順位づけの弱点を補えるか見る
+        s2 = g["pred_is_place2"].sum()
+        s3 = g["pred_is_top3"].sum()
+        norm2 = {int(r["lane"]): float(r["pred_is_place2"]) / s2 if s2 else 0.0
+                 for _, r in g.iterrows()}
+        norm3 = {int(r["lane"]): float(r["pred_is_top3"]) * 3 / s3 if s3 else 0.0
+                 for _, r in g.iterrows()}
+
         for _, r in g.iterrows():
             lane = int(r["lane"])
             rows.append({
-                "fold": tag, "race_id": rid, "lane": lane,
+                "fold": tag, "race_id": rid, "lane": lane, "top_raw": top_raw,
                 "y_win": int(r["is_winner"]), "y_place2": int(r["is_place2"]),
                 "y_top3": int(r["is_top3"]),
                 "m_win": float(probs.get(lane, 0.0)),
                 "m_place2": float(r["pred_is_place2"]),
                 "m_top3": float(r["pred_is_top3"]),
+                "n_place2": norm2[lane],          # レース内正規化した直接予測(2着)
+                "n_top3": norm3[lane],            # レース内正規化した直接予測(3着以内)
                 "h_place2": float(h_place2.get(lane, 0.0)),
                 "h_top3": float(h_top3.get(lane, 0.0)),
             })
@@ -224,44 +243,52 @@ def run_fixed(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
 
 
 def report_all(res: pd.DataFrame) -> None:
-    def report(name, y_col, direct_col, harville_col):
+    def report(name, y_col, harville_col, direct_col, norm_col):
         y = res[y_col]
         print(f"=== {name} ===")
-        print(f"{'手法':<26}{'AUC':>9}{'Brier':>10}{'較正誤差':>10}{'平均予測':>10}"
+        print(f"{'手法':<28}{'AUC':>9}{'Brier':>10}{'較正誤差':>10}{'平均予測':>10}"
               f"{'実際':>8}")
-        for label, col in ((f"A 現行(Harville導出)", harville_col),
-                           (f"B 直接予測モデル", direct_col)):
+        methods = (("A 現行(Harville導出)", harville_col),
+                   ("B 直接予測(素)", direct_col),
+                   ("C 直接予測+レース内正規化", norm_col))
+        m = {}
+        for label, col in methods:
             p = res[col]
-            print(f"{label:<26}{auc(y, p):>9.4f}{brier(y, p):>10.4f}"
-                  f"{calibration_gap(y, p):>10.4f}{p.mean():>10.3f}{y.mean():>8.3f}")
-        a_auc, b_auc = auc(y, res[harville_col]), auc(y, res[direct_col])
-        a_br, b_br = brier(y, res[harville_col]), brier(y, res[direct_col])
-        a_cg, b_cg = (calibration_gap(y, res[harville_col]),
-                      calibration_gap(y, res[direct_col]))
-        print(f"→ 基準1 AUC   : {'○ 直接予測が上' if b_auc > a_auc else '× 改善せず'}"
-              f"({b_auc - a_auc:+.4f})")
-        print(f"→ 基準2 較正   : {'○ 同等以上' if b_cg <= a_cg else '× 悪化'}"
-              f"({b_cg - a_cg:+.4f})")
-        print(f"→ 基準3 Brier  : {'○ 改善' if b_br < a_br else '× 改善せず'}"
-              f"({b_br - a_br:+.4f})")
-        print(f"→ 判定: "
-              f"{'第2段へ進む価値あり' if (b_auc > a_auc and b_cg <= a_cg and b_br < a_br) else '見送り(Harvilleで十分)'}\n")
+            m[label] = {"auc": auc(y, p), "brier": brier(y, p),
+                        "cg": calibration_gap(y, p)}
+            print(f"{label:<28}{m[label]['auc']:>9.4f}{m[label]['brier']:>10.4f}"
+                  f"{m[label]['cg']:>10.4f}{p.mean():>10.3f}{y.mean():>8.3f}")
+        base = m["A 現行(Harville導出)"]
+        # BとCそれぞれを現行と照合し、3基準(AUC↑・較正同等以上・Brier改善)を見る
+        for label in ("B 直接予測(素)", "C 直接予測+レース内正規化"):
+            v = m[label]
+            c1, c2, c3 = (v["auc"] > base["auc"], v["cg"] <= base["cg"],
+                          v["brier"] < base["brier"])
+            print(f"  {label}: AUC{'○' if c1 else '×'}({v['auc']-base['auc']:+.4f}) "
+                  f"較正{'○' if c2 else '×'}({v['cg']-base['cg']:+.4f}) "
+                  f"Brier{'○' if c3 else '×'}({v['brier']-base['brier']:+.4f}) "
+                  f"→ {'第2段へ' if (c1 and c2 and c3) else '基準未達'}")
+        print()
 
-    report("3着以内(3連複の土台)", "y_top3", "m_top3", "h_top3")
-    report("2着(3連単④⑤の土台)", "y_place2", "m_place2", "h_place2")
+    report("3着以内(3連複の土台)", "y_top3", "h_top3", "m_top3", "n_top3")
+    report("2着(3連単④⑤の土台)", "y_place2", "h_place2", "m_place2", "n_place2")
 
-    # 超混戦帯だけを取り出した比較(エッジの本体で効くかを見る)
-    top1 = res.sort_values("m_win", ascending=False).groupby("race_id").head(1)
-    kon_ids = set(top1[top1["m_win"] < 0.20]["race_id"])
-    kon = res[res["race_id"].isin(kon_ids)]
-    if len(kon) > 0:
-        print(f"=== 参考: 超混戦帯のみ({kon['race_id'].nunique():,}レース) ===")
-        for name, y_col, d_col, h_col in (
-                ("3着以内", "y_top3", "m_top3", "h_top3"),
-                ("2着", "y_place2", "m_place2", "h_place2")):
-            ya, yb = auc(kon[y_col], kon[h_col]), auc(kon[y_col], kon[d_col])
-            print(f"{name:<8} Harville AUC {ya:.4f} / 直接予測 AUC {yb:.4f} "
-                  f"({yb - ya:+.4f})")
+    # 超混戦帯だけを取り出した比較(エッジの本体で効くか)。判定は本番と同じく
+    # 正規化前の生1着予測値(top_raw)で行う
+    kon = res[res["top_raw"] < 0.20]
+    nk = kon["race_id"].nunique()
+    if nk >= 30:
+        print(f"=== 参考: 超混戦帯のみ({nk:,}レース) ===")
+        for name, y_col, h_col, d_col, n_col in (
+                ("3着以内", "y_top3", "h_top3", "m_top3", "n_top3"),
+                ("2着", "y_place2", "h_place2", "m_place2", "n_place2")):
+            print(f"{name:<8} Harville {auc(kon[y_col], kon[h_col]):.4f} / "
+                  f"直接 {auc(kon[y_col], kon[d_col]):.4f} / "
+                  f"正規化 {auc(kon[y_col], kon[n_col]):.4f}  "
+                  f"(較正 H{calibration_gap(kon[y_col], kon[h_col]):.4f} "
+                  f"→ 正規化{calibration_gap(kon[y_col], kon[n_col]):.4f})")
+    elif nk > 0:
+        print(f"=== 超混戦帯は{nk}レースのみ→サンプル不足で判定しない ===")
 
 
 if __name__ == "__main__":
