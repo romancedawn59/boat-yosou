@@ -26,11 +26,15 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def collect_day(conn, d: date, force: bool = False) -> bool:
-    """1日分を取得してDBへ格納。データが存在したらTrue"""
+def collect_day(conn, d: date, force: bool = False) -> tuple[bool, bool]:
+    """1日分を取得してDBへ格納。(データが存在したか, 番組表が取得できたか)を返す
+
+    結果JSONだけ取れて番組表が未公開のことがあり、その場合レース枠だけが
+    作られて出走表が空になる。呼び出し側が気づけるよう番組表の有無を返す。
+    """
     paths = download_day(d, force=force)
     if paths["program"] is None and paths["result"] is None:
-        return False
+        return False, False
 
     if paths["program"]:
         program_data = parse_program(_load_json(paths["program"]))
@@ -49,16 +53,17 @@ def collect_day(conn, d: date, force: bool = False) -> bool:
             db.upsert_payout(conn, payout)
 
     conn.commit()
-    return True
+    return True, paths["program"] is not None
 
 
 def collect_range(start: date, end: date, force_first: bool = False):
     conn = db.connect(DB_PATH)
     ok, skipped, failed = 0, 0, 0
+    no_program = []
 
     for d in _daterange(start, end):
         try:
-            found = collect_day(conn, d, force=(force_first and d == start))
+            found, has_program = collect_day(conn, d, force=(force_first and d == start))
         except Exception as e:
             conn.rollback()  # 失敗日の中途半端な行が後続日のcommitに混ざらないように
             failed += 1
@@ -66,12 +71,21 @@ def collect_range(start: date, end: date, force_first: bool = False):
             continue
         if found:
             ok += 1
-            print(f"{d}: OK")
+            if has_program:
+                print(f"{d}: OK")
+            else:
+                no_program.append(d)
+                print(f"{d}: 警告 番組表なし(結果のみ取得)")
         else:
             skipped += 1
 
     conn.close()
     print(f"完了: 成功={ok} 開催なし/保持期間外={skipped} 失敗={failed}")
+    if no_program:
+        days = ", ".join(str(d) for d in no_program)
+        print(f"警告: 番組表を取得できなかった日があります({days})。"
+              "当日分の場合、番組表が未公開の可能性があります"
+              "(予測実行時に再取得を試みます)。")
 
 
 def auto_range() -> tuple[date, date, bool]:

@@ -42,15 +42,23 @@ VENUE_SLUGS = {4: "heiwajima", 3: "edogawa", 8: "tokoname", 13: "amagasaki", 20:
 
 
 def _ensure_program(conn, d: date) -> bool:
-    """指定日の番組表がDBになければダウンロードして格納する(v2: 全場が予測対象)"""
-    def target_count():
+    """指定日の番組表がDBになければダウンロードして格納する(v2: 全場が予測対象)
+
+    レース枠(races)は結果JSON側からも作られるため、出走表の実体である
+    entriesの件数で判定する。races件数で判定すると、番組表が未公開のまま
+    結果JSONだけ取れた日に「番組表あり」と誤判定して素通りし、
+    特徴量が空のまま予測に進んでしまう。
+    """
+    def entry_count():
         return conn.execute(
-            "SELECT COUNT(*) FROM races WHERE date = ?", (d.isoformat(),),
+            "SELECT COUNT(*) FROM entries e JOIN races r ON e.race_id = r.race_id "
+            "WHERE r.date = ?", (d.isoformat(),),
         ).fetchone()[0]
 
-    if target_count():
+    if entry_count():
         return True
 
+    # 朝の収集時点で番組表が未公開(404)でも、予測時には公開済みのことがある
     paths = download_day(d)
     if paths["program"] is None:
         return False
@@ -61,7 +69,7 @@ def _ensure_program(conn, d: date) -> bool:
     for entry in program_data["entries"]:
         db.upsert_entry(conn, entry)
     conn.commit()
-    return target_count() > 0
+    return entry_count() > 0
 
 
 def _fetch_weather_by_race(conn, race_meta: dict) -> dict[str, dict]:
@@ -113,6 +121,12 @@ def predict_day(d: date) -> list[dict] | None:
     df = build_program_features(conn, list(race_meta.keys()))
     race_weather = _fetch_weather_by_race(conn, race_meta)
     conn.close()
+
+    if df.empty:
+        raise RuntimeError(
+            f"{d}: 出走表の特徴量が0件です(races={len(race_meta)}件)。"
+            "番組表が未取得のままレース枠だけが結果JSONから作られている可能性があります。"
+        )
 
     # 日本語を含むパスをLightGBMネイティブに渡せないため、Python側で読み込む
     booster = lgb.Booster(model_str=MODEL_PATH.read_text(encoding="utf-8"))

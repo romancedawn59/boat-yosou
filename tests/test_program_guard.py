@@ -1,0 +1,129 @@
+"""番組表の欠落検知(2026-07-24の配信停止バグの回帰テスト)
+
+朝の収集時点で番組表が未公開(404)だと、結果JSONからレース枠だけが作られ
+entriesが空になる。races件数で開催判定していたため予測が素通りし、
+特徴量0件のままLightGBMに渡ってクラッシュした。
+"""
+import sys
+import tempfile
+import unittest
+from datetime import date
+from pathlib import Path
+from unittest.mock import patch
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+import db
+import predict
+
+D = date(2026, 7, 24)
+
+
+class TestEnsureProgram(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.conn = db.connect(Path(self.tmpdir.name) / "test.db")
+
+    def tearDown(self):
+        self.conn.close()
+        self.tmpdir.cleanup()
+
+    def _add_race(self, race_no=1):
+        """結果JSON由来のレース枠(出走表なし)を1件作る"""
+        race_id = db.make_race_id(D.isoformat(), 22, race_no)
+        db.upsert_race(self.conn, {
+            "race_id": race_id, "date": D.isoformat(),
+            "venue_code": 22, "race_no": race_no,
+        })
+        self.conn.commit()
+        return race_id
+
+    def _add_entries(self, race_id):
+        for lane in range(1, 7):
+            db.upsert_entry(self.conn, {
+                "race_id": race_id, "lane": lane,
+                "reg_no": 4000 + lane, "racer_name": f"選手{lane}",
+            })
+        self.conn.commit()
+
+    def test_races_without_entries_triggers_download(self):
+        """レース枠だけあってentriesが空なら、番組表を取りに行くこと
+
+        これが2026-07-24の障害。races件数で判定していた頃は
+        ダウンロードされずTrueが返り、空の特徴量で予測に進んでいた。
+        """
+        self._add_race()
+
+        with patch.object(predict, "download_day",
+                          return_value={"program": None, "result": None}) as m:
+            ok = predict._ensure_program(self.conn, D)
+
+        m.assert_called_once()  # 素通りしていないこと
+        self.assertFalse(ok)    # 番組表が取れなければ開催なし扱い
+
+    def test_entries_present_skips_download(self):
+        """出走表が揃っていれば再ダウンロードしないこと"""
+        self._add_entries(self._add_race())
+
+        with patch.object(predict, "download_day") as m:
+            ok = predict._ensure_program(self.conn, D)
+
+        m.assert_not_called()
+        self.assertTrue(ok)
+
+    def test_entries_of_other_day_do_not_count(self):
+        """別日のentriesを当日分と数えないこと"""
+        other = date(2026, 7, 23)
+        race_id = db.make_race_id(other.isoformat(), 22, 1)
+        db.upsert_race(self.conn, {
+            "race_id": race_id, "date": other.isoformat(),
+            "venue_code": 22, "race_no": 1,
+        })
+        self._add_entries(race_id)
+        self._add_race()  # 当日はレース枠のみ
+
+        with patch.object(predict, "download_day",
+                          return_value={"program": None, "result": None}) as m:
+            predict._ensure_program(self.conn, D)
+
+        m.assert_called_once()
+
+
+class TestCollectDayReturn(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.conn = db.connect(Path(self.tmpdir.name) / "test.db")
+
+    def tearDown(self):
+        self.conn.close()
+        self.tmpdir.cleanup()
+
+    def test_returns_program_availability(self):
+        """collect_dayが(データ有無, 番組表有無)を返すこと"""
+        import collect
+
+        with patch.object(collect, "download_day",
+                          return_value={"program": None, "result": None}):
+            self.assertEqual(collect.collect_day(self.conn, D), (False, False))
+
+    def test_result_only_reports_missing_program(self):
+        """結果JSONだけ取れた日を「番組表なし」と報告すること
+
+        2026-07-24の障害そのもの。当時は単にTrueを返すだけで、
+        番組表が欠けたままログに「OK」と記録されていた。
+        """
+        import collect
+
+        empty = {"races": [], "results": [], "payouts": []}
+        with patch.object(collect, "download_day",
+                          return_value={"program": None, "result": Path("dummy.json")}), \
+             patch.object(collect, "_load_json", return_value={}), \
+             patch.object(collect, "parse_result", return_value=empty):
+            found, has_program = collect.collect_day(self.conn, D)
+
+        self.assertTrue(found)        # 結果は取れている
+        self.assertFalse(has_program)  # 番組表の欠落を報告する
+
+
+if __name__ == "__main__":
+    unittest.main()
