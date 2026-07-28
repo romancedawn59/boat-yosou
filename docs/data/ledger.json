@@ -50264,27 +50264,27 @@
   "date": "2026-07-28",
   "stats": {
    "a": {
-    "stake": 70500,
-    "ret": 55580,
-    "races": 141,
-    "hits": 95
+    "stake": 71000,
+    "ret": 55700,
+    "races": 142,
+    "hits": 96
    },
    "b": {
-    "stake": 141000,
+    "stake": 142000,
     "ret": 112770,
-    "races": 141,
+    "races": 142,
     "hits": 67
    },
    "c": {
-    "stake": 70500,
+    "stake": 71000,
     "ret": 9330,
-    "races": 141,
+    "races": 142,
     "hits": 2
    },
    "ken": {
-    "stake": 141000,
+    "stake": 142000,
     "ret": 92140,
-    "races": 141,
+    "races": 142,
     "hits": 58
    },
    "ken_hon": {
@@ -51425,6 +51425,20 @@
       {
        "label": "3連複 1=3=4",
        "payout": 1000
+      }
+     ]
+    },
+    {
+     "date": "2026-07-28",
+     "venue": "下関",
+     "race_no": 12,
+     "chaku": "1-3-6",
+     "stake": 500,
+     "ret": 120,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 120
       }
      ]
     },
