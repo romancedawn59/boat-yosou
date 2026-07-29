@@ -174,9 +174,12 @@ class TestCompositions(unittest.TestCase):
         self.assertIn("4-1-2", combos)
 
     def test_c_empty_gives_900(self):
+        # 「現行」はライブ構成に追随(2026-07-29議題B以降、荒れ注意は保険複つき
+        # 1,000円でC候補に依存しない)。挑戦者3案は従来どおりC空なら900円
         for name in C.COMPOSITION_NAMES:
             plan = C.build_composition(name, FLAT, [])
-            self.assertEqual(sum(y for _, _, y, _ in plan), 900, name)
+            expect = 1000 if name == "現行" else 900
+            self.assertEqual(sum(y for _, _, y, _ in plan), expect, name)
 
     def test_short_field_returns_empty(self):
         for name in C.COMPOSITION_NAMES:

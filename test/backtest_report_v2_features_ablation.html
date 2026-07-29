@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>検証⑬ KR指数+伸びギャップのv2特徴量アブレーション</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 860px; margin: auto; }
+  h1 { font-size: 1.2rem; margin: 10px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .reject { background: #ffebe955; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+  .verdict { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+             padding: 10px 12px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<h1>検証⑬ KR指数+伸びギャップのv2特徴量アブレーション</h1>
+<p class="note">実施: 2026-07-29 / スクリプト: test/verify_v2_features_ablation.py /
+walk-forward 5fold(2025-12-01〜2026-07-28、backtest.pyと同一の分割・パラメータ) /
+評価は実運用と同じ買い方(predictors.ken_portfolio の plan 実額)。
+src/ は無改変(v1凍結ルール準拠・新規ファイルのみ)。</p>
+
+<div class="verdict"><b>判定: 4アームすべて事前登録基準に不合格。v2への特徴量注入は見送り。</b>
+主要指標(5場・ken現行構成の全fold合計回収率)は base 96.9% に対し
++KR 97.5%(+0.6pt)/ +GAP 97.6%(+0.7pt)/ +BOTH 96.0%(−0.9pt)。
+合格ライン「+5.0pt以上 かつ 5fold中4fold以上でbase超え」に対し、
+改善幅は1pt未満・base超えfoldも最大3/5で、<b>両条件とも満たさない</b>。
+なお <b>KR指数は予測精度そのものは確かに上げている</b>(AUC 0.8424→0.8465、
+モデル1位の1着的中 56.9%→57.2%、gain寄与11.8%)——
+「的中率は上がるが回収率は動かない」という本プロジェクトの既知法則の再確認となった。</div>
+
+<div class="card">
+  <h2 style="margin-top:0">事前登録(実行前に固定)</h2>
+  <ul style="font-size:.85rem">
+    <li>動機: 研究期(7/24-29)で単因子として効くと実測された2つを、手動コンボ(3連敗で打ち止め)ではなく
+        <b>モデルの特徴量として与え、掛け算はLightGBMに探させる</b></li>
+    <li>アームは4つに固定し、実行後に増やさない:
+        <b>A base</b>(現行31特徴量)/ <b>B +KR</b>(+kr_rating, kr_rel)/
+        <b>C +GAP</b>(+rising_gap)/ <b>D +BOTH</b>(4列すべて)</li>
+    <li>主要指標: 5場スコープ・ken現行構成の全fold合計回収率。
+        合格基準 = <b>base比 +5.0pt以上</b> かつ <b>5fold中4fold以上でbase超え</b>(1発依存の排除)</li>
+    <li>副次指標(AUC・1位的中・バケット別)は参考表示のみ。<b>これで採否は決めない</b></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">追加した特徴量とリーク対策</h2>
+  <ul style="font-size:.85rem">
+    <li><b>kr_rating</b>: 選手Elo(K=3.0、6艇の着順を15対戦として時系列順に逐次更新)。
+        各行に入るのは<b>そのレースの更新前</b>の値。<b>kr_rel</b> = kr_rating − レース内平均
+        (ケンさんのモーター理論と同じ「レース内相対」の形)</li>
+    <li><b>rising_gap</b>: 直近90日の実測2連対率 − 番組表の全国2連率。
+        当日を厳密に除外(date &lt; 当日)、窓内12走未満はNaN(LightGBMの欠損分岐に委ねる)</li>
+    <li>被覆率: kr 100.0%(学習対象=結果確定行) / rising_gap 93.6%</li>
+    <li>いずれも過去結果のみから構成され walk-forward で安全。ただし
+        <b>DBが2025-07-15開始のためElo のバーンインは fold1 時点で約4.5か月と浅い</b></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">結果1: 主要指標(5場・ken現行構成の回収率)</h2>
+  <table>
+    <tr><th>アーム</th><th class="num">fold1</th><th class="num">fold2</th><th class="num">fold3</th>
+        <th class="num">fold4</th><th class="num">fold5</th>
+        <th class="num">全fold合計</th><th class="num">base差</th><th class="num">base超え</th><th>判定</th></tr>
+    <tr><td>A base</td><td class="num">90.6%</td><td class="num">129.0%</td><td class="num">82.7%</td>
+        <td class="num">89.9%</td><td class="num">89.1%</td><td class="num"><b>96.9%</b></td>
+        <td class="num">—</td><td class="num">—</td><td>基準</td></tr>
+    <tr class="reject"><td>B +KR</td><td class="num">89.0%</td><td class="num">129.8%</td><td class="num">90.6%</td>
+        <td class="num">93.2%</td><td class="num">83.2%</td><td class="num"><b>97.5%</b></td>
+        <td class="num">+0.6pt</td><td class="num">3/5</td><td>不合格</td></tr>
+    <tr class="reject"><td>C +GAP</td><td class="num">92.1%</td><td class="num">126.5%</td><td class="num">85.9%</td>
+        <td class="num">95.3%</td><td class="num">86.3%</td><td class="num"><b>97.6%</b></td>
+        <td class="num">+0.7pt</td><td class="num">3/5</td><td>不合格</td></tr>
+    <tr class="reject"><td>D +BOTH</td><td class="num">84.2%</td><td class="num">130.1%</td><td class="num">81.6%</td>
+        <td class="num">97.2%</td><td class="num">84.0%</td><td class="num"><b>96.0%</b></td>
+        <td class="num neg">−0.9pt</td><td class="num">2/5</td><td>不合格</td></tr>
+  </table>
+  <p class="note">投資額は各fold約138〜171万円(4アームでほぼ同額=買い目点数の構造は同じ)。
+  <b>最新のfold5では3アームすべてがbaseを下回った</b>のも不採用の後押しとなる。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">結果2: 副次指標(参考・採否には使わない)</h2>
+  <table>
+    <tr><th>アーム</th><th class="num">AUC(全場)</th><th class="num">モデル1位の1着的中</th>
+        <th class="num">全場回収率</th><th>新特徴量のgain寄与</th></tr>
+    <tr><td>A base</td><td class="num">0.8424</td><td class="num">56.9%</td><td class="num">89.0%</td><td>—</td></tr>
+    <tr><td>B +KR</td><td class="num pos">0.8465</td><td class="num pos">57.2%</td><td class="num">89.1%</td>
+        <td>kr_rel <b>11.8%</b> / kr_rating 0.7%</td></tr>
+    <tr><td>C +GAP</td><td class="num">0.8423</td><td class="num">56.9%</td><td class="num">88.2%</td>
+        <td>rising_gap <b>0.3%</b></td></tr>
+    <tr><td>D +BOTH</td><td class="num pos">0.8465</td><td class="num">57.1%</td><td class="num">89.6%</td>
+        <td>kr_rel 11.7% / kr_rating 0.7% / rising_gap 0.6%</td></tr>
+  </table>
+  <p class="note">バケット別(5場・参考のみ。事後にマスを選ばない):
+  堅め4,558R base 80.9% / +KR 83.7% / +GAP 79.3% / +BOTH 80.4%。
+  標準1,776R base 89.2% / +KR 86.4% / +GAP 95.7% / +BOTH 87.2%。
+  荒れ注意1,252R base 166.3% / +KR 170.2% / +GAP 167.6% / +BOTH 175.5%。
+  <b>「荒れ注意でBOTHが+9pt」は事前登録の対象外であり、採用根拠にしてはならない</b>
+  (Phase 0で棄却された乖離フィルタと同じ形の罠)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">なぜ効かなかったのか(2つは別々の理由)</h2>
+  <ul style="font-size:.85rem">
+    <li><b>KR指数: 情報は本物だが、換金されない。</b> gain寄与11.8%はモデルが実際に強く使った証拠で、
+        AUCも+0.0041改善した。Eloは「A選手はB選手に勝ち、BはCに勝つ」という
+        <b>選手をまたぐ推移的比較</b>で、1行ごとの成績列からは木でも作れない新情報だからだ。
+        それでも回収率が動かないのは、この情報が向上させる「1着の見極め」は
+        <b>すでに市場も鋭い領域</b>だから(ken-motor-theory「市場の1着予想は鋭く、雑なのは
+        勝てないが絡む艇の値付けだけ」と整合)。的中率≠回収率の再確認</li>
+    <li><b>伸びギャップ: そもそもモデルにとって新情報ではない。</b> gain寄与0.3%。
+        rising_gapは「直近実績 − 番組表2連率」という<b>引き算</b>だが、モデルは
+        form_last10_top2_rate と national_2rate を既に別々の列として持っており、
+        木は必要ならその差を自力で表現できる。単因子検証で見えた
+        「+10pt超の艇は単勝回収77-78%」の正体は<b>予測精度ではなく市場の値付けの遅れ(古いアンカー)</b>で、
+        出口は<b>モデルではなくオッズ側</b>にある。モデルはオッズを見ないので、
+        ここに注入しても構造的に換金できない</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">結論と次にやること</h2>
+  <ul style="font-size:.85rem">
+    <li><b>v2本体の特徴量には KR指数・伸びギャップとも入れない</b>(検証⑫の選手×場特徴量に続く不合格)。
+        これで「単因子の発見をモデルに注入する」出口は一巡した</li>
+    <li>KR指数は<b>表示用の資産としては生きている</b>(ラベル税+12.4ptの実測・トップ10の顔認証OK)。
+        サイトの「軸信頼度」表示等に使う案は回収率とは独立に検討可</li>
+    <li>伸びギャップの出口は<b>オッズ系の紙上測定</b>(v1凍結方針どおり購入判断には使わない)。
+        モデル注入では換金できないことが今回確定した</li>
+    <li>実装上の注意(将来採用する場合): kr_rating は results 由来のため<b>当日レースには値が付かない</b>。
+        本番投入には「選手ごとの最新レートを保持するテーブル」を db.py に追加する実装が別途必要
+        (今回の検証結果には影響しない)</li>
+  </ul>
+</div>
+
+<p class="note">再現: <code>py -X utf8 test/verify_v2_features_ablation.py</code>
+(所要 約20分・5fold×4アームの計20回学習)。
+生データ: test/verify_v2_features_ablation_results.json</p>
+</body>
+</html>

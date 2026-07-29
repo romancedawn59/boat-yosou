@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>v2判断会レポート(2026-07-30予定 → 7/29晩に前倒し実施)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 860px; margin: auto; }
+  h1 { font-size: 1.25rem; margin: 10px 4px; }
+  h2 { font-size: 1.05rem; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: #f6f8fa; text-align: left; padding: 6px; border-bottom: 2px solid #d0d7de; }
+  td { padding: 6px; border-bottom: 1px solid #eee; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #1a7f37; font-weight: bold; }
+  .neg { color: #cf222e; }
+  .rec { background: #d6efff55; }
+  .reject { background: #ffebe955; }
+  .note { font-size: .78rem; color: #57606a; margin: 6px 4px; }
+  .verdict { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+             padding: 10px 12px; font-size: .9rem; margin-bottom: 14px; }
+  .decide { background: #ddf4e4; border: 1px solid #1a7f3766; border-radius: 8px;
+             padding: 12px 14px; font-size: .92rem; }
+  .decide li { margin-bottom: 10px; }
+  ul { font-size: .85rem; }
+</style>
+</head>
+<body>
+<h1>v2判断会レポート</h1>
+<p class="note">予定: 2026-07-30 6:45 → ケンさんの都合により<b>7/29晩に前倒し実施</b>。
+材料は全てwalk-forward検証済み(数字の出典は各スクリプト名を併記)。
+このレポートを読み、<b>最後の「決める事項」4つ</b>に答えれば判断会は完了。
+実装・検証・コミットはClaudeが今夜のうちに行う。</p>
+
+<div class="card">
+  <h2 style="margin-top:0">1. 現在地(v2はすでに本番稼働中)</h2>
+  <ul>
+    <li>v2選別(本命=5場×荒れ注意×上位6・閾値30% / 超混戦=全場×20%未満)は<b>7/19から稼働済み</b>。
+        超混戦のQ案構成も7/21採用済み。今回の判断会は「選別」ではなく<b>配分の微修正と周辺整備</b>が主戦場</li>
+    <li>実キャッシュ(v2稼働後7/19〜7/28): <b>-6,470円</b>(回収率83.0%)。
+        ハードストップ-80,000円の十分内側</li>
+    <li>理想成績: 本命116R -30,030円(74.1%)/超混戦10R -4,100円(59.0%)。
+        超混戦は<b>10R中9的中なのに赤字=ガミ地獄</b>。ただしWF長期では回収191.4%であり、
+        直近はエンジン(E/F単・的中率5.7%)未点火期間の正常動作。<b>この「当たるのに減る」への
+        検証済みの処方が議題Aの案1</b></li>
+    <li>7/29(今日)は勝負所1R(若松9R・本命表示)。理想+200円。ケンさんの実験買いは+1,000円(下記4)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">2. 決定済み・打ち止め済み(蒸し返さない)</h2>
+  <ul>
+    <li>買い目の形: 構成17案+箱買い・自由選択など<b>すべて現行以下で完全打ち止め</b>(7/19-21)</li>
+    <li>選別: 本命閾値30%採用(7/20)・チャンピオン圧勝は今夜も再確認(下記3)</li>
+    <li>特徴量: 検証⑫(選手×場)不合格、<b>検証⑬(KR指数+伸びギャップ)も今日不合格</b>
+        → モデル注入の出口は一巡終了</li>
+    <li>C勝万舟の強化: <b>今日のオラクル検証で打ち止め確定</b>(決まり手を後知恵で知っても天井105%)</li>
+    <li>オッズ系: 乖離フィルタ(Phase 0棄却)・EVフィルタ(検証⑥)・配当帯狙い(7/21)すべて不採用</li>
+    <li>E/F単(差され単・各200円)は<b>不可侵</b>(市場がフェア比2.48倍で安売り=システムの心臓)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">3. 今夜の材料更新(判断会手順1の再実行結果)</h2>
+  <table>
+    <tr><th>検証</th><th>結果</th><th>含意</th></tr>
+    <tr><td>選別チャレンジャー再実行</td>
+        <td class="num">現行169.1% > β1差型121.9% > β2エントロピー84.0%</td>
+        <td>現行維持を再確認</td></tr>
+    <tr><td>構成4案再実行</td>
+        <td class="num">現行169.1% > 軸分散166.4% > 攻撃147.9% > 守備127.9%</td>
+        <td>現行維持を再確認</td></tr>
+    <tr><td>検証⑬ 特徴量アブレーション</td>
+        <td class="num">base 96.9% vs +KR 97.5% / +GAP 97.6% / +BOTH 96.0%</td>
+        <td>不合格(+5pt基準に遠く届かず)・v2に入れない</td></tr>
+    <tr><td>C勝万舟オラクル検証</td>
+        <td class="num">神予測でも全評価ROI 105.3%(C現行68.7%)</td>
+        <td>C強化は打ち止め。C枠は「性格の選択」だけが残る(議題B)</td></tr>
+    <tr><td>市場レポート(約束①)</td>
+        <td>再生成実行中</td>
+        <td>完了次第別途報告(判断会の議題には影響しない)</td></tr>
+  </table>
+  <p class="note">再現: test/verify_challengers.py / verify_compositions.py /
+  verify_v2_features_ablation.py / verify_katsu_oracle.py(いずれも今夜実行済み・レポートHTML保存済み)</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">4. 今日の若松9Rが教えてくれたこと(議題Aの生きた実例)</h2>
+  <p class="note">結果: 2-1-3(差し)。3連単3,430円・3連複1=2=3は600円。モデル1位(2号艇15.97%)が勝ち切った。</p>
+  <table>
+    <tr><th>買い方</th><th class="num">投資</th><th class="num">回収</th><th class="num">損益</th></tr>
+    <tr><td>理想プラン(V2構成6点)</td><td class="num">1,000円</td><td class="num">1,200円</td><td class="num pos">+200円</td></tr>
+    <tr><td>(参考)超混戦Q案現行だったら</td><td class="num">1,000円</td><td class="num">600円</td><td class="num neg">-400円(ガミ)</td></tr>
+    <tr><td>(参考)案1「拾える複厚」だったら</td><td class="num">1,000円</td><td class="num">1,200円</td><td class="num pos">+200円</td></tr>
+    <tr class="rec"><td>ケンさんの実験買い(実際)</td><td class="num">2,000円</td><td class="num">3,000円</td><td class="num pos">+1,000円</td></tr>
+  </table>
+  <ul>
+    <li><b>勝因は「当たる複を厚くした」こと</b>(1=2=3複を500円)。これは<b>案1の設計思想そのもの</b>
+        (ケンさんの感覚とデータが同じ答えに到達した)</li>
+    <li>一方、<b>3連単BOX{2,3,5}傾斜1,000円は0円</b>。箱買いは並びの情報を捨てて同じ組を6回買う形で、
+        データ上も一貫して不利(全並び買い41.9%・自由選択212%で不採用・希釈の法則)。
+        並びで勝負する枠は検証済みのE/F単(5-2-1/3-2-1の固定形)が既に担当している</li>
+    <li>結論: <b>感覚の「複厚」は案1として採用可能(検証済み)。「箱買い」は数字が支持しない。</b>
+        手動増額を続けるより、案1で機械に固定する方が同じ効果を毎回取れる</li>
+    <li>記録処理: 実購入2,000円→3,000円はextra_purchases(実際+1,000円)、
+        推奨プランは構成変更のため理想のみに計上(裁量ログ追記済み・7月ルール例外3回目)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">5. 議題A: 超混戦の配分変更(本丸)</h2>
+  <p class="note">出典: test/verify_konsen_slots_q.py(WF 488R・スロット分解)+ verify_r1_dependency.py(月次安定性)</p>
+  <table>
+    <tr><th>案</th><th class="num">回収率</th><th class="num">ガミ率</th><th class="num">プラス率</th><th class="num">完全外れ</th><th>備考</th></tr>
+    <tr><td>現行Q案(7点)</td><td class="num">191.4%</td><td class="num">33.6%</td><td class="num">26.0%</td><td class="num">40.4%</td><td>—</td></tr>
+    <tr class="rec"><td><b>案1「拾える複厚」★推奨</b></td><td class="num"><b>209.6%</b></td><td class="num"><b>13.1%</b></td><td class="num"><b>28.1%</b></td><td class="num">58.8%</td>
+        <td>8か月中7か月で現行超え・最悪月91.4%→136.5%</td></tr>
+    <tr class="reject"><td>案2(F単400円)</td><td class="num">245.7%</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td>F枠7本の万舟依存→不採用推奨</td></tr>
+  </table>
+  <p class="note"><b>案1の中身</b>: A複(1-2-3位)300円 / B複(1-2-4位)200円 / E単・F単(差され)各200円 /
+  G複(深い波乱)100円。<b>赤字スロットのC複(95.9%)とD軸外し(97.6%)を廃止</b>して複を厚くする。
+  スロット単体成績: A複149% / B複226%(現100円は過小)/ E単248% / F単301%。
+  トレードオフ: 「何も当たらない日」が+18pt増える代わり、当たった日のガミが1/3→1/8。
+  今日の若松9Rで言えば-400円→+200円の差(上記4)。</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">6. 議題B: 本命帯のC勝万舟枠(100円)の処遇</h2>
+  <p class="note">唯一の赤字スロット(74.8%・3,092R)。ただし今日のオラクル検証で「Cを賢くする」道は消えたので、
+  残る選択肢は<b>どれもEVほぼ中立=性格の選択</b>。出典: verify_slot_performance / verify_r1_insurance / verify_c_vs_55</p>
+  <table>
+    <tr><th>選択肢</th><th>的中率</th><th>何が変わるか</th></tr>
+    <tr class="rec"><td><b>(a)現状維持 ★推奨</b></td><td class="num">0.44%</td>
+        <td>夢枠として温存。「等価なら変えない」の原則。大穴一撃構想(§7-4)も温存</td></tr>
+    <tr><td>(b)保険複に交換(2-3-4位複100円)</td><td class="num">約9%</td>
+        <td>r1圏外日の即全損を3割減。口座が滑らかに。回収率71%でEV中立</td></tr>
+    <tr><td>(c)55倍圏1点200円(ケンさん発案)</td><td class="num">1.38%</td>
+        <td>1万円超回数が15→34回(2.3倍)。EV微減(96.3→88.6%)。③複100円削減で捻出</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">7. 議題C: 運用・表示系(検証不要・リスクなし)</h2>
+  <table>
+    <tr><th>項目</th><th>推奨</th><th>内容</th></tr>
+    <tr class="rec"><td>picksに自信度を保存+表示</td><td><b>採用推奨</b></td>
+        <td>買い目1点ごとの発生確率と想定配当をJSON保存しサイト表示。較正は実測済みで信頼可
+        (0.48%→実際0.49%)。事後分析の土台(7/21ケンさん提案の本体)</td></tr>
+    <tr><td>★伸び盛りマーク</td><td>お好み</td>
+        <td>直近90日実測が番組表比+10pt超の艇に表示(3連対57%実測)。手動読み用・購入ロジック不変</td></tr>
+    <tr class="reject"><td>スナップショット収集のActions化</td><td><b>見送り推奨</b></td>
+        <td>Actions cronの遅延(20分〜4時間の実績)が10分おき収集と致命的に相性が悪い。
+        PC電源ONの現行運用を継続し、9月の展示検証時に再考</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">8. 議題D: 仕上げの範囲</h2>
+  <ul>
+    <li>採用項目の実装+ユニットテスト更新・全件パス+検証レポート(test/backtest_report_v2.html)</li>
+    <li>今日までの検証ファイル一式(⑬・オラクル・判断会レポート)も同時コミット</li>
+    <li><b>pushすると明日朝6:30の自動配信から新配分が適用</b>(8/1の月次再学習はcronが自動実行。
+        特徴量変更なしのためモデル自体は現行のまま=再学習は通常運転)</li>
+    <li><b>明日6:45の予約タスク(boat-v2-update-0730)は削除推奨</b>
+        (今夜完了させるため。残すと無人で判断会が二重実行される)</li>
+    <li>HANDOVER・メモリを新体制に更新。税集計は配分変更の影響なし(確認済みの仕組みのまま)</li>
+  </ul>
+</div>
+
+<div class="decide">
+  <b>■ 決める事項(この4つに答えれば完了)</b>
+  <ol>
+    <li><b>A. 超混戦の配分</b>: 案1採用 / 現行維持 / 案2
+        — <b>推奨: 案1</b>(唯一の検証済み改善。ガミ地獄への処方箋)</li>
+    <li><b>B. 本命帯のC枠</b>: (a)現状維持 / (b)保険複 / (c)55倍圏200円
+        — <b>推奨: (a)</b>(EV中立なので好みで。迷ったら現状維持)</li>
+    <li><b>C. 表示系</b>: 自信度表示(推奨) / ★伸び盛りマーク / スナップショットActions化(非推奨)
+        — 複数選択可・「なし」も可</li>
+    <li><b>D. 仕上げ</b>: push+予約タスク削除(推奨) / pushのみ / コミットまで</li>
+  </ol>
+  <p style="font-size:.8rem; margin-bottom:0">回答例: 「Aは案1、Bは現状維持、Cは自信度だけ、Dは推奨どおり」</p>
+</div>
+
+<p class="note">作成: 2026-07-29晩(判断会前倒し)。関連レポート:
+backtest_report_v2_features_ablation.html(検証⑬)/ verify_katsu_oracle_results.json(オラクル)/
+backtest_report_challengers.html / backtest_report_compositions.html(今夜再生成)</p>
+</body>
+</html>

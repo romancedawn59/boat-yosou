@@ -10,6 +10,9 @@ notes/
 boat.db
 boat.db-wal
 boat.db-shm
+odds_backfill*.db
+odds_backfill*.db-wal
+odds_backfill*.db-shm
 data_raw/
 logs/
 reports/

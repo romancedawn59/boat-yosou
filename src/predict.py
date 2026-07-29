@@ -102,6 +102,43 @@ def _fetch_weather_by_race(conn, race_meta: dict) -> dict[str, dict]:
     return result
 
 
+def _rising_lanes(conn, d: date, race_ids: list[str]) -> dict[str, list[int]]:
+    """★伸び盛り: 直近90日の実測2連対率が番組表の全国2連率を+10pt超上回る艇。
+
+    表示専用(2026-07-29判断会・議題C採用)。購入ロジックには使わない。
+    根拠: 単勝回収77-78%(横ばい59-65%)・3連対57%実測(test/verify_rising_racer.py)、
+    超混戦帯では伸び盛り艇ありのレースが回収率226.9%vs189.9%
+    (test/verify_rising_race_selection.py。48Rの小標本のため8月紙上追跡中)。
+    リークなし: 当日より前の結果のみ参照。12走未満は判定しない。
+    """
+    rows = conn.execute(
+        f"SELECT e.race_id, e.lane, e.reg_no, e.national_2rate FROM entries e "
+        f"WHERE e.race_id IN ({','.join('?' * len(race_ids))})", race_ids,
+    ).fetchall()
+    regs = sorted({r[2] for r in rows if r[2] is not None})
+    if not regs:
+        return {}
+    d0 = (d - timedelta(days=90)).isoformat()
+    hist: dict[int, list[int]] = {}
+    for reg, top2 in conn.execute(
+        f"SELECT e.reg_no, (res.arrival_order <= 2) FROM entries e "
+        f"JOIN races r ON r.race_id = e.race_id "
+        f"JOIN results res ON res.race_id = e.race_id AND res.lane = e.lane "
+        f"WHERE e.reg_no IN ({','.join('?' * len(regs))}) "
+        f"AND r.date >= ? AND r.date < ? AND res.arrival_order IS NOT NULL",
+        [*regs, d0, d.isoformat()],
+    ):
+        hist.setdefault(reg, []).append(top2)
+    out: dict[str, list[int]] = {}
+    for rid, lane, reg, n2 in rows:
+        h = hist.get(reg)
+        if not h or len(h) < 12 or n2 is None:
+            continue
+        if sum(h) / len(h) - n2 / 100.0 > 0.10:
+            out.setdefault(rid, []).append(int(lane))
+    return out
+
+
 def predict_day(d: date) -> list[dict] | None:
     """1日分・全24場の予測(v2)。開催がなければNone"""
     conn = db.connect(DB_PATH)
@@ -120,6 +157,7 @@ def predict_day(d: date) -> list[dict] | None:
 
     df = build_program_features(conn, list(race_meta.keys()))
     race_weather = _fetch_weather_by_race(conn, race_meta)
+    rising = _rising_lanes(conn, d, list(race_meta.keys()))
     conn.close()
 
     if df.empty:
@@ -163,6 +201,7 @@ def predict_day(d: date) -> list[dict] | None:
             "buyable": is_buyable(meta["deadline"]),  # メンテ等の購入不可窓に締切があればFalse
             "weather": race_weather.get(race_id),
             "ranked": ranked,
+            "rising": rising.get(race_id, []),   # ★伸び盛り艇の枠番(表示専用)
             "picks_a": a,
             "picks_b": b,
             "picks_c": c,
@@ -173,7 +212,8 @@ def predict_day(d: date) -> list[dict] | None:
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
                       attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX)
 
-    # 超混戦ラベルが確定してからQ案構成へ差し替える(2026-07-21採用)。
+    # 超混戦ラベルが確定してから案1「拾える複厚」構成へ差し替える
+    # (2026-07-21 Q案採用 → 2026-07-29判断会で案1に更新)。
     # 帯は選別後にしか分からないため、いったん現行構成で組んでから作り直す
     for r in races:
         if r.get("shobusho") != "超混戦" or not r["bets"]["plan"]:
@@ -284,6 +324,8 @@ _CSS = """
   .ken-table .io { text-align: right; font-size: .8rem; color: #57606a; width: 5em; }
   .ken-table th { font-size: .68rem; color: #8c959f; font-weight: normal; padding: 0 6px; }
   .ken-note { font-size: .68rem; color: #57606a; margin: 6px 0 0; }
+  .rising { color: #bf5b04; font-size: .72rem; font-weight: bold; }
+  .rising-note { font-size: .68rem; color: #8c959f; margin: 4px 0 0; }
   .tabs { display: flex; gap: 6px; margin-top: 10px; }
   .tabbtn { font-size: .8rem; padding: 5px 12px; border-radius: 14px 14px 0 0;
             border: 1px solid #d0d7de; border-bottom: none; background: #eef1f4;
@@ -398,11 +440,18 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
         # 理想(推奨)ラベルは残し、買えないことだけ明示(理想と実際の分離)
         sho_html += "<span class='sho blk'>🚫購入不可</span>"
 
+    rising = set(race.get("rising") or [])
     boat_rows = "".join(
         f"<tr><td class='lane l{b['lane']}'>{b['lane']}</td>"
-        f"<td>{b['name']}</td><td>{b['racer_class']}</td>"
+        f"<td>{b['name']}{'<span class=rising> ★伸び盛り</span>' if b['lane'] in rising else ''}</td>"
+        f"<td>{b['racer_class']}</td>"
         f"<td class='prob'>{b['prob']:.0%}</td></tr>"
         for b in race["ranked"]
+    )
+    rising_note = (
+        "<p class='rising-note'>★伸び盛り=直近90日の実測2連対率が番組表を10pt超上回る選手"
+        "(市場の値付けが古い可能性。表示のみ・買い目には未反映)</p>"
+        if rising else ""
     )
     wx = race.get("weather")
     weather_html = (
@@ -466,6 +515,7 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
     </div>
     {weather_html}
     <table>{boat_rows}</table>
+    {rising_note}
     {body}
   </div>"""
 
@@ -568,6 +618,7 @@ def _picks_json(d: date, races: list[dict]) -> dict:
                 # 予測順位と1位勝率(生値)。事後分析でモデルの見立てを復元するために残す
                 # (2026-07-21まで未保存で、過去日の分析はwalk-forward再実行が必要だった)
                 "ranked": [[r2["lane"], round(r2["prob"], 6)] for r2 in r["ranked"]],
+                "rising": r.get("rising") or [],
                 "a": [[bt, comb, p] for bt, comb, p in r["picks_a"]],
                 "b": [[bt, comb, p] for bt, comb, p in r["picks_b"]],
                 "c": [[bt, comb, p] for bt, comb, p in r["picks_c"]],

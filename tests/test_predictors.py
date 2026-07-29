@@ -74,12 +74,22 @@ class TestKenPortfolio(unittest.TestCase):
         return P.ken_portfolio(confidence, RANKED, b, c)
 
     def test_total_is_1000_and_includes_katsu_100(self):
-        for conf in ("堅め", "標準", "荒れ注意"):
+        # 堅め・標準はC勝万舟100円。荒れ注意(本命帯)は保険複100円に置換
+        # (2026-07-29判断会・議題B)
+        for conf in ("堅め", "標準"):
             plan = self._plans(conf)
             self.assertEqual(sum(y for _, _, y, _ in plan), 1000, conf)
             katsu = [x for x in plan if x[3] == "勝万舟"]
             self.assertEqual(len(katsu), 1, conf)
             self.assertEqual(katsu[0][2], 100, conf)
+
+    def test_areru_swaps_katsu_for_hoken(self):
+        plan = self._plans("荒れ注意")
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 0)
+        hoken = [x for x in plan if x[3] == "保険複"]
+        self.assertEqual(len(hoken), 1)
+        self.assertEqual(hoken[0][:3], ("3連複", "2=3=4", 100))
 
     def test_amounts_within_100_400(self):
         for conf in ("堅め", "標準", "荒れ注意"):
@@ -129,12 +139,20 @@ class TestFlatProbsRegression(unittest.TestCase):
         probs = P.normalize_probs(self.FLAT)
         self.assertEqual(P.picks_katsu(probs), [])
 
-    def test_ken_returns_900yen_plan_without_katsu(self):
+    def test_ken_plan_survives_empty_katsu(self):
+        # 荒れ注意はC候補が空でも保険複つき6点1,000円(2026-07-29議題B以降、
+        # C候補の有無に依存しなくなった)。プランが消えないことが本質
         probs = P.normalize_probs(self.FLAT)
         plan = P.ken_portfolio("荒れ注意", self.FLAT, P.picks_yamada(probs), [])
-        self.assertEqual(len(plan), 5)  # 検証済み5点構成は維持される
+        self.assertEqual(len(plan), 6)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
+
+    def test_hyojun_returns_900yen_plan_without_katsu(self):
+        # 堅め・標準は従来どおりC候補0点なら計900円
+        probs = P.normalize_probs(self.FLAT)
+        plan = P.ken_portfolio("標準", self.FLAT, P.picks_yamada(probs), [])
         self.assertEqual(sum(y for _, _, y, _ in plan), 900)
-        self.assertTrue(all(src == "検証済み" for _, _, _, src in plan))
 
     def test_normal_probs_keep_6point_1000yen_plan(self):
         probs = P.normalize_probs(self.NORMAL)
@@ -143,11 +161,12 @@ class TestFlatProbsRegression(unittest.TestCase):
         plan = P.ken_portfolio("荒れ注意", self.NORMAL, P.picks_yamada(probs), c)
         self.assertEqual(len(plan), 6)
         self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
-        self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 1)
+        self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
 
 
 class TestKonsenPortfolio(unittest.TestCase):
-    """超混戦帯のQ案構成(2026-07-21採用): 1軸集中を解き軸外し+深い波乱を持つ"""
+    """超混戦帯の案1「拾える複厚」(2026-07-29判断会採用):
+    赤字スロット(C複r1r3r4・軸外しr2r3r4)を廃止し当たり頭の複を厚くする"""
 
     RANKED = _ranked([0.19, 0.18, 0.17, 0.16, 0.15, 0.15])
 
@@ -157,12 +176,12 @@ class TestKonsenPortfolio(unittest.TestCase):
         return P.ken_portfolio("荒れ注意", ranked, P.picks_yamada(probs),
                                P.picks_katsu(probs), konsen=True)
 
-    def test_seven_points_totalling_1000yen(self):
+    def test_five_points_totalling_1000yen(self):
         plan = self._plan()
-        self.assertEqual(len(plan), 7)
+        self.assertEqual(len(plan), 5)
         self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
 
-    def test_has_axis_free_and_deep_upset(self):
+    def test_an1_thick_trios_and_amounts(self):
         plan = self._plan()
         lanes = [r["lane"] for r in self.RANKED]
         r1, r2, r3, r4, r5 = lanes[:5]
@@ -171,14 +190,15 @@ class TestKonsenPortfolio(unittest.TestCase):
             s = sorted(xs)
             return f"{s[0]}={s[1]}={s[2]}"
 
-        combos = {comb for _bt, comb, _y, _s in plan}
-        self.assertIn(trio(r2, r3, r4), combos)   # 軸外し(1位予想が飛ぶ)
-        self.assertIn(trio(r3, r4, r5), combos)   # 深い波乱(1位2位が飛ぶ)
-        self.assertIn(trio(r1, r2, r3), combos)   # 本線は残す
-        # 1位予想を含まない点が2つある=1軸集中が解けている
-        no_axis = [c for c in combos if str(r1) not in c.split("=")
-                   and not c.startswith(f"{r1}-") and f"-{r1}-" not in c]
-        self.assertGreaterEqual(len(no_axis), 2)
+        amounts = {comb: y for _bt, comb, y, _s in plan}
+        self.assertEqual(amounts[trio(r1, r2, r3)], 300)   # A複を厚く
+        self.assertEqual(amounts[trio(r1, r2, r4)], 200)   # B複を厚く
+        self.assertEqual(amounts[f"{r3}-{r1}-{r2}"], 200)  # E単(不可侵)
+        self.assertEqual(amounts[f"{r4}-{r1}-{r2}"], 200)  # F単(不可侵)
+        self.assertEqual(amounts[trio(r3, r4, r5)], 100)   # 深い波乱(全滅保険)
+        # 赤字スロットは廃止済み
+        self.assertNotIn(trio(r1, r3, r4), amounts)        # C複
+        self.assertNotIn(trio(r2, r3, r4), amounts)        # D軸外し
 
     def test_konsen_drops_katsu_slot(self):
         # Q案はC枠と引き換えに保険2種を持つ(検証で除き回収率が上回った)
