@@ -182,6 +182,9 @@ def predict_day(d: date) -> list[dict] | None:
             }
             for _, row in race_df.iterrows()
         ]
+        if not ranked:
+            # 上流の遅延公開時など、レース枠だけあって出走表特徴量が空のことがある
+            continue
         probs = P.normalize_probs(ranked)
         confidence = P.bucket_of(ranked[0]["prob"])
         a = P.picks_ishibashi(probs) if len(probs) >= 4 else []
