@@ -127,3 +127,64 @@ class TestCollectDayReturn(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestPartialProgramSkip(unittest.TestCase):
+    """一部レースだけ出走表が空のとき、そのレースをスキップすること
+    (2026-07-30の障害の回帰テスト)
+
+    上流が当日データを約7時間遅延で部分公開し、「レース枠はあるが
+    出走表特徴量が0件」のレースが混在した。当時はrankedが空のまま
+    ranked[0]を参照してIndexErrorでクラッシュした(hotfix 544440f)。
+    7/24のガード(_ensure_program)は日単位の欠落しか見ないため、
+    レース単位の欠落はpredict_day側で防ぐ必要がある。
+    """
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.db_path = Path(self.tmpdir.name) / "test.db"
+        self.conn = db.connect(self.db_path)
+        for race_no in (1, 2):   # 1Rは出走表あり、2Rはレース枠のみ
+            db.upsert_race(self.conn, {
+                "race_id": db.make_race_id(D.isoformat(), 22, race_no),
+                "date": D.isoformat(), "venue_code": 22, "race_no": race_no,
+                "deadline_time": f"{D.isoformat()} 1{race_no}:00:00",
+            })
+        self.conn.commit()
+        self.conn.close()
+
+    def tearDown(self):
+        self.tmpdir.cleanup()
+
+    def test_race_without_features_is_skipped(self):
+        import pandas as pd
+
+        from features import FEATURE_COLUMNS
+
+        rid1 = db.make_race_id(D.isoformat(), 22, 1)
+        rows = []
+        for lane in range(1, 7):
+            row = {c: 1.0 for c in FEATURE_COLUMNS}
+            row.update({"race_id": rid1, "lane": lane,
+                        "racer_name": f"選手{lane}", "racer_class": "A1"})
+            rows.append(row)
+        feats = pd.DataFrame(rows)   # 2Rの行は無い=特徴量0件
+
+        class FakeBooster:
+            def predict(self, X):
+                return [0.5, 0.2, 0.12, 0.08, 0.06, 0.04][: len(X)]
+
+        with patch.object(predict, "DB_PATH", self.db_path), \
+                patch.object(predict, "_ensure_program", return_value=True), \
+                patch.object(predict, "build_program_features",
+                             return_value=feats), \
+                patch.object(predict, "_fetch_weather_by_race",
+                             return_value={}), \
+                patch.object(predict.lgb, "Booster",
+                             return_value=FakeBooster()), \
+                patch.object(predict.MODEL_PATH.__class__, "read_text",
+                             lambda self, **kw: "dummy", ):
+            races = predict.predict_day(D)   # ここでIndexErrorにならないこと
+
+        self.assertEqual([r["race_no"] for r in races], [1])
+        self.assertEqual(len(races[0]["ranked"]), 6)
