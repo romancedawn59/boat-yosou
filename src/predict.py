@@ -473,6 +473,25 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
     ken_plan = race["bets"]["plan"]
     if ken_plan:
         total = sum(y for _, _, y, _ in ken_plan)
+        # フォーメーション入力ガイド(2026-07-31ケンさん要望「購入を楽に」)。
+        # 金額編集なしでプランを組める操作手順を表示する(表示のみ・購入ロジック不変)
+        srcs = {src for _, _, _, src in ken_plan}
+        lanes6 = [b["lane"] for b in race["ranked"]]
+        guide = ""
+        if "深い波乱" in srcs and len(lanes6) >= 5:      # 超混戦(案1×2・2,000円)
+            g1, g2, g3, g4, g5 = lanes6[:5]
+
+            def tri(a, b, c):
+                s = sorted([a, b, c])
+                return f"{s[0]}={s[1]}={s[2]}"
+            guide = (f"①3連複 {tri(g1, g2, g3)} 600円 ②3連複 {tri(g1, g2, g4)} 400円 "
+                     f"③3連単F [{g3},{g4}]−{g1}−{g2} 各400円 "
+                     f"④3連複 {tri(g3, g4, g5)} 200円(金額編集なしの4操作)")
+        elif "保険複" in srcs and len(lanes6) >= 4:      # 本命(v2.1・1,000円)
+            g1, g2, g3, g4 = lanes6[:4]
+            guide = (f"①3連複F {g1}={g2}−[{g3},{g4}] 各200円 "
+                     f"②3連複F {g3}={g4}−[{g1},{g2}] 各100円 "
+                     f"③3連単F [{g3},{g4}]−{g1}−{g2} 各200円(金額編集なしの3操作)")
         # 自信ポイントと、そこから逆算した想定配当(オッズを見ない設計の代替指標)
         confs = race["bets"].get("conf") or [0.0] * len(ken_plan)
         ken_rows = "".join(
@@ -488,7 +507,8 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
             f"<tr><th></th><th></th><th></th><th class='yen'>金額</th>"
             f"<th class='cf'>自信</th><th class='io'>想定配当</th></tr>"
             f"{ken_rows}</table>"
-            f"<p class='ken-note'>自信=モデルが見た的中確率。想定配当=自信から逆算"
+            + (f"<p class='ken-note'>📱入力ガイド: {guide}</p>" if guide else "")
+            + f"<p class='ken-note'>自信=モデルが見た的中確率。想定配当=自信から逆算"
             f"(オッズは見ない設計)。実際の配当は市場しだいで前後します</p></div>"
         )
     else:
