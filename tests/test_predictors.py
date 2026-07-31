@@ -165,8 +165,8 @@ class TestFlatProbsRegression(unittest.TestCase):
 
 
 class TestKonsenPortfolio(unittest.TestCase):
-    """超混戦帯の案1「拾える複厚」(2026-07-29判断会採用):
-    赤字スロット(C複r1r3r4・軸外しr2r3r4)を廃止し当たり頭の複を厚くする"""
+    """超混戦帯の⑬「BOX+差され傾斜」(2026-08-01採用):
+    A/Bトリオの単BOX(各100円)+E/F差され単に+300円+G複200円=計2,000円"""
 
     RANKED = _ranked([0.19, 0.18, 0.17, 0.16, 0.15, 0.15])
 
@@ -176,13 +176,12 @@ class TestKonsenPortfolio(unittest.TestCase):
         return P.ken_portfolio("荒れ注意", ranked, P.picks_yamada(probs),
                                P.picks_katsu(probs), konsen=True)
 
-    def test_five_points_totalling_2000yen(self):
-        # 2026-07-31ケンさん決定: 超混戦は検証済みエッジのため2,000円に増資
+    def test_13_points_totalling_2000yen(self):
         plan = self._plan()
-        self.assertEqual(len(plan), 5)
+        self.assertEqual(len(plan), 13)   # 単12点(BOX2組)+G複
         self.assertEqual(sum(y for _, _, y, _ in plan), 2000)
 
-    def test_an1_thick_trios_and_amounts(self):
+    def test_box_with_sasare_tilt_amounts(self):
         plan = self._plan()
         lanes = [r["lane"] for r in self.RANKED]
         r1, r2, r3, r4, r5 = lanes[:5]
@@ -192,14 +191,22 @@ class TestKonsenPortfolio(unittest.TestCase):
             return f"{s[0]}={s[1]}={s[2]}"
 
         amounts = {comb: y for _bt, comb, y, _s in plan}
-        self.assertEqual(amounts[trio(r1, r2, r3)], 600)   # A複を厚く
-        self.assertEqual(amounts[trio(r1, r2, r4)], 400)   # B複を厚く
-        self.assertEqual(amounts[f"{r3}-{r1}-{r2}"], 400)  # E単(不可侵)
-        self.assertEqual(amounts[f"{r4}-{r1}-{r2}"], 400)  # F単(不可侵)
-        self.assertEqual(amounts[trio(r3, r4, r5)], 200)   # 深い波乱(全滅保険)
-        # 赤字スロットは廃止済み
-        self.assertNotIn(trio(r1, r3, r4), amounts)        # C複
-        self.assertNotIn(trio(r2, r3, r4), amounts)        # D軸外し
+        # E/F差され単だけ400円(BOX100+傾斜300)
+        self.assertEqual(amounts[f"{r3}-{r1}-{r2}"], 400)
+        self.assertEqual(amounts[f"{r4}-{r1}-{r2}"], 400)
+        # BOXの他の並びは各100円(例: 素直な並び)
+        self.assertEqual(amounts[f"{r1}-{r2}-{r3}"], 100)
+        self.assertEqual(amounts[f"{r1}-{r2}-{r4}"], 100)
+        # G複は200円、A/B複と赤字スロットは持たない
+        self.assertEqual(amounts[trio(r3, r4, r5)], 200)
+        self.assertNotIn(trio(r1, r2, r3), amounts)
+        self.assertNotIn(trio(r1, r2, r4), amounts)
+        self.assertNotIn(trio(r1, r3, r4), amounts)
+        self.assertNotIn(trio(r2, r3, r4), amounts)
+        # 単はBOX2組で12点・重複なし
+        tans = [c for bt, c, _y, _s in plan if bt == "3連単"]
+        self.assertEqual(len(tans), 12)
+        self.assertEqual(len(set(tans)), 12)
 
     def test_konsen_drops_katsu_slot(self):
         # Q案はC枠と引き換えに保険2種を持つ(検証で除き回収率が上回った)

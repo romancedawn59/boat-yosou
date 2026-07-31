@@ -478,15 +478,17 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
         srcs = {src for _, _, _, src in ken_plan}
         lanes6 = [b["lane"] for b in race["ranked"]]
         guide = ""
-        if "深い波乱" in srcs and len(lanes6) >= 5:      # 超混戦(案1×2・2,000円)
+        if "深い波乱" in srcs and len(lanes6) >= 5:      # 超混戦(⑬BOX+差され傾斜・2,000円)
             g1, g2, g3, g4, g5 = lanes6[:5]
 
             def tri(a, b, c):
                 s = sorted([a, b, c])
                 return f"{s[0]}={s[1]}={s[2]}"
-            guide = (f"①3連複 {tri(g1, g2, g3)} 600円 ②3連複 {tri(g1, g2, g4)} 400円 "
-                     f"③3連単F [{g3},{g4}]−{g1}−{g2} 各400円 "
-                     f"④3連複 {tri(g3, g4, g5)} 200円(金額編集なしの4操作)")
+            guide = (f"①3連単BOX [{g1},{g2},{g3}] 各100円 "
+                     f"②3連単BOX [{g1},{g2},{g4}] 各100円 "
+                     f"③3連単 {g3}-{g1}-{g2} に300円追加 "
+                     f"④3連単 {g4}-{g1}-{g2} に300円追加 "
+                     f"⑤3連複 {tri(g3, g4, g5)} 200円(金額編集なしの5操作)")
         elif "保険複" in srcs and len(lanes6) >= 4:      # 本命(v2.1・1,000円)
             g1, g2, g3, g4 = lanes6[:4]
             guide = (f"①3連複F {g1}={g2}−[{g3},{g4}] 各200円 "
