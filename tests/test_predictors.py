@@ -176,10 +176,11 @@ class TestKonsenPortfolio(unittest.TestCase):
         return P.ken_portfolio("荒れ注意", ranked, P.picks_yamada(probs),
                                P.picks_katsu(probs), konsen=True)
 
-    def test_five_points_totalling_1000yen(self):
+    def test_five_points_totalling_2000yen(self):
+        # 2026-07-31ケンさん決定: 超混戦は検証済みエッジのため2,000円に増資
         plan = self._plan()
         self.assertEqual(len(plan), 5)
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 2000)
 
     def test_an1_thick_trios_and_amounts(self):
         plan = self._plan()
@@ -191,11 +192,11 @@ class TestKonsenPortfolio(unittest.TestCase):
             return f"{s[0]}={s[1]}={s[2]}"
 
         amounts = {comb: y for _bt, comb, y, _s in plan}
-        self.assertEqual(amounts[trio(r1, r2, r3)], 300)   # A複を厚く
-        self.assertEqual(amounts[trio(r1, r2, r4)], 200)   # B複を厚く
-        self.assertEqual(amounts[f"{r3}-{r1}-{r2}"], 200)  # E単(不可侵)
-        self.assertEqual(amounts[f"{r4}-{r1}-{r2}"], 200)  # F単(不可侵)
-        self.assertEqual(amounts[trio(r3, r4, r5)], 100)   # 深い波乱(全滅保険)
+        self.assertEqual(amounts[trio(r1, r2, r3)], 600)   # A複を厚く
+        self.assertEqual(amounts[trio(r1, r2, r4)], 400)   # B複を厚く
+        self.assertEqual(amounts[f"{r3}-{r1}-{r2}"], 400)  # E単(不可侵)
+        self.assertEqual(amounts[f"{r4}-{r1}-{r2}"], 400)  # F単(不可侵)
+        self.assertEqual(amounts[trio(r3, r4, r5)], 200)   # 深い波乱(全滅保険)
         # 赤字スロットは廃止済み
         self.assertNotIn(trio(r1, r3, r4), amounts)        # C複
         self.assertNotIn(trio(r2, r3, r4), amounts)        # D軸外し
