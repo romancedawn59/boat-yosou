@@ -176,12 +176,13 @@ class TestKonsenPortfolio(unittest.TestCase):
         return P.ken_portfolio("荒れ注意", ranked, P.picks_yamada(probs),
                                P.picks_katsu(probs), konsen=True)
 
-    def test_13_points_totalling_2000yen(self):
+    def test_15_rows_totalling_2000yen(self):
+        # 表記は購入操作と同じ形(2026-08-02): BOX12行各100円+差され追加2行300円+G複
         plan = self._plan()
-        self.assertEqual(len(plan), 13)   # 単12点(BOX2組)+G複
+        self.assertEqual(len(plan), 15)
         self.assertEqual(sum(y for _, _, y, _ in plan), 2000)
 
-    def test_box_with_sasare_tilt_amounts(self):
+    def test_box_with_sasare_addon_rows(self):
         plan = self._plan()
         lanes = [r["lane"] for r in self.RANKED]
         r1, r2, r3, r4, r5 = lanes[:5]
@@ -190,23 +191,22 @@ class TestKonsenPortfolio(unittest.TestCase):
             s = sorted(xs)
             return f"{s[0]}={s[1]}={s[2]}"
 
-        amounts = {comb: y for _bt, comb, y, _s in plan}
-        # E/F差され単だけ400円(BOX100+傾斜300)
-        self.assertEqual(amounts[f"{r3}-{r1}-{r2}"], 400)
-        self.assertEqual(amounts[f"{r4}-{r1}-{r2}"], 400)
-        # BOXの他の並びは各100円(例: 素直な並び)
-        self.assertEqual(amounts[f"{r1}-{r2}-{r3}"], 100)
-        self.assertEqual(amounts[f"{r1}-{r2}-{r4}"], 100)
-        # G複は200円、A/B複と赤字スロットは持たない
-        self.assertEqual(amounts[trio(r3, r4, r5)], 200)
-        self.assertNotIn(trio(r1, r2, r3), amounts)
-        self.assertNotIn(trio(r1, r2, r4), amounts)
-        self.assertNotIn(trio(r1, r3, r4), amounts)
-        self.assertNotIn(trio(r2, r3, r4), amounts)
-        # 単はBOX2組で12点・重複なし
-        tans = [c for bt, c, _y, _s in plan if bt == "3連単"]
-        self.assertEqual(len(tans), 12)
-        self.assertEqual(len(set(tans)), 12)
+        box_rows = [(c, y) for bt, c, y, s in plan if s == "BOX"]
+        addon_rows = [(c, y) for bt, c, y, s in plan if s == "差され追加"]
+        # BOXは2組12行・全て100円・重複なし
+        self.assertEqual(len(box_rows), 12)
+        self.assertTrue(all(y == 100 for _c, y in box_rows))
+        self.assertEqual(len({c for c, _y in box_rows}), 12)
+        # 差され追加はE/Fの2行・各300円(BOXと合算で実質400円)
+        self.assertEqual(addon_rows, [(f"{r3}-{r1}-{r2}", 300),
+                                      (f"{r4}-{r1}-{r2}", 300)])
+        # 追加行の買い目はBOX内にも存在する(=同一買い目の2行合算)
+        self.assertIn(f"{r3}-{r1}-{r2}", {c for c, _y in box_rows})
+        # G複200円・A/B複と赤字スロットは持たない
+        combs = {c for _bt, c, _y, _s in plan}
+        self.assertIn(trio(r3, r4, r5), combs)
+        self.assertNotIn(trio(r1, r2, r3), combs)
+        self.assertNotIn(trio(r2, r3, r4), combs)
 
     def test_konsen_drops_katsu_slot(self):
         # Q案はC枠と引き換えに保険2種を持つ(検証で除き回収率が上回った)

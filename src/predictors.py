@@ -187,20 +187,16 @@ def ken_portfolio(
         # A/Bトリオを単BOXで面張り(各100円)+最高値マスのE/F差され単に+300円の傾斜
         # +G複(全滅保険)。月次8か月190.1%・最低月122.4%で案1×2を全指標で上回った
         # (test/verify_konsen_box_plus600.py)。旧4案は紙上で継続計測し9/1に再判定。
-        # 購入は5操作: BOX2回+E/F追加2点+G複(金額編集なし)
+        # 購入は5操作: BOX2回+E/F追加2点+G複(金額編集なし)。
+        # 表記も購入操作と同じ形にする(2026-08-02ケンさん要望):
+        # BOXは全並び各100円で並べ、E/Fの差され傾斜は「+300円」の追加行で表す
+        # (同一買い目が2行になるが採点は行ごとに合算されるため等価)
         plan = []
-        for a, b, c in permutations((r1, r2, r3)):
-            comb = f"{a}-{b}-{c}"
-            if comb == f"{r3}-{r1}-{r2}":
-                plan.append(("3連単", comb, 400, "差され厚"))
-            else:
-                plan.append(("3連単", comb, 100, "BOX"))
-        for a, b, c in permutations((r1, r2, r4)):
-            comb = f"{a}-{b}-{c}"
-            if comb == f"{r4}-{r1}-{r2}":
-                plan.append(("3連単", comb, 400, "差され厚"))
-            else:
-                plan.append(("3連単", comb, 100, "BOX"))
+        for members in ((r1, r2, r3), (r1, r2, r4)):
+            for a, b, c in permutations(members):
+                plan.append(("3連単", f"{a}-{b}-{c}", 100, "BOX"))
+        plan.append(("3連単", f"{r3}-{r1}-{r2}", 300, "差され追加"))
+        plan.append(("3連単", f"{r4}-{r1}-{r2}", 300, "差され追加"))
         plan.append(("3連複", trio(r3, r4, r5), 200, "深い波乱"))
         return plan
 
