@@ -463,17 +463,23 @@ def _render_odds_pane(view: dict) -> str:
     oc = view.get("odds_check")
     oc_html = ""
     if oc:
-        if oc["chance"]:
+        v = oc.get("verdict")
+        if v == "chance":
             oc_html = (f"<p style='background:#ddf4e4;border:1px solid #1a7f37;"
                        f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
                        f"🔍<b>要オッズ確認: ○購入チャンス(裁量)</b> — "
-                       f"3連複{oc['n_fuku']}点中、一桁オッズは{oc['singles']}点(基準: 2点以下)。"
-                       f"検証値: この形は回収率100.8%・ガミ率18.2%(買う場合は裁量枠として報告を)</p>")
-        else:
+                       f"3連複{oc['n_fuku']}点中、一桁オッズがちょうど2点(本線堅く・ヒモに配当が乗る形)。"
+                       f"検証値: 回収率129.4%・ガミ率17.1%(買う場合は裁量枠として報告を)</p>")
+        elif v == "cheap":
             oc_html = (f"<p style='background:#ffebe9;border:1px solid #cf222e66;"
                        f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
-                       f"🔍要オッズ確認: ×見送り推奨 — 3連複の一桁オッズが{oc['singles']}点"
-                       f"(3点以上は全体が安くガミ地獄の形。検証値: 回収率82.5%・ガミ率43.7%)</p>")
+                       f"🔍要オッズ確認: ×見送り — 一桁オッズが{oc['singles']}点"
+                       f"(3点以上=全体が安いガミ地獄の形。検証値: 回収率82.5%・ガミ率43.7%)</p>")
+        else:
+            oc_html = (f"<p style='background:#fff8c5;border:1px solid #d4a72c66;"
+                       f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
+                       f"🔍要オッズ確認: △見送り — 一桁オッズが{oc['singles']}点"
+                       f"(0〜1点=市場は総混沌と見ておりプランと形が不一致。検証値: 回収率53.4%)</p>")
     return f"""
       <div class='odds-view'>
         <p class='odds-meta'>オッズ取得: {view['fetched']} 時点(参考・成績対象外。朝の勝負所判定は変わりません)</p>

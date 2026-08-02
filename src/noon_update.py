@@ -101,9 +101,13 @@ def build_odds_view(race: dict, odds_data: dict, fetched_label: str) -> dict:
         fuku = [(o) for bt, _c, o, _e, _v in ken_rows if bt == "3連複" and o]
         if fuku:
             singles = sum(1 for o in fuku if o < 10.0)
+            # 判定は「ちょうど2点」のみチャンス(2026-08-02ケンさん指摘で厳格化。
+            # ≤2で括ると0-1点[53.4%]が混ざり129.4%が100.8%に薄まる)
+            verdict = ("chance" if singles == 2
+                       else "chaos" if singles <= 1 else "cheap")
             odds_check = {
                 "singles": singles,
-                "chance": singles <= 2,
+                "verdict": verdict,
                 "n_fuku": len(fuku),
             }
 
