@@ -60,10 +60,22 @@ def _ensure_program(conn, d: date) -> bool:
 
     # 朝の収集時点で番組表が未公開(404)でも、予測時には公開済みのことがある
     paths = download_day(d)
-    if paths["program"] is None:
-        return False
+    if paths["program"] is not None:
+        raw = json.loads(paths["program"].read_text(encoding="utf-8"))
+    else:
+        # 上流の当日公開遅延(2026-07-19/20/30・08-02で4回)への恒久フォールバック:
+        # 公式サイトの出走表を直接パースする(約150リクエスト・5〜8分)。
+        # PC不要=クラウド(Actions)でもこのまま発動する(2026-08-02ケンさん指示)
+        try:
+            from official_programs import fetch_official_programs
+            raw = fetch_official_programs(d)
+        except Exception as e:
+            print(f"公式サイトフォールバック失敗: {e}")
+            return False
+        if not raw.get("programs"):
+            return False
 
-    program_data = parse_program(json.loads(paths["program"].read_text(encoding="utf-8")))
+    program_data = parse_program(raw)
     for race in program_data["races"]:
         db.upsert_race(conn, race)
     for entry in program_data["entries"]:
@@ -358,6 +370,39 @@ function swTab(btn, paneId) {
 </script>
 """
 
+# 古いページの検知と自動更新(2026-08-02ケンさん要望「買い目ページで日付更新」)。
+# ページ生成日(PAGE_DATE)とJSTの今日を比べ、古ければバナー表示。
+# さらに今日のpicks JSONが既に公開されていれば一度だけ自動リロードで最新に切り替える
+# (sessionStorageでリロードループを防止)。すべて表示のみ・購入ロジック不変
+_STALE_JS_TMPL = """
+<script>
+(function() {{
+  const pageDate = "{page_date}";
+  const now = new Date(Date.now() + 9 * 3600 * 1000);
+  const today = now.getUTCFullYear() + "-" +
+    String(now.getUTCMonth() + 1).padStart(2, "0") + "-" +
+    String(now.getUTCDate()).padStart(2, "0");
+  if (pageDate === today) return;
+  fetch("data/picks_" + today + ".json?_=" + Date.now(), {{cache: "no-store"}})
+    .then(r => {{
+      if (r.ok && sessionStorage.getItem("reloaded-" + today) !== "1") {{
+        sessionStorage.setItem("reloaded-" + today, "1");
+        location.reload();
+        return;
+      }}
+      const div = document.createElement("div");
+      div.style.cssText = "position:sticky;top:0;z-index:99;background:#fff8c5;" +
+        "border-bottom:2px solid #d4a72c;padding:10px 14px;font-size:.9rem;";
+      div.innerHTML = r.ok
+        ? "⚠️ この予想は" + pageDate + "のものです。<a href=''>タップで最新(" + today + ")に更新</a>"
+        : "⚠️ この予想は" + pageDate + "のものです。本日分は未配信 " +
+          "<a href='status.html'>🔄配信状況を確認</a>";
+      document.body.prepend(div);
+    }}).catch(() => {{}});
+}})();
+</script>
+"""
+
 
 def _nav_html(active_venue: int | None, venues_today: set[int]) -> str:
     """ナビ。v2からトップ=買い目一覧、5場は各自のページを持つ"""
@@ -578,6 +623,7 @@ def render_venue_page(d: date, venue: int, races: list[dict],
 確率はモデル予測値。購入は自己責任で。</p>
 {body}
 {_TAB_JS}
+{_STALE_JS_TMPL.format(page_date=d.isoformat())}
 </body>
 </html>
 """
@@ -627,6 +673,7 @@ def render_shopping_page(d: date, races: list[dict],
 {maint}
 {body}
 {_TAB_JS}
+{_STALE_JS_TMPL.format(page_date=d.isoformat())}
 </body>
 </html>
 """

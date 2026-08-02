@@ -51,11 +51,17 @@ class TestEnsureProgram(unittest.TestCase):
 
         これが2026-07-24の障害。races件数で判定していた頃は
         ダウンロードされずTrueが返り、空の特徴量で予測に進んでいた。
+        (2026-08-02以降は上流404で公式サイトフォールバックが続くため、
+        テストではそれも空応答にスタブする=実ネットワークに出さない)
         """
+        import official_programs
+
         self._add_race()
 
         with patch.object(predict, "download_day",
-                          return_value={"program": None, "result": None}) as m:
+                          return_value={"program": None, "result": None}) as m, \
+                patch.object(official_programs, "fetch_official_programs",
+                             return_value={"programs": []}):
             ok = predict._ensure_program(self.conn, D)
 
         m.assert_called_once()  # 素通りしていないこと
@@ -82,8 +88,12 @@ class TestEnsureProgram(unittest.TestCase):
         self._add_entries(race_id)
         self._add_race()  # 当日はレース枠のみ
 
+        import official_programs
+
         with patch.object(predict, "download_day",
-                          return_value={"program": None, "result": None}) as m:
+                          return_value={"program": None, "result": None}) as m, \
+                patch.object(official_programs, "fetch_official_programs",
+                             return_value={"programs": []}):
             predict._ensure_program(self.conn, D)
 
         m.assert_called_once()
@@ -188,3 +198,50 @@ class TestPartialProgramSkip(unittest.TestCase):
 
         self.assertEqual([r["race_no"] for r in races], [1])
         self.assertEqual(len(races[0]["ranked"]), 6)
+
+
+class TestOfficialFallback(unittest.TestCase):
+    """上流404時に公式サイト直取りフォールバックが発動すること
+    (2026-08-02の上流遅延4回目を受けた恒久対策の回帰テスト)"""
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.conn = db.connect(Path(self.tmpdir.name) / "test.db")
+
+    def tearDown(self):
+        self.conn.close()
+        self.tmpdir.cleanup()
+
+    def _fake_official(self):
+        return {"programs": [{
+            "date": D.isoformat(), "stadium_number": 22, "number": 1,
+            "title": None, "subtitle": None, "grade_label": None,
+            "day_label": None, "distance": 1800,
+            "closed_at": f"{D.isoformat()} 10:38:00",
+            "boats": [{"racer_boat_number": i, "racer_number": 4000 + i}
+                      for i in range(1, 7)],
+        }]}
+
+    def test_fallback_fills_entries_when_upstream_404(self):
+        import official_programs
+
+        with patch.object(predict, "download_day",
+                          return_value={"program": None, "result": None}), \
+                patch.object(official_programs, "fetch_official_programs",
+                             return_value=self._fake_official()):
+            ok = predict._ensure_program(self.conn, D)
+
+        self.assertTrue(ok)
+        n = self.conn.execute(
+            "SELECT COUNT(*) FROM entries e JOIN races r ON e.race_id = r.race_id "
+            "WHERE r.date = ?", (D.isoformat(),)).fetchone()[0]
+        self.assertEqual(n, 6)
+
+    def test_fallback_error_returns_false(self):
+        import official_programs
+
+        with patch.object(predict, "download_day",
+                          return_value={"program": None, "result": None}), \
+                patch.object(official_programs, "fetch_official_programs",
+                             side_effect=RuntimeError("公式サイト到達不可")):
+            self.assertFalse(predict._ensure_program(self.conn, D))
