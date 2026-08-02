@@ -460,9 +460,24 @@ def _render_odds_pane(view: dict) -> str:
     value_items = " / ".join(
         f"{bt}{comb}<span class='p'>({o:.1f}倍)</span>" for bt, comb, o in view["value"]
     ) or "なし"
+    oc = view.get("odds_check")
+    oc_html = ""
+    if oc:
+        if oc["chance"]:
+            oc_html = (f"<p style='background:#ddf4e4;border:1px solid #1a7f37;"
+                       f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
+                       f"🔍<b>要オッズ確認: ○購入チャンス(裁量)</b> — "
+                       f"3連複{oc['n_fuku']}点中、一桁オッズは{oc['singles']}点(基準: 2点以下)。"
+                       f"検証値: この形は回収率100.8%・ガミ率18.2%(買う場合は裁量枠として報告を)</p>")
+        else:
+            oc_html = (f"<p style='background:#ffebe9;border:1px solid #cf222e66;"
+                       f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
+                       f"🔍要オッズ確認: ×見送り推奨 — 3連複の一桁オッズが{oc['singles']}点"
+                       f"(3点以上は全体が安くガミ地獄の形。検証値: 回収率82.5%・ガミ率43.7%)</p>")
     return f"""
       <div class='odds-view'>
         <p class='odds-meta'>オッズ取得: {view['fetched']} 時点(参考・成績対象外。朝の勝負所判定は変わりません)</p>
+        {oc_html}
         <table class='odds-table'>
           <tr><th>券種</th><th>買い目</th><th>オッズ</th><th>想定払戻</th><th>EV※</th></tr>
           {ken_rows}
@@ -487,6 +502,12 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
         sho_html = "<span class='sho kon'>超混戦</span>"
     elif shobusho == "要注目":
         sho_html = "<span class='sho att'>要注目(観測)</span>"
+        # 要オッズ確認(2026-08-02): 5場×30〜35%帯は昼のオッズタブで
+        # 「3連複の一桁≤2点」判定が出る(購入は裁量・記録は裁量枠)
+        if (race.get("venue_code") in VENUE_SLUGS and race.get("ranked")
+                and 0.30 <= race["ranked"][0]["prob"] < 0.35):
+            sho_html += ("<span class='sho' style='background:#1a7f37'>"
+                         "🔍要オッズ確認</span>")
     if shobusho in ("本命", "超混戦") and not race.get("buyable", True):
         # 理想(推奨)ラベルは残し、買えないことだけ明示(理想と実際の分離)
         sho_html += "<span class='sho blk'>🚫購入不可</span>"

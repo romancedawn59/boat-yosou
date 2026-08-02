@@ -15,7 +15,7 @@ from datetime import date, datetime
 import odds as odds_mod
 import predict
 import predictors as P
-from config import JST, PAGES_URL, PROJECT_DIR, VENUE_NAMES, jst_today
+from config import JST, PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES, jst_today
 
 
 def _apply_morning_picks(races: list[dict], d: date) -> bool:
@@ -89,7 +89,26 @@ def build_odds_view(race: dict, odds_data: dict, fetched_label: str) -> dict:
     cands.sort(reverse=True)
     value = [(bt, comb, o) for _ev, bt, comb, o in cands[:3]]
 
-    return {"fetched": fetched_label, "ken_rows": ken_rows, "value": value}
+    # 要オッズ確認(2026-08-02ケンさん発案・表示のみ): 5場×1位生値30〜35%帯で、
+    # プランの3連複のうち一桁オッズ(10倍未満)が2点以下なら「購入チャンス(裁量)」。
+    # 検証: test/verify_odds_single_digit_rule.py(一桁≤2=100.8%/ガミ18.2% vs
+    # 一桁≥3=82.5%/ガミ43.7%、一桁ちょうど2点は129.4%。逆に20-30本命帯では
+    # 符号が逆転するため本命帯には適用しない=オッズで本命を見送らない原則は不変)
+    odds_check = None
+    top_raw = race["ranked"][0]["prob"] if race.get("ranked") else None
+    if (top_raw is not None and 0.30 <= top_raw < 0.35
+            and race.get("venue_code") in TARGET_VENUE_CODES):
+        fuku = [(o) for bt, _c, o, _e, _v in ken_rows if bt == "3連複" and o]
+        if fuku:
+            singles = sum(1 for o in fuku if o < 10.0)
+            odds_check = {
+                "singles": singles,
+                "chance": singles <= 2,
+                "n_fuku": len(fuku),
+            }
+
+    return {"fetched": fetched_label, "ken_rows": ken_rows, "value": value,
+            "odds_check": odds_check}
 
 
 def build_notify_text(fetched_label: str, races: list, odds_panes: dict) -> str:
