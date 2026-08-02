@@ -368,6 +368,9 @@ def _nav_html(active_venue: int | None, venues_today: set[int]) -> str:
         mark = "" if venue in venues_today else "・休"
         links.append(f'<a href="{slug}.html"{cls}>{VENUE_NAMES[venue]}{mark}</a>')
     links.append('<a href="stats.html">通算成績</a>')
+    # 更新チェック(docs/status.html は手書きの静的ページ。配信状況と上流の番組表
+    # 公開状況をその場で確認できる。2026-08-02ケンさん要望・上流遅延5回目を受けて)
+    links.append('<a href="status.html">🔄更新チェック</a>')
     return '<div class="nav">' + "".join(links) + "</div>"
 
 

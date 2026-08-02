@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>更新チェック | 競艇予想</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 12px; background: #f6f8fa; max-width: 640px; margin: auto; }
+  h1 { font-size: 1.1rem; margin: 12px 4px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); font-size: .95rem; }
+  .big { font-size: 1.05rem; font-weight: bold; }
+  .ok { color: #1a7f37; }
+  .warn { color: #9a6700; }
+  .bad { color: #cf222e; }
+  .note { font-size: .78rem; color: #57606a; }
+  button, .btn { display: inline-block; margin: 6px 6px 0 0; padding: 10px 14px;
+    border-radius: 8px; border: 1px solid #d0d7de; background: #fff; font-size: .9rem;
+    text-decoration: none; color: #24292f; cursor: pointer; }
+  button.primary { background: #218bff; color: #fff; border-color: #218bff; }
+  .row { margin: 6px 0; }
+</style>
+</head>
+<body>
+<h1>🔄 更新チェック</h1>
+
+<div class="card">
+  <div class="row">本日の予想配信: <span id="picks" class="big">確認中…</span></div>
+  <div class="row">上流の番組表(BoatraceOpenAPI): <span id="upstream" class="big">確認中…</span></div>
+  <div class="row" id="verdict" style="margin-top:10px"></div>
+  <button class="primary" onclick="check()">もう一度チェック</button>
+</div>
+
+<div class="card">
+  <div class="big" style="margin-bottom:6px">復旧の手引き</div>
+  <div class="note" style="margin-bottom:8px">
+    「上流は公開済みなのに未配信」のときだけ出番です。13時までは自動リトライが
+    走るので待つだけでOK。13時を過ぎていたら下のボタンから
+    「予想レポート更新」→「Run workflow」を実行してください(約2分で配信されます)。
+  </div>
+  <a class="btn" href="https://github.com/romancedawn59/boat-yosou/actions/workflows/predict.yml"
+     target="_blank">▶ Actionsで手動実行</a>
+  <a class="btn" href="manual.html">📖 手順書</a>
+  <a class="btn" href="index.html">🏠 本日の買い目へ</a>
+</div>
+
+<p class="note">上流の番組表は朝までに公開されるのが通常ですが、遅延の実績あり
+(7/19・7/20・7/30・8/2)。「上流が未公開」の間は誰にも打つ手がなく、待てば
+自動配信されます。このページは押した時点の生の状態を毎回取得します。</p>
+
+<script>
+function jstToday() {
+  const now = new Date(Date.now() + 9 * 3600 * 1000);
+  const y = now.getUTCFullYear();
+  const m = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(now.getUTCDate()).padStart(2, "0");
+  return { iso: `${y}-${m}-${d}`, compact: `${y}${m}${d}`, yyyy: `${y}` };
+}
+async function probe(url) {
+  try {
+    const r = await fetch(url + (url.includes("?") ? "&" : "?") + "_=" + Date.now(),
+                          { cache: "no-store" });
+    return r.ok ? r : null;
+  } catch (e) { return null; }
+}
+async function check() {
+  const t = jstToday();
+  const elP = document.getElementById("picks");
+  const elU = document.getElementById("upstream");
+  const elV = document.getElementById("verdict");
+  elP.textContent = elU.textContent = "確認中…";
+  elP.className = elU.className = "big";
+  elV.textContent = "";
+
+  const picksResp = await probe(`data/picks_${t.iso}.json`);
+  let picksOk = false, shobu = 0, races = 0;
+  if (picksResp) {
+    try {
+      const j = await picksResp.json();
+      picksOk = true;
+      races = (j.races || []).length;
+      shobu = (j.races || []).filter(r => r.shobusho === "本命" || r.shobusho === "超混戦").length;
+    } catch (e) {}
+  }
+  const upResp = await probe(
+    `https://boatraceopenapi.github.io/programs/v3/${t.yyyy}/${t.compact}.json`);
+
+  elP.textContent = picksOk ? `✅ 配信済み(${races}R・勝負所${shobu}件)` : "❌ 未配信";
+  elP.classList.add(picksOk ? "ok" : "bad");
+  elU.textContent = upResp ? "✅ 公開済み" : "⏳ 未公開";
+  elU.classList.add(upResp ? "ok" : "warn");
+
+  const hourJst = new Date(Date.now() + 9 * 3600 * 1000).getUTCHours();
+  if (picksOk) {
+    elV.innerHTML = "<span class='ok big'>今日は正常です。買い目は🏠から。</span>";
+  } else if (!upResp) {
+    elV.innerHTML = "<span class='warn big'>上流の遅延です。待てば自動配信されます(打つ手なし・正常動作)。</span>";
+  } else if (hourJst < 13) {
+    elV.innerHTML = "<span class='warn big'>上流は公開済み。13時までの自動リトライで配信される見込み。15分後に再チェックを。</span>";
+  } else {
+    elV.innerHTML = "<span class='bad big'>上流は公開済みなのに未配信 → 下の「Actionsで手動実行」で復旧してください。</span>";
+  }
+}
+check();
+</script>
+</body>
+</html>
