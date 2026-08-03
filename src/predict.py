@@ -227,11 +227,17 @@ def predict_day(d: date) -> list[dict] | None:
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
                       attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX)
 
-    # 超混戦ラベルが確定してから案1「拾える複厚」構成へ差し替える
-    # (2026-07-21 Q案採用 → 2026-07-29判断会で案1に更新)。
-    # 帯は選別後にしか分からないため、いったん現行構成で組んでから作り直す
+    # 超混戦帯(1位生値20%未満)のレースを⑬構成へ差し替える。
+    # 2026-08-04(検証⑮・GO): 5場で「本命」表示に吸われた20%未満のレースも
+    # 帯が基準なので⑬を適用する(従来は本命構成1,000円のまま=適用漏れ。
+    # 104RでROI・除き・ガミ率とも⑬優位: test/verify_konsen_absorbed_honmei.py)。
+    # 表示ラベル(本命/超混戦)と勝負所カウントは従来どおり変えない
     for r in races:
-        if r.get("shobusho") != "超混戦" or not r["bets"]["plan"]:
+        if not r["bets"]["plan"] or not r.get("ranked"):
+            continue
+        if r.get("shobusho") not in ("超混戦", "本命"):
+            continue
+        if r["ranked"][0]["prob"] >= KONSEN_PROB_MAX:
             continue
         probs = P.normalize_probs(r["ranked"])
         plan = P.ken_portfolio(r["bets"]["confidence"], r["ranked"], [],
@@ -504,6 +510,9 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
     sho_html = ""
     if shobusho == "本命":
         sho_html = "<span class='sho hon'>本命</span>"
+        # 20%未満の帯は本命表示でも⑬構成2,000円(2026-08-04・検証⑮)
+        if any(src == "深い波乱" for _b, _c, _y, src in race["bets"]["plan"] or []):
+            sho_html += "<span class='sho kon'>⑬適用(超混戦帯)</span>"
     elif shobusho == "超混戦":
         sho_html = "<span class='sho kon'>超混戦</span>"
     elif shobusho == "要注目":

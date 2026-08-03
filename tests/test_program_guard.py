@@ -245,3 +245,62 @@ class TestOfficialFallback(unittest.TestCase):
                 patch.object(official_programs, "fetch_official_programs",
                              side_effect=RuntimeError("公式サイト到達不可")):
             self.assertFalse(predict._ensure_program(self.conn, D))
+
+
+class TestKonsenBandPlanOverride(unittest.TestCase):
+    """5場で本命表示に吸われた20%未満のレースにも⑬構成が適用されること
+    (2026-08-04・検証⑮の回帰テスト。従来は本命構成1,000円のままの適用漏れ)"""
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.db_path = Path(self.tmpdir.name) / "test.db"
+        conn = db.connect(self.db_path)
+        db.upsert_race(conn, {
+            "race_id": db.make_race_id(D.isoformat(), 4, 1),   # 平和島=対象5場
+            "date": D.isoformat(), "venue_code": 4, "race_no": 1,
+            "deadline_time": f"{D.isoformat()} 11:00:00",
+        })
+        conn.commit()
+        conn.close()
+
+    def tearDown(self):
+        self.tmpdir.cleanup()
+
+    def test_absorbed_konsen_band_gets_plan13(self):
+        import pandas as pd
+
+        from features import FEATURE_COLUMNS
+
+        rid = db.make_race_id(D.isoformat(), 4, 1)
+        rows = []
+        for lane in range(1, 7):
+            row = {c: 1.0 for c in FEATURE_COLUMNS}
+            row.update({"race_id": rid, "lane": lane,
+                        "racer_name": f"選手{lane}", "racer_class": "A1"})
+            rows.append(row)
+        feats = pd.DataFrame(rows)
+
+        class FakeBooster:
+            def predict(self, X):
+                # 1位生値0.19=超混戦帯。5場なので本命に吸われるケース
+                return [0.19, 0.18, 0.17, 0.16, 0.15, 0.14][: len(X)]
+
+        with patch.object(predict, "DB_PATH", self.db_path), \
+                patch.object(predict, "_ensure_program", return_value=True), \
+                patch.object(predict, "build_program_features",
+                             return_value=feats), \
+                patch.object(predict, "_fetch_weather_by_race",
+                             return_value={}), \
+                patch.object(predict, "_rising_lanes", return_value={}), \
+                patch.object(predict.lgb, "Booster",
+                             return_value=FakeBooster()), \
+                patch.object(predict.MODEL_PATH.__class__, "read_text",
+                             lambda self, **kw: "dummy", ):
+            races = predict.predict_day(D)
+
+        race = races[0]
+        self.assertEqual(race["shobusho"], "本命")   # 表示は本命のまま
+        plan = race["bets"]["plan"]
+        self.assertEqual(sum(y for _b, _c, y, _s in plan), 2000)   # ⑬構成
+        self.assertTrue(any(s == "深い波乱" for _b, _c, _y, s in plan))
+        self.assertTrue(any(s == "差され追加" for _b, _c, _y, s in plan))
