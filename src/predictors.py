@@ -6,7 +6,7 @@
 - A 石橋渡: 硬い予想。2連複・3連複の全組み合わせから発生確率上位5点
 - B 山田三連単: 3連単の全120通りから発生確率上位10点
 - C 勝万舟: 万舟圏(発生確率0.5%以下)の3連単から確率上位5点
-- 予想屋ken: 3人の案を基に1レース1,000円のポートフォリオを構成。
+- 予想屋ken: 3人の案を基に本命1,400円/超混戦2,000円のポートフォリオを構成。
   荒れ注意(本命帯)の6点目は保険複r2r3r4(2026-07-29判断会でC枠から置換)。
   堅め・標準はC案を1点100円で購入(C候補0点のレースはC無し・計900円)。
   2連複は購入しない(Aの2連複は判断材料。検証⑦: 3連複への置換で
@@ -148,7 +148,7 @@ def ken_portfolio(
     c_picks: list[tuple[str, str, float]],
     konsen: bool = False,
 ) -> list[tuple[str, str, int, str]]:
-    """予想屋ken: 1レース1,000円のポートフォリオ。(券種, 組み合わせ, 金額, 出典)のリスト。
+    """予想屋ken: 本命1,400円/超混戦2,000円のポートフォリオ。(券種, 組み合わせ, 金額, 出典)のリスト。
 
     - 荒れ注意(本命帯)の6点目は保険複r2r3r4(2026-07-29判断会・議題B採用)。
       旧C枠(勝万舟100円)は唯一の赤字スロット(74.8%)で、置換で90.5%→95.6%
@@ -201,8 +201,9 @@ def ken_portfolio(
         return plan
 
     if confidence == "荒れ注意":
-        # 検証済み構成を核に、6点目は保険複(2026-07-29判断会・議題B)。
-        # 旧: C勝万舟100円 → 新: r2r3r4複100円(モデル1位が飛ぶ日の順不同保険)
+        # 6点目は保険複(2026-07-29議題B)。2026-08-04(検証⑰・③案採用)で
+        # 入替単2本+4位頭入替への+200円を追加し計1,400円9行に。
+        # 表記は購入操作と同じ形(単F[3,4]-2-1各100→4-2-1に200追加)
         return [
             ("3連複", trio(r1, r2, r3), 200, "検証済み"),
             ("3連複", trio(r1, r2, r4), 200, "検証済み"),
@@ -210,6 +211,9 @@ def ken_portfolio(
             ("3連単", f"{r3}-{r1}-{r2}", 200, "検証済み"),
             ("3連単", f"{r4}-{r1}-{r2}", 200, "検証済み"),
             ("3連複", trio(r2, r3, r4), 100, "保険複"),
+            ("3連単", f"{r3}-{r2}-{r1}", 100, "入替"),
+            ("3連単", f"{r4}-{r2}-{r1}", 100, "入替"),
+            ("3連単", f"{r4}-{r2}-{r1}", 200, "入替厚"),
         ]
     else:
         probs = normalize_probs(ranked)
@@ -243,41 +247,48 @@ def ken_portfolio(
 
 
 def select_shobusho(races: list[dict], honmei_venues: list[int],
-                    honmei_cap: int = 6, konsen_max: float = 0.20,
-                    attention_cap: int = 4, honmei_prob_max: float = 0.30) -> None:
-    """v2選別(ケンさん案・2026-07-18): 各レースに shobusho キーを設定する。
+                    honmei_cap: int = 4, konsen_max: float = 0.20,
+                    attention_cap: int = 4, honmei_prob_max: float = 0.30,
+                    daily_budget: int = 10200, konsen_unit: int = 2000,
+                    honmei_unit: int = 1400) -> None:
+    """v2選別(2026-07-18ケンさん案 → 2026-08-04予算制②改定): shobushoキーを設定。
 
-    - 超混戦: 全場で1位勝率(モデル生値)がkonsen_max未満。市場も予測できない本物の
-      混戦=エッジの本体(walk-forward 387%/最大1発除き312%。検証はtest/verify_ken_v2*.py)
-    - 本命: honmei_venues(検証済み5場)の荒れ注意のうち1位勝率がhonmei_prob_max未満から
-      低い順にhonmei_cap件。閾値は2026-07-20に35%→30%(28〜35%帯は利益貢献ゼロの詰め物。
-      利益維持のまま投資-25%・DD-30%。検証はtest/verify_honmei_threshold.py)。
-      cap6はcap10より回収率・ドローダウンとも良い(薄い帯の尻尾が削れるため)
-    - 要注目: 観測専用・購入なし。閾値で外れた30〜35%帯・本命から溢れた対象場の荒れ注意
-      +対象場の標準(1位勝率が低い順)で計attention_cap件。「注目に値したか(中波乱・万舟で
-      決着)/標準だったか」を採点で記録し、荒れ判定境界の教師データにする。30〜35%帯の
-      観測は閾値30%採用日を起点にした前向き検証を兼ねる(8月末に答え合わせ)
-    購入対象は「本命+超混戦」のみ。対象場のレースが両条件を満たす場合は本命と表示する
-    (購入は1回。和集合の意味は変わらない)。
+    - 超混戦: 全場で1位勝率(モデル生値)がkonsen_max未満。エッジの本体であり
+      **予算超過を許可して全レース購入**(2026-08-04ケンさん決定。6R以上の日も全部)
+    - 本命(検証済み5場): 20%未満の帯は本命表示のまま⑬構成=超混戦と同じ
+      「予算超え許可枠」でcap外(検証⑮)。20〜30%帯は1位勝率が低い順に、
+      **日次予算(daily_budget)から超混戦分を引いた残りで買える範囲**かつ
+      honmei_cap件まで(検証⑰: cap4×1,400円=162.3%/+992,100円が現行超え)
+    - 要注目: 観測専用・購入なし(30〜35%帯+予算/capからの溢れ+標準の補充)
+    購入対象は「本命+超混戦」のみ。対象場が両条件を満たす場合は本命と表示する。
     """
     for r in races:
         r["shobusho"] = None
 
-    # 超混戦(全場)。プランが組めるレースのみ
+    # 超混戦(全場)。プランが組めるレースのみ。予算超過を許可(全レース購入)
+    konsen_n = 0
     for r in races:
         if r["ranked"][0]["prob"] < konsen_max and r["bets"]["plan"]:
             r["shobusho"] = "超混戦"
+            konsen_n += 1
 
-    # 本命(対象場の荒れ注意×閾値未満・1位勝率が低い順にcap件)。
-    # 超混戦と重複したら本命表示を優先
     are = sorted(
         (r for r in races
          if r["venue_code"] in honmei_venues
          and r["bets"]["confidence"] == "荒れ注意" and r["bets"]["plan"]),
         key=lambda r: r["ranked"][0]["prob"],
     )
-    honmei_pool = [r for r in are if r["ranked"][0]["prob"] < honmei_prob_max]
-    for r in honmei_pool[:honmei_cap]:
+    # 検証⑮: 対象場×20%未満は本命表示(⑬構成・超混戦と同じ予算超え許可枠でcap外)
+    for r in are:
+        if r["ranked"][0]["prob"] < konsen_max:
+            r["shobusho"] = "本命"
+
+    # 本命(20〜30%帯): 残予算内で低い順にcapまで
+    remaining = daily_budget - konsen_unit * konsen_n
+    take = min(honmei_cap, max(0, remaining // honmei_unit))
+    pool = [r for r in are
+            if konsen_max <= r["ranked"][0]["prob"] < honmei_prob_max]
+    for r in pool[:take]:
         r["shobusho"] = "本命"
 
     # 要注目(観測専用): 買わない超混戦(プラン不成立等)は購入0点として必ず載せ、

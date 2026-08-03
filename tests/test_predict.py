@@ -54,7 +54,7 @@ class TestShobuSummary(unittest.TestCase):
         self.assertEqual(honmei, ["平和島5R"])
         self.assertEqual(konsen, ["桐生2R"])
         self.assertEqual(attention, ["尼崎3R"])
-        self.assertEqual(budget, 2000)  # 購入=本命+超混戦の2レース×1000円
+        self.assertEqual(budget, 2800)  # 購入=本命+超混戦の2レース×1000円
 
     def test_empty(self):
         honmei, konsen, attention, budget, blocked = shobu_summary([_race(KATAME)])
@@ -68,7 +68,7 @@ class TestBuildNotifyText(unittest.TestCase):
         text = build_notify_text(date(2026, 7, 5), races)
         self.assertIn("本命: 平和島5R", text)
         self.assertIn("超混戦: 桐生2R", text)
-        self.assertIn("購入予算: 2,000円(1レース1,000円)", text)  # 要注目は予算外
+        self.assertIn("購入予算: 2,800円(本命1,400円/超混戦2,000円)", text)  # 要注目は予算外
         self.assertNotIn("要注目", text)  # 要注目は通知しない(ユーザー指示)
         self.assertIn("https://", text)
 
@@ -94,7 +94,7 @@ class TestRenderVenuePage(unittest.TestCase):
         self.assertTrue(0 < pos_a < pos_b < pos_c < pos_ken)
         # kenは水色ボックス+金額
         self.assertIn("class='ken'", html)
-        self.assertIn("計1,000円", html)
+        self.assertIn("計1,400円", html)
         self.assertIn(">本命</span>", html)  # v2バッジ
         self.assertIn("viewport", html)
 
@@ -121,7 +121,7 @@ class TestBlackout(unittest.TestCase):
         honmei, konsen, attention, budget, blocked = shobu_summary(races)
         self.assertEqual(honmei, ["平和島5R"])          # 買える本命だけ
         self.assertEqual(blocked, ["平和島2R"])
-        self.assertEqual(budget, 1000)                  # 買えない分は予算外
+        self.assertEqual(budget, 1400)                  # 買えない分は予算外
         text = build_notify_text(date(2026, 7, 20), races)
         self.assertIn("購入不可: 平和島2R", text)
 
@@ -153,7 +153,7 @@ class TestShoppingPage(unittest.TestCase):
         self.assertIn("venue-tag", html)     # 一覧では場名を表示
         self.assertIn("桐生", html)           # 他19場のレースも載る
         self.assertNotIn("若松1R", html)      # 選外レースは載らない
-        self.assertIn("購入予算 2,000円", html)
+        self.assertIn("購入予算 2,800円", html)
         self.assertNotIn("要注目(観測のみ・購入なし): ", html)  # サマリーには載せない
 
     def test_empty_day(self):

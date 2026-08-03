@@ -85,7 +85,7 @@ class TestKenPortfolio(unittest.TestCase):
 
     def test_areru_swaps_katsu_for_hoken(self):
         plan = self._plans("荒れ注意")
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1400)   # ⑰③案(2026-08-04)
         self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 0)
         hoken = [x for x in plan if x[3] == "保険複"]
         self.assertEqual(len(hoken), 1)
@@ -144,8 +144,8 @@ class TestFlatProbsRegression(unittest.TestCase):
         # C候補の有無に依存しなくなった)。プランが消えないことが本質
         probs = P.normalize_probs(self.FLAT)
         plan = P.ken_portfolio("荒れ注意", self.FLAT, P.picks_yamada(probs), [])
-        self.assertEqual(len(plan), 6)
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(len(plan), 9)   # ⑰③案: 6点+入替2行+入替厚1行
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1400)
         self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
 
     def test_hyojun_returns_900yen_plan_without_katsu(self):
@@ -159,8 +159,8 @@ class TestFlatProbsRegression(unittest.TestCase):
         c = P.picks_katsu(probs)
         self.assertTrue(c)  # 通常の荒れレースではC候補あり
         plan = P.ken_portfolio("荒れ注意", self.NORMAL, P.picks_yamada(probs), c)
-        self.assertEqual(len(plan), 6)
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
+        self.assertEqual(len(plan), 9)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1400)
         self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
 
 
@@ -218,8 +218,8 @@ class TestKonsenPortfolio(unittest.TestCase):
         # 確率が平坦なレースはC候補0点で計900円になりうる(既存仕様)
         ranked4 = _ranked([0.30, 0.25, 0.23, 0.22])
         plan = self._plan(ranked4)
-        self.assertLessEqual(sum(y for _, _, y, _ in plan), 1000)
-        self.assertLessEqual(len(plan), 6)
+        self.assertLessEqual(sum(y for _, _, y, _ in plan), 1400)
+        self.assertLessEqual(len(plan), 9)
         self.assertEqual(len([x for x in plan if x[3] == "深い波乱"]), 0)
 
     def test_honmei_band_is_unchanged(self):
@@ -227,7 +227,7 @@ class TestKonsenPortfolio(unittest.TestCase):
         probs = P.normalize_probs(self.RANKED)
         plan = P.ken_portfolio("荒れ注意", self.RANKED, P.picks_yamada(probs),
                                P.picks_katsu(probs))
-        self.assertLessEqual(len(plan), 6)
+        self.assertLessEqual(len(plan), 9)
         self.assertEqual(
             len([x for x in plan if x[3] in ("軸外し", "深い波乱")]), 0)
 
@@ -299,7 +299,7 @@ class TestShobusho(unittest.TestCase):
         races = [self._race("荒れ注意", 0.29 - i * 0.01) for i in range(7)]
         self._select(races)
         marks = [r["shobusho"] for r in races]
-        self.assertEqual(marks.count("本命"), 6)
+        self.assertEqual(marks.count("本命"), 4)   # ⑰: cap4×1,400円
         self.assertEqual(races[0]["shobusho"], "要注目")  # 最も高い0.29が溢れる
 
     def test_honmei_threshold_30_band_goes_to_attention(self):

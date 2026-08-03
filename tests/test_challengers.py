@@ -137,9 +137,11 @@ class TestCompositions(unittest.TestCase):
         return C.build_composition(name, ranked or FLAT, self.C_PICKS)
 
     def test_all_compositions_total_1000(self):
+        # 「現行」はライブ構成に追随(2026-08-04⑰採用で1,400円)。挑戦者3案は1,000円のまま
         for name in C.COMPOSITION_NAMES:
             plan = self._plan(name)
-            self.assertEqual(sum(y for _, _, y, _ in plan), 1000, name)
+            expect = 1400 if name == "現行" else 1000
+            self.assertEqual(sum(y for _, _, y, _ in plan), expect, name)
             for _, _, yen, _ in plan:
                 self.assertEqual(yen % 100, 0, name)  # 100円単位
 
@@ -178,7 +180,7 @@ class TestCompositions(unittest.TestCase):
         # 1,000円でC候補に依存しない)。挑戦者3案は従来どおりC空なら900円
         for name in C.COMPOSITION_NAMES:
             plan = C.build_composition(name, FLAT, [])
-            expect = 1000 if name == "現行" else 900
+            expect = 1400 if name == "現行" else 900
             self.assertEqual(sum(y for _, _, y, _ in plan), expect, name)
 
     def test_short_field_returns_empty(self):

@@ -11,7 +11,7 @@
 - A 石橋渡: 堅い2連複・3連複を5点
 - B 山田三連単: 発生確率上位の3連単を10点
 - C 勝万舟: 万舟圏(発生確率0.5%以下)から確率上位5点
-- 予想屋ken: 3人の案から1レース1,000円のポートフォリオ(C案を必ず100円以上含む)
+- 予想屋ken: 本命1,400円/超混戦2,000円のポートフォリオ(2026-08-04予算制)
 - 勝負所: 荒れ注意=本命(検証済みエッジ)+標準から補充の準、最大10レース/日
 """
 import json
@@ -25,9 +25,9 @@ import db
 import predictors as P
 import weather
 from config import (
-    ATTENTION_CAP, DB_PATH, HONMEI_CAP, HONMEI_PROB_MAX, KONSEN_PROB_MAX, MODEL_PATH,
-    PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable,
-    jst_today,
+    ATTENTION_CAP, DAILY_BUDGET, DB_PATH, HONMEI_CAP, HONMEI_PROB_MAX, HONMEI_UNIT,
+    KONSEN_PROB_MAX, KONSEN_UNIT, MODEL_PATH, PAGES_URL, PROJECT_DIR,
+    TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable, jst_today,
 )
 from downloader import download_day
 from features import FEATURE_COLUMNS, build_program_features
@@ -225,7 +225,9 @@ def predict_day(d: date) -> list[dict] | None:
 
     P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
-                      attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX)
+                      attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX,
+                      daily_budget=DAILY_BUDGET, konsen_unit=KONSEN_UNIT,
+                      honmei_unit=HONMEI_UNIT)
 
     # 超混戦帯(1位生値20%未満)のレースを⑬構成へ差し替える。
     # 2026-08-04(検証⑮・GO): 5場で「本命」表示に吸われた20%未満のレースも
@@ -283,7 +285,7 @@ def build_notify_text(d: date, races: list[dict]) -> str:
     if konsen:
         lines.append(f"超混戦: {'、'.join(konsen)}")
     if honmei or konsen:
-        lines.append(f"購入予算: {budget:,}円(1レース1,000円)")
+        lines.append(f"購入予算: {budget:,}円(本命1,400円/超混戦2,000円)")
     else:
         lines.append("本日は購入対象なし(全レース見送り推奨)")
     if blocked:
@@ -433,7 +435,7 @@ def _summary_html(races: list[dict]) -> str:
     if konsen:
         parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満): <b>{'、'.join(konsen)}</b>")
     if honmei or konsen:
-        parts.append(f"購入予算 {budget:,}円(1レース1,000円)")
+        parts.append(f"購入予算 {budget:,}円(本命1,400円/超混戦2,000円)")
     else:
         parts.append("本日は購入対象なし(全レース見送り推奨)。")
     if blocked:
@@ -573,11 +575,13 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
                      f"③3連単 {g3}-{g1}-{g2} に300円追加 "
                      f"④3連単 {g4}-{g1}-{g2} に300円追加 "
                      f"⑤3連複 {tri(g3, g4, g5)} 200円(金額編集なしの5操作)")
-        elif "保険複" in srcs and len(lanes6) >= 4:      # 本命(v2.1・1,000円)
+        elif "保険複" in srcs and len(lanes6) >= 4:      # 本命(⑰③案・1,400円)
             g1, g2, g3, g4 = lanes6[:4]
             guide = (f"①3連複F {g1}={g2}−[{g3},{g4}] 各200円 "
                      f"②3連複F {g3}={g4}−[{g1},{g2}] 各100円 "
-                     f"③3連単F [{g3},{g4}]−{g1}−{g2} 各200円(金額編集なしの3操作)")
+                     f"③3連単F [{g3},{g4}]−{g1}−{g2} 各200円 "
+                     f"④3連単F [{g3},{g4}]−{g2}−{g1} 各100円 "
+                     f"⑤3連単 {g4}-{g2}-{g1} に200円追加(5操作)")
         # 自信ポイントと、そこから逆算した想定配当(オッズを見ない設計の代替指標)
         confs = race["bets"].get("conf") or [0.0] * len(ken_plan)
         ken_rows = "".join(
@@ -655,7 +659,7 @@ def render_venue_page(d: date, venue: int, races: list[dict],
 {_nav_html(venue, venues_today)}
 {_summary_html(races)}
 <p class="note">A/B/Cは3人の予想者の視点(購入額なし・通算成績は「通算成績」ページ)。
-水色枠の予想屋kenが実際の購入プラン(1レース1,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
+水色枠の予想屋kenが実際の購入プラン(本命1,400円/超混戦2,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
 確率はモデル予測値。購入は自己責任で。</p>
 {body}
 {_TAB_JS}
