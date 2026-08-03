@@ -470,7 +470,16 @@ def _render_odds_pane(view: dict) -> str:
     ) or "なし"
     oc = view.get("odds_check")
     oc_html = ""
-    if oc:
+    if oc and not oc.get("validated", True):
+        # 検証外スコープ(5場×30〜35帯以外)は記録用の控えめ表示のみ(2026-08-04〜)
+        marks = {"chance": "○相当(ちょうど2点)", "chaos": "△相当(0〜1点)",
+                 "cheap": "×相当(3点以上)"}
+        oc_html = (f"<p style='background:#f6f8fa;border:1px solid #d0d7de;"
+                   f"border-radius:8px;padding:8px 12px;font-size:.9rem;color:#57606a'>"
+                   f"🔍一桁オッズ判定(記録用・検証外の帯): 3連複{oc['n_fuku']}点中、"
+                   f"一桁オッズが{oc['singles']}点={marks.get(oc.get('verdict'), '-')}。"
+                   f"検証済みの帯(5場×30〜35%)ではないため購入判断には使わない</p>")
+    elif oc:
         v = oc.get("verdict")
         if v == "chance":
             oc_html = (f"<p style='background:#ddf4e4;border:1px solid #1a7f37;"
@@ -669,8 +678,57 @@ def render_venue_page(d: date, venue: int, races: list[dict],
 """
 
 
+def _render_odds_check_section(records: list[dict]) -> str:
+    """全レース一桁オッズ判定テーブル(2026-08-04〜テスト運用・noon実行時のみ)。
+
+    判定=プラン3連複のうち一桁オッズ(10倍未満)の点数。検証済みの帯
+    (5場×30〜35%)の行だけ🟢で強調し、それ以外は記録・観測用。
+    """
+    if not records:
+        return ""
+    labels = {"chance": "○ ちょうど2点", "chaos": "△ 0〜1点(混沌)",
+              "cheap": "× 3点以上(安い)"}
+    counts = {"chance": 0, "chaos": 0, "cheap": 0}
+    rows = []
+    for rec in records:
+        oc = rec.get("check")
+        deadline = (rec.get("deadline") or "")[-8:-3]
+        p1 = rec.get("p1")
+        p1_txt = f"{p1:.0%}" if p1 is not None else "-"
+        venue = VENUE_NAMES.get(rec["venue_code"], str(rec["venue_code"]))
+        if oc is None:
+            label, style = "判定不能(3連複オッズ未形成)", "color:#57606a"
+        else:
+            counts[oc["verdict"]] = counts.get(oc["verdict"], 0) + 1
+            label = f"{labels.get(oc['verdict'], '-')} [{oc['singles']}/{oc['n_fuku']}]"
+            style = ("background:#ddf4e4;font-weight:bold" if oc.get("validated")
+                     else "")
+        badge = "🟢検証済み帯 " if oc and oc.get("validated") else ""
+        sho = rec.get("shobusho") or ""
+        rows.append(
+            f"<tr style='{style}'><td>{deadline}</td><td>{venue}</td>"
+            f"<td>{rec['race_no']}R</td><td class='num'>{p1_txt}</td>"
+            f"<td>{badge}{label}</td><td>{sho}</td>"
+            f"<td class='num'>{rec.get('fetched', '')}</td></tr>")
+    summary = (f"○{counts['chance']} / △{counts['chaos']} / ×{counts['cheap']}"
+               f"(全{len(records)}レース)")
+    return f"""
+<details class='card' style='margin-top:24px'>
+<summary style='cursor:pointer'><b>🔍 一桁オッズ判定・全レース記録(テスト運用)</b> {summary}</summary>
+<p class='note'>プラン3連複のうち一桁オッズ(10倍未満)の点数による判定。
+検証済みは<b>5場×30〜35%帯の「○ちょうど2点」(回収率129.4%)</b>のみ=🟢行。
+それ以外の行は帯別の追検証用の記録で、購入判断には使わない。
+オッズは各レース最後に取得した時点の値。</p>
+<div style='overflow-x:auto'><table class='odds-table'>
+<tr><th>締切</th><th>場</th><th>R</th><th>1位%</th><th>判定</th><th>区分</th><th>取得</th></tr>
+{''.join(rows)}
+</table></div>
+</details>"""
+
+
 def render_shopping_page(d: date, races: list[dict],
-                         odds_panes: dict[str, str] | None = None) -> str:
+                         odds_panes: dict[str, str] | None = None,
+                         odds_check_records: list[dict] | None = None) -> str:
     """トップページ「本日の買い目一覧」(v2)。区分ごとに締切時刻順で並べた買い物リスト"""
     odds_panes = odds_panes or {}
     venues_today = {r["venue_code"] for r in races}
@@ -712,6 +770,7 @@ def render_shopping_page(d: date, races: list[dict],
 {_summary_html(races)}
 {maint}
 {body}
+{_render_odds_check_section(odds_check_records or [])}
 {_TAB_JS}
 {_STALE_JS_TMPL.format(page_date=d.isoformat())}
 </body>

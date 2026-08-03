@@ -10,12 +10,20 @@
 """
 import json
 import sys
+import time
 from datetime import date, datetime
 
 import odds as odds_mod
 import predict
 import predictors as P
 from config import JST, PAGES_URL, PROJECT_DIR, TARGET_VENUE_CODES, VENUE_NAMES, jst_today
+
+# 要オッズ確認の全レース紙上記録(2026-08-04ケンさん指示)。
+# 表示・購入ルールは従来どおり5場×30〜35帯のみ。記録だけ全レースに広げ、
+# 帯別・場別の追検証データを自動で貯める(docs/data/odds_check_日付.json)。
+# 負荷=1レース2リクエスト(3連単/3連複ページ)×開催全レース×3回/日。
+LOG_ALL_RACES = True
+FETCH_INTERVAL_SEC = 0.3  # 公式サイトへの連続アクセス間隔(負荷配慮)
 
 
 def _apply_morning_picks(races: list[dict], d: date) -> bool:
@@ -94,25 +102,69 @@ def build_odds_view(race: dict, odds_data: dict, fetched_label: str) -> dict:
     # 検証: test/verify_odds_single_digit_rule.py(一桁≤2=100.8%/ガミ18.2% vs
     # 一桁≥3=82.5%/ガミ43.7%、一桁ちょうど2点は129.4%。逆に20-30本命帯では
     # 符号が逆転するため本命帯には適用しない=オッズで本命を見送らない原則は不変)
-    odds_check = None
-    top_raw = race["ranked"][0]["prob"] if race.get("ranked") else None
-    if (top_raw is not None and 0.30 <= top_raw < 0.35
-            and race.get("venue_code") in TARGET_VENUE_CODES):
-        fuku = [(o) for bt, _c, o, _e, _v in ken_rows if bt == "3連複" and o]
-        if fuku:
-            singles = sum(1 for o in fuku if o < 10.0)
-            # 判定は「ちょうど2点」のみチャンス(2026-08-02ケンさん指摘で厳格化。
-            # ≤2で括ると0-1点[53.4%]が混ざり129.4%が100.8%に薄まる)
-            verdict = ("chance" if singles == 2
-                       else "chaos" if singles <= 1 else "cheap")
-            odds_check = {
-                "singles": singles,
-                "verdict": verdict,
-                "n_fuku": len(fuku),
-            }
+    # 判定は全レースで計算し、検証済みスコープ(5場×30〜35帯)かをフラグで区別する。
+    # 表示はvalidated=検証値つきの色付き、それ以外=記録用の控えめ表示(predict側)
+    odds_check = build_odds_check(ken_rows)
+    if odds_check is not None:
+        top_raw = race["ranked"][0]["prob"] if race.get("ranked") else None
+        odds_check["validated"] = bool(
+            top_raw is not None and 0.30 <= top_raw < 0.35
+            and race.get("venue_code") in TARGET_VENUE_CODES)
 
     return {"fetched": fetched_label, "ken_rows": ken_rows, "value": value,
             "odds_check": odds_check}
+
+
+def build_odds_check(ken_rows: list) -> dict | None:
+    """プラン3連複の一桁オッズ数から要オッズ確認の判定を作る(帯・場の制限なし)。
+
+    判定は「ちょうど2点」のみチャンス(2026-08-02ケンさん指摘で厳格化。
+    ≤2で括ると0-1点[53.4%]が混ざり129.4%が100.8%に薄まる)
+    """
+    fuku = [o for bt, _c, o, _e, _v in ken_rows if bt == "3連複" and o]
+    if not fuku:
+        return None
+    singles = sum(1 for o in fuku if o < 10.0)
+    verdict = "chance" if singles == 2 else "chaos" if singles <= 1 else "cheap"
+    return {"singles": singles, "verdict": verdict, "n_fuku": len(fuku)}
+
+
+def _append_odds_check_log(d: date, fetched_label: str, records: list) -> None:
+    """要オッズ確認の全レース紙上記録をスナップショット単位で追記保存する。
+
+    Actionsは毎回まっさらなチェックアウトで走るため、既存分はdocs/data側から
+    読み継ぐ(_apply_morning_picksと同じ2段フォールバック)。同時刻ラベルの
+    再実行は上書き。出力先はreports/site/data(公開はワークフローがコピー)。
+    更新後のログ全体を返す(サイト表示用)。
+    """
+    fname = f"odds_check_{d.isoformat()}.json"
+    data_dir = predict.SITE_DIR / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    log = None
+    for p in (data_dir / fname, PROJECT_DIR / "docs" / "data" / fname):
+        if p.exists():
+            log = json.loads(p.read_text(encoding="utf-8"))
+            break
+    if log is None:
+        log = {"date": d.isoformat(), "snapshots": []}
+    log["snapshots"] = [s for s in log["snapshots"]
+                        if s["fetched"] != fetched_label]
+    log["snapshots"].append({"fetched": fetched_label, "races": records})
+    (data_dir / fname).write_text(
+        json.dumps(log, ensure_ascii=False), encoding="utf-8")
+    return log
+
+
+def merged_odds_check(log: dict) -> list[dict]:
+    """日次ログの全スナップショットをレース単位で最新値にマージし締切順で返す。
+
+    サイトの全レース判定テーブル用(締切済みレースも最後の判定を残して表示する)。
+    """
+    latest: dict[str, dict] = {}
+    for snap in log.get("snapshots", []):
+        for rec in snap["races"]:
+            latest[rec["race_id"]] = {**rec, "fetched": snap["fetched"]}
+    return sorted(latest.values(), key=lambda r: r.get("deadline") or "9999")
 
 
 def build_notify_text(fetched_label: str, races: list, odds_panes: dict) -> str:
@@ -137,10 +189,12 @@ def run(d: date, include_all: bool = False) -> bool:
     now = datetime.now(JST)
     fetched_label = now.strftime("%H:%M")
     odds_panes: dict[str, str] = {}
+    log_records: list[dict] = []
     for race in races:
-        # v2: 全場を予測するため、オッズ取得は勝負所(本命/超混戦/要注目)に限定する
-        # (全約200レースへのアクセスを避けるサーバー負荷配慮)
-        if not race.get("shobusho") or not race["bets"]["plan"]:
+        # オッズタブの表示は従来どおり勝負所(本命/超混戦/要注目)のみ。
+        # LOG_ALL_RACES時は記録用に締切前の全レースからも取得する
+        is_shobusho = bool(race.get("shobusho"))
+        if not race["bets"]["plan"] or not (is_shobusho or LOG_ALL_RACES):
             continue
         if not include_all:
             deadline = race["deadline"]
@@ -154,18 +208,51 @@ def run(d: date, include_all: bool = False) -> bool:
         except Exception as e:
             print(f"{race['race_id']}: オッズ取得失敗 ({e})")
             continue
+        finally:
+            time.sleep(FETCH_INTERVAL_SEC)
         if not odds_data["3連単"]:
             continue
         view = build_odds_view(race, odds_data, fetched_label)
-        odds_panes[race["race_id"]] = predict._render_odds_pane(view)
+        # オッズタブ=勝負所(従来)+ページのある5場の全レース(2026-08-04〜)
+        if is_shobusho or race["venue_code"] in predict.VENUE_SLUGS:
+            odds_panes[race["race_id"]] = predict._render_odds_pane(view)
+        # 標準4組(モデル上位4艇の 1=2=3/1=2=4/1=3=4/2=3=4)のオッズも全レースで
+        # 記録する。プランの3連複は帯で構成が違い(⑰=4行/堅め標準=trio_top2行)、
+        # 帯横断の追検証には共通基準の生オッズが要るため(0.0=投票未形成)
+        std_trio = []
+        lanes = [b["lane"] for b in race.get("ranked") or []][:4]
+        if len(lanes) == 4:
+            r1, r2, r3, r4 = lanes
+            for combo in ((r1, r2, r3), (r1, r2, r4), (r1, r3, r4), (r2, r3, r4)):
+                key = tuple(sorted(combo))
+                std_trio.append(["=".join(map(str, key)),
+                                 odds_data["3連複"].get(key)])
+        log_records.append({
+            "race_id": race["race_id"],
+            "venue_code": race["venue_code"],
+            "race_no": race["race_no"],
+            "shobusho": race.get("shobusho"),
+            "p1": race["ranked"][0]["prob"] if race.get("ranked") else None,
+            "deadline": race["deadline"],
+            "check": view["odds_check"],
+            "plan_odds": [[bt, comb, o]
+                          for bt, comb, o, _e, _v in view["ken_rows"]],
+            "std_trio_odds": std_trio,
+        })
+
+    odds_check_records = None
+    if log_records:
+        log = _append_odds_check_log(d, fetched_label, log_records)
+        odds_check_records = merged_odds_check(log)
 
     predict.SITE_DIR.mkdir(parents=True, exist_ok=True)
     for venue, slug in predict.VENUE_SLUGS.items():
         html = predict.render_venue_page(d, venue, races, odds_panes)
         (predict.SITE_DIR / f"{slug}.html").write_text(html, encoding="utf-8")
-    # トップ=買い目一覧(v2)
+    # トップ=買い目一覧(v2)+全レース一桁オッズ判定テーブル
     (predict.SITE_DIR / "index.html").write_text(
-        predict.render_shopping_page(d, races, odds_panes), encoding="utf-8")
+        predict.render_shopping_page(d, races, odds_panes, odds_check_records),
+        encoding="utf-8")
 
     # オッズを1レースでも反映できたら通知文を書き出す(送信判断はワークフロー側。
     # *.htmlしかdocsへコピーされないため、このファイルがサイトに載ることはない)
@@ -176,6 +263,7 @@ def run(d: date, include_all: bool = False) -> bool:
             build_notify_text(fetched_label, races, odds_panes), encoding="utf-8")
 
     print(f"{d}: {len(odds_panes)}レースにオッズ反映タブを追加してサイトを再生成 -> {predict.SITE_DIR}")
+    print(f"{d}: 要オッズ確認の紙上記録={len(log_records)}レース({fetched_label}時点)")
     return True
 
 

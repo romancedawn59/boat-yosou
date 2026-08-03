@@ -169,6 +169,171 @@ class TestApplyMorningPicks(unittest.TestCase):
         self.assertIsNone(self.race["shobusho"])
 
 
+class TestBuildOddsCheck(unittest.TestCase):
+    """要オッズ確認の一桁オッズ判定(帯・場の制限なしの共通関数)"""
+
+    @staticmethod
+    def _rows(fuku_odds, tan_odds=()):
+        rows = [("3連複", "1=2=3", o, 0, 0.0) for o in fuku_odds]
+        rows += [("3連単", "3-1-2", o, 0, 0.0) for o in tan_odds]
+        return rows
+
+    def test_exactly_two_singles_is_chance(self):
+        oc = noon_update.build_odds_check(self._rows([5.2, 9.9, 12.4, 55.0]))
+        self.assertEqual(oc, {"singles": 2, "verdict": "chance", "n_fuku": 4})
+
+    def test_zero_or_one_single_is_chaos(self):
+        self.assertEqual(
+            noon_update.build_odds_check(self._rows([12.0, 30.0]))["verdict"],
+            "chaos")
+        self.assertEqual(
+            noon_update.build_odds_check(self._rows([5.0, 12.0]))["verdict"],
+            "chaos")
+
+    def test_three_singles_is_cheap(self):
+        oc = noon_update.build_odds_check(self._rows([2.0, 5.0, 9.0, 20.0]))
+        self.assertEqual(oc["verdict"], "cheap")
+
+    def test_tan_only_or_missing_odds_returns_none(self):
+        # 3連複が無い、またはオッズ欠落(None)のみなら判定不能
+        self.assertIsNone(noon_update.build_odds_check(self._rows([], [7.0])))
+        self.assertIsNone(noon_update.build_odds_check(self._rows([None, None])))
+
+
+class TestAppendOddsCheckLog(unittest.TestCase):
+    """全レース紙上記録の追記保存(2026-08-04〜)"""
+
+    def setUp(self):
+        self.tmpdir = TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        root = Path(self.tmpdir.name)
+        self.site_dir = root / "site"
+        self.project_dir = root / "project"
+        for p in (patch.object(predict, "SITE_DIR", self.site_dir),
+                  patch.object(noon_update, "PROJECT_DIR", self.project_dir)):
+            p.start()
+            self.addCleanup(p.stop)
+        self.d = date(2026, 8, 4)
+
+    def _read(self):
+        path = self.site_dir / "data" / f"odds_check_{self.d.isoformat()}.json"
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_appends_and_replaces_snapshots(self):
+        rec1 = [{"race_id": "20260804_04_03", "check": {"verdict": "chance"}}]
+        noon_update._append_odds_check_log(self.d, "09:01", rec1)
+        self.assertEqual([s["fetched"] for s in self._read()["snapshots"]],
+                         ["09:01"])
+
+        # 別時刻は追記される
+        noon_update._append_odds_check_log(self.d, "10:32", rec1)
+        self.assertEqual([s["fetched"] for s in self._read()["snapshots"]],
+                         ["09:01", "10:32"])
+
+        # 同時刻ラベルの再実行は上書き(重複しない)
+        rec2 = [{"race_id": "20260804_04_09", "check": None}]
+        noon_update._append_odds_check_log(self.d, "10:32", rec2)
+        log = self._read()
+        self.assertEqual([s["fetched"] for s in log["snapshots"]],
+                         ["09:01", "10:32"])
+        self.assertEqual(log["snapshots"][-1]["races"], rec2)
+
+    def test_reads_existing_from_docs_fallback(self):
+        # Actionsのまっさらなrunner: site/dataに無くdocs/dataに前回分がある場合
+        docs_data = self.project_dir / "docs" / "data"
+        docs_data.mkdir(parents=True)
+        prior = {"date": self.d.isoformat(),
+                 "snapshots": [{"fetched": "09:01", "races": []}]}
+        (docs_data / f"odds_check_{self.d.isoformat()}.json").write_text(
+            json.dumps(prior, ensure_ascii=False), encoding="utf-8")
+
+        noon_update._append_odds_check_log(self.d, "10:32", [])
+        self.assertEqual([s["fetched"] for s in self._read()["snapshots"]],
+                         ["09:01", "10:32"])
+
+
+class TestMergedOddsCheck(unittest.TestCase):
+    def test_latest_snapshot_wins_and_sorted_by_deadline(self):
+        log = {"snapshots": [
+            {"fetched": "09:01", "races": [
+                {"race_id": "a", "deadline": "2026-08-04 12:54:00",
+                 "check": {"verdict": "chaos"}},
+                {"race_id": "b", "deadline": "2026-08-04 11:55:00",
+                 "check": {"verdict": "cheap"}},
+            ]},
+            {"fetched": "10:32", "races": [
+                {"race_id": "a", "deadline": "2026-08-04 12:54:00",
+                 "check": {"verdict": "chance"}},
+            ]},
+        ]}
+        merged = noon_update.merged_odds_check(log)
+        # 締切順(bが先)・aは10:32の判定で上書き・bは09:01の値が残る
+        self.assertEqual([r["race_id"] for r in merged], ["b", "a"])
+        self.assertEqual(merged[1]["check"]["verdict"], "chance")
+        self.assertEqual(merged[1]["fetched"], "10:32")
+        self.assertEqual(merged[0]["fetched"], "09:01")
+
+
+class TestOddsCheckDisplay(unittest.TestCase):
+    """検証済み帯=色付き表示・検証外帯=記録用の控えめ表示・indexのテーブル"""
+
+    def test_validated_band_gets_colored_verdict(self):
+        # 平和島(5場)×1位30〜35%帯 → validated
+        race = _race([0.32, 0.2, 0.18, 0.15, 0.1, 0.05])
+        odds = _flat_odds(25.0)
+        # 3連複の先頭2点だけ一桁にして「ちょうど2点」を作る
+        fuku_keys = [tuple(sorted(int(x) for x in comb.split("=")))
+                     for bt, comb, _y, _s in race["bets"]["plan"] if bt == "3連複"]
+        odds["3連複"][fuku_keys[0]] = 5.0
+        odds["3連複"][fuku_keys[1]] = 8.0
+        view = build_odds_view(race, odds, "10:30")
+        self.assertTrue(view["odds_check"]["validated"])
+        self.assertEqual(view["odds_check"]["verdict"], "chance")
+        pane = _render_odds_pane(view)
+        self.assertIn("○購入チャンス(裁量)", pane)
+
+    def test_out_of_band_gets_muted_recording_note(self):
+        # 1位50%超=検証外の帯 → 記録用表示のみ(色付き判定は出さない)
+        race = _race([0.55, 0.15, 0.1, 0.1, 0.05, 0.05])
+        view = build_odds_view(race, _flat_odds(25.0), "10:30")
+        self.assertFalse(view["odds_check"]["validated"])
+        pane = _render_odds_pane(view)
+        self.assertIn("記録用・検証外の帯", pane)
+        self.assertNotIn("購入チャンス(裁量)", pane)
+
+    def test_non_target_venue_is_not_validated(self):
+        # 桐生(venue_code=1)は30〜35帯でも検証外
+        race = _race([0.32, 0.2, 0.18, 0.15, 0.1, 0.05], venue_code=1)
+        view = build_odds_view(race, _flat_odds(25.0), "10:30")
+        self.assertFalse(view["odds_check"]["validated"])
+
+    def test_shopping_page_renders_odds_check_table(self):
+        race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
+        records = [
+            {"race_id": race["race_id"], "venue_code": 4, "race_no": 3,
+             "shobusho": "要注目", "p1": 0.32,
+             "deadline": "2026-08-04 12:54:00", "fetched": "10:32",
+             "check": {"singles": 2, "verdict": "chance", "n_fuku": 4,
+                       "validated": True}},
+            {"race_id": "20260804_01_05", "venue_code": 1, "race_no": 5,
+             "shobusho": None, "p1": 0.55,
+             "deadline": "2026-08-04 13:30:00", "fetched": "10:32",
+             "check": {"singles": 4, "verdict": "cheap", "n_fuku": 4,
+                       "validated": False}},
+        ]
+        html = predict.render_shopping_page(
+            date(2026, 8, 4), [race], None, records)
+        self.assertIn("一桁オッズ判定・全レース記録", html)
+        self.assertIn("🟢検証済み帯", html)          # validated行の強調
+        self.assertIn("桐生", html)                  # 5場以外もテーブルに載る
+        self.assertIn("○1 / △0 / ×1(全2レース)", html)
+
+    def test_shopping_page_without_records_has_no_table(self):
+        race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
+        html = predict.render_shopping_page(date(2026, 8, 4), [race])
+        self.assertNotIn("一桁オッズ判定・全レース記録", html)
+
+
 class TestTabsRendering(unittest.TestCase):
     def test_page_without_odds_has_no_tabs(self):
         races = [_race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])]
