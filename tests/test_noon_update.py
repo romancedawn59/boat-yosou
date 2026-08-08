@@ -333,6 +333,27 @@ class TestOddsCheckDisplay(unittest.TestCase):
         html = predict.render_shopping_page(date(2026, 8, 4), [race])
         self.assertNotIn("一桁オッズ判定・全レース記録", html)
 
+    def test_shopping_page_has_selrace_panel(self):
+        # 選択レースパネル(2026-08-09): 朝版(オッズ記録なし)でも常設される
+        race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
+        html = predict.render_shopping_page(date(2026, 8, 9), [race])
+        self.assertIn("選択レース(オッズ追っかけ用)", html)
+        self.assertIn('SEL_DATE = "2026-08-09"', html)
+        self.assertIn("平和島", html)          # 本日の場がセレクトに入る
+
+    def test_odds_check_rows_are_clickable(self):
+        race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
+        records = [
+            {"race_id": race["race_id"], "venue_code": 4, "race_no": 3,
+             "shobusho": None, "p1": 0.32,
+             "deadline": "2026-08-09 12:54:00", "fetched": "10:32",
+             "check": {"singles": 2, "verdict": "chance", "n_fuku": 4,
+                       "validated": True}},
+        ]
+        html = predict.render_shopping_page(
+            date(2026, 8, 9), [race], None, records)
+        self.assertIn("class='ocrow' data-v='4' data-r='3'", html)
+
 
 class TestTabsRendering(unittest.TestCase):
     def test_page_without_odds_has_no_tabs(self):

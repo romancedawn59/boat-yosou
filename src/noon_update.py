@@ -244,6 +244,15 @@ def run(d: date, include_all: bool = False) -> bool:
     if log_records:
         log = _append_odds_check_log(d, fetched_label, log_records)
         odds_check_records = merged_odds_check(log)
+    else:
+        # 新規記録ゼロ(全レース締切済み等)でも既存ログがあれば表示は維持する
+        fname = f"odds_check_{d.isoformat()}.json"
+        for p in (predict.SITE_DIR / "data" / fname,
+                  PROJECT_DIR / "docs" / "data" / fname):
+            if p.exists():
+                odds_check_records = merged_odds_check(
+                    json.loads(p.read_text(encoding="utf-8")))
+                break
 
     predict.SITE_DIR.mkdir(parents=True, exist_ok=True)
     for venue, slug in predict.VENUE_SLUGS.items():

@@ -678,6 +678,121 @@ def render_venue_page(d: date, venue: int, races: list[dict],
 """
 
 
+# 選択レースパネル(2026-08-09ケンさん要望「オッズ追っかけ用に場とレースを入れたら
+# 買い目が出るシステム」)。静的サイトのままJSで実現: 公開済みのpicks JSONと
+# odds_check JSON(あれば)を読んで任意レースのプランを表示する。
+# 一桁オッズ判定テーブルの行クリックでも呼び出される。表示のみ・購入ロジック不変
+_SELRACE_TMPL = """
+<div class='card' id='selrace' style='border:2px solid #0969da'>
+  <h2 style='margin:0 0 8px'>🎯 選択レース(オッズ追っかけ用)</h2>
+  <p class='note'>場とレースを選ぶと買い目候補を表示します。下の一桁オッズ判定表の行クリックでも呼び出せます。
+  勝負所以外は<b>購入対象外の参考プラン</b>です。</p>
+  <div style='display:flex;gap:8px;align-items:center;flex-wrap:wrap'>
+    <select id='selrace-v'></select>
+    <select id='selrace-r'></select>
+    <button onclick='selShow()' style='padding:6px 16px;cursor:pointer'>表示</button>
+  </div>
+  <div id='selrace-out' style='margin-top:10px'></div>
+</div>
+<script>
+const SEL_DATE = "__DATE__";
+const SEL_VENUES = __VENUES__;
+const SEL_T5 = __T5__;
+let _selPicks = null, _selOdds = null;
+(function () {
+  const v = document.getElementById("selrace-v");
+  for (const [code, name] of Object.entries(SEL_VENUES))
+    v.insertAdjacentHTML("beforeend", `<option value='${code}'>${name}</option>`);
+  const r = document.getElementById("selrace-r");
+  for (let i = 1; i <= 12; i++)
+    r.insertAdjacentHTML("beforeend", `<option value='${i}'>${i}R</option>`);
+  document.addEventListener("click", (e) => {
+    const row = e.target.closest("tr.ocrow");
+    if (!row) return;
+    v.value = row.dataset.v; r.value = row.dataset.r;
+    selShow();
+  });
+})();
+async function _selLoad() {
+  if (!_selPicks) {
+    _selPicks = await (await fetch(`data/picks_${SEL_DATE}.json`)).json();
+    try { _selOdds = await (await fetch(`data/odds_check_${SEL_DATE}.json`)).json(); }
+    catch (e) { _selOdds = null; }
+  }
+}
+function _selOddsFor(rid) {
+  if (!_selOdds) return null;
+  for (let i = _selOdds.snapshots.length - 1; i >= 0; i--) {
+    const rec = _selOdds.snapshots[i].races.find((x) => x.race_id === rid);
+    if (rec) return { fetched: _selOdds.snapshots[i].fetched, rec };
+  }
+  return null;
+}
+async function selShow() {
+  const v = +document.getElementById("selrace-v").value;
+  const rno = +document.getElementById("selrace-r").value;
+  const out = document.getElementById("selrace-out");
+  out.innerHTML = "読み込み中…";
+  try { await _selLoad(); } catch (e) { out.innerHTML = "picksの読み込みに失敗しました"; return; }
+  const race = _selPicks.races.find((x) => +x.venue_code === v && +x.race_no === rno);
+  if (!race) { out.innerHTML = `${SEL_VENUES[v]}${rno}Rは本日の対象データにありません(非開催など)`; return; }
+  const lanes = race.ranked.map((x) => x[0]);
+  const ranked = race.ranked.map(([l, p]) => `${l}号艇 ${(p * 100).toFixed(0)}%`).join(" → ");
+  const sho = race.shobusho
+    ? `<span style='background:${race.shobusho === "本命" ? "#cf222e" : race.shobusho === "超混戦" ? "#8250df" : "#9a6700"};color:#fff;border-radius:6px;padding:2px 8px'>${race.shobusho}</span>`
+    : "<span style='background:#57606a;color:#fff;border-radius:6px;padding:2px 8px'>勝負所外・購入対象外(参考)</span>";
+  const oc = _selOddsFor(race.race_id);
+  const oddsMap = [];
+  if (oc && oc.rec.plan_odds) for (const [bt, comb, o] of oc.rec.plan_odds) oddsMap.push([bt, comb, o]);
+  function popOdds(bt, comb) {
+    const i = oddsMap.findIndex((x) => x[0] === bt && x[1] === comb);
+    if (i < 0) return null;
+    return oddsMap.splice(i, 1)[0][2];
+  }
+  let total = 0;
+  const rows = race.ken.map(([bt, comb, yen, src]) => {
+    total += yen;
+    const o = popOdds(bt, comb);
+    return `<tr><td>${src}</td><td>${bt}</td><td><b>${comb}</b></td><td style='text-align:right'>${yen}円</td><td style='text-align:right'>${o ? o.toFixed(1) + "倍" : "-"}</td></tr>`;
+  }).join("");
+  let guide = "";
+  const srcs = new Set(race.ken.map((x) => x[3]));
+  const tri = (a, b, c) => [a, b, c].sort().join("=");
+  if (srcs.has("深い波乱") && lanes.length >= 5) {
+    const [g1, g2, g3, g4, g5] = lanes;
+    guide = `①3連単BOX [${g1},${g2},${g3}] 各100円 ②3連単BOX [${g1},${g2},${g4}] 各100円 ③3連単 ${g3}-${g1}-${g2} に300円追加 ④3連単 ${g4}-${g1}-${g2} に300円追加 ⑤3連複 ${tri(g3, g4, g5)} 200円`;
+  } else if (srcs.has("保険複") && lanes.length >= 4) {
+    const [g1, g2, g3, g4] = lanes;
+    guide = `①3連複F ${g1}=${g2}−[${g3},${g4}] 各200円 ②3連複F ${g3}=${g4}−[${g1},${g2}] 各100円 ③3連単F [${g3},${g4}]−${g1}−${g2} 各200円 ④3連単F [${g3},${g4}]−${g2}−${g1} 各100円 ⑤3連単 ${g4}-${g2}-${g1} に200円追加`;
+  }
+  const valid5 = SEL_T5.includes(v) && race.ranked[0][1] >= 0.30 && race.ranked[0][1] < 0.35;
+  const ocLine = oc && oc.rec.check
+    ? `一桁オッズ判定(${oc.fetched}時点): 一桁${oc.rec.check.singles}点/${oc.rec.check.n_fuku}点 → ${oc.rec.check.verdict === "chance" ? "○ちょうど2点" : oc.rec.check.verdict === "chaos" ? "△0-1点(混沌)" : "×3点以上(安い)"}${valid5 ? " 🟢検証済み帯" : "(検証外帯・参考)"}`
+    : "オッズ未取得(9:00/10:30/12:00の反映後に表示)";
+  const jcd = String(v).padStart(2, "0");
+  const hd = SEL_DATE.replaceAll("-", "");
+  out.innerHTML = `
+    <div style='margin-bottom:6px'><b>${SEL_VENUES[v]} ${rno}R</b> ${sho}</div>
+    <div class='note'>モデル予測順位: ${ranked}</div>
+    <div class='note'>${ocLine}</div>
+    <div style='overflow-x:auto'><table class='odds-table'>
+      <tr><th></th><th>券種</th><th>買い目</th><th>金額</th><th>最終取得オッズ</th></tr>${rows}
+    </table></div>
+    <div class='note'>計${total.toLocaleString()}円${guide ? " / 📱入力ガイド: " + guide : ""}</div>
+    <div class='note'><a href='https://www.boatrace.jp/owpc/pc/race/odds3t?rno=${rno}&jcd=${jcd}&hd=${hd}' target='_blank'>公式サイトで今のオッズを見る→</a></div>`;
+  document.getElementById("selrace").scrollIntoView({ behavior: "smooth" });
+}
+</script>"""
+
+
+def _render_selrace_panel(d: date, races: list[dict]) -> str:
+    venues = {int(r["venue_code"]): VENUE_NAMES[r["venue_code"]] for r in races}
+    return (_SELRACE_TMPL
+            .replace("__DATE__", d.isoformat())
+            .replace("__VENUES__", json.dumps(venues, ensure_ascii=False))
+            .replace("__T5__", json.dumps(sorted(TARGET_VENUE_CODES))))
+
+
 def _render_odds_check_section(records: list[dict]) -> str:
     """全レース一桁オッズ判定テーブル(2026-08-04〜テスト運用・noon実行時のみ)。
 
@@ -706,7 +821,10 @@ def _render_odds_check_section(records: list[dict]) -> str:
         badge = "🟢検証済み帯 " if oc and oc.get("validated") else ""
         sho = rec.get("shobusho") or ""
         rows.append(
-            f"<tr style='{style}'><td>{deadline}</td><td>{venue}</td>"
+            f"<tr class='ocrow' data-v='{int(rec['venue_code'])}' "
+            f"data-r='{int(rec['race_no'])}' style='cursor:pointer;{style}' "
+            f"title='クリックで選択レースに買い目を表示'>"
+            f"<td>{deadline}</td><td>{venue}</td>"
             f"<td>{rec['race_no']}R</td><td class='num'>{p1_txt}</td>"
             f"<td>{badge}{label}</td><td>{sho}</td>"
             f"<td class='num'>{rec.get('fetched', '')}</td></tr>")
@@ -770,6 +888,7 @@ def render_shopping_page(d: date, races: list[dict],
 {_summary_html(races)}
 {maint}
 {body}
+{_render_selrace_panel(d, races)}
 {_render_odds_check_section(odds_check_records or [])}
 {_TAB_JS}
 {_STALE_JS_TMPL.format(page_date=d.isoformat())}
