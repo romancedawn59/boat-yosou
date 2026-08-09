@@ -486,7 +486,7 @@ def _render_odds_pane(view: dict) -> str:
                        f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
                        f"🔍<b>要オッズ確認: ○購入チャンス(裁量)</b> — "
                        f"3連複{oc['n_fuku']}点中、一桁オッズがちょうど2点(本線堅く・ヒモに配当が乗る形)。"
-                       f"検証値: 回収率129.4%・ガミ率17.1%(買う場合は裁量枠として報告を)</p>")
+                       f"検証値: 5-7月129.4%→8月込み96.4%に低下(検証㉒・9/1再判定中。裁量は慎重に・買う場合は報告を)</p>")
         elif v == "cheap":
             oc_html = (f"<p style='background:#ffebe9;border:1px solid #cf222e66;"
                        f"border-radius:8px;padding:8px 12px;font-size:.9rem'>"
@@ -1002,7 +1002,7 @@ def _render_oc_target_section(races: list[dict],
     return f"""
 <div class='card' style='border:2px solid #1a7f37'>
   <b>{head}</b>
-  <p class='note'>🟢○(3連複の一桁オッズがちょうど2点)が出たら裁量チャンス(検証値129.4%・買ったら報告を)。
+  <p class='note'>🟢○(3連複の一桁オッズがちょうど2点)が出たら裁量チャンス(検証値: 5-7月129.4%→8月込み96.4%に低下・9/1再判定中。買ったら報告を)。
   △/×は見送り。行をクリックすると下の選択レースに買い目候補が出ます。</p>
   <div style='overflow-x:auto'><table class='odds-table'>
   <tr><th>締切</th><th>レース</th><th>1位確率</th><th>一桁オッズ判定</th><th>買い目予想</th></tr>
