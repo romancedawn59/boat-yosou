@@ -394,6 +394,23 @@ class TestOddsCheckDisplay(unittest.TestCase):
         self.assertIn("買い目予想", html)   # 旧「取得(時刻)」列の置き換え
 
 
+class TestCollapsibleCardsAndPlanTabs(unittest.TestCase):
+    """2026-08-09ケンさん要望: ②カード折りたたみ ①3パターン買い方タブ"""
+
+    def test_race_card_is_collapsible_details(self):
+        races = [_race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])]
+        html = render_venue_page(date(2026, 8, 9), 4, races)
+        self.assertIn('<details class="card">', html)
+        self.assertIn('<summary class="head"', html)   # 概要行=クリックで展開
+
+    def test_selrace_script_has_three_plan_builders(self):
+        race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
+        html = predict.render_shopping_page(date(2026, 8, 9), [race])
+        for token in ("jsPlanKonsen", "jsPlanHonmei", "jsPlanKatame",
+                      "plantab", "接戦2,000円", "本命1,400円", "堅め1,000円"):
+            self.assertIn(token, html)
+
+
 class TestTabsRendering(unittest.TestCase):
     def test_page_without_odds_has_no_tabs(self):
         races = [_race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])]

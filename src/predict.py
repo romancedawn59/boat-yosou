@@ -627,19 +627,21 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
     <div id="o-{rid}" class="pane">{odds_pane}</div>"""
 
     venue_html = f"<span class='venue-tag'>{race['venue_name']}</span>" if show_venue else ""
+    # 2026-08-09ケンさん要望②: デフォルトは概要行(荒れ注意ラベルまで)のみ表示し、
+    # クリックで詳細(出走表・予想・買い目・オッズタブ)を展開する折りたたみ式
     return f"""
-  <div class="card">
-    <div class="head">
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
       {venue_html}<span class="rno">{race['race_no']}R</span>
       <span class="deadline">締切 {deadline}</span>
       {sho_html}
       <span class="conf" style="background:{color}">{conf}</span>
-    </div>
+    </summary>
     {weather_html}
     <table>{boat_rows}</table>
     {rising_note}
     {body}
-  </div>"""
+  </details>"""
 
 
 def render_venue_page(d: date, venue: int, races: list[dict],
@@ -707,6 +709,19 @@ let _selPicks = null, _selOdds = null;
   for (let i = 1; i <= 12; i++)
     r.insertAdjacentHTML("beforeend", `<option value='${i}'>${i}R</option>`);
   document.addEventListener("click", (e) => {
+    const pt = e.target.closest("button.plantab");
+    if (pt) {                        // 3パターン買い方タブの切替(カード内)
+      const card = pt.closest(".jscard");
+      card.querySelectorAll(".plantab").forEach((b) => {
+        b.classList.remove("on"); b.style.background = ""; b.style.color = "";
+      });
+      pt.classList.add("on");
+      pt.style.background = "#0969da"; pt.style.color = "#fff";
+      card.querySelectorAll(".planpane").forEach((p, i) => {
+        p.style.display = (i === +pt.dataset.i) ? "" : "none";
+      });
+      return;
+    }
     const btn = e.target.closest("button.kentobtn");
     if (btn) {                       // 買い目予想取得 → 購入検討タブへ倉庫入れ
       kentoAdd(+btn.dataset.v, +btn.dataset.r, btn);
@@ -735,6 +750,79 @@ function _selOddsFor(rid) {
   }
   return null;
 }
+// ---- 3パターンの買い方(2026-08-09ケンさん要望①)。本番predictors.pyの構成を再現 ----
+const _PERM3 = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+function _tri(a, b, c) { return [a, b, c].sort((x, y) => x - y).join("="); }
+function jsPlanKonsen(lanes) {          // ⑬BOX+差され傾斜(2,000円)
+  if (lanes.length < 5) return null;
+  const [g1, g2, g3, g4, g5] = lanes;
+  const rows = [];
+  for (const ms of [[g1, g2, g3], [g1, g2, g4]])
+    for (const p of _PERM3)
+      rows.push(["3連単", `${ms[p[0]]}-${ms[p[1]]}-${ms[p[2]]}`, 100, "BOX"]);
+  rows.push(["3連単", `${g3}-${g1}-${g2}`, 300, "差され追加"]);
+  rows.push(["3連単", `${g4}-${g1}-${g2}`, 300, "差され追加"]);
+  rows.push(["3連複", _tri(g3, g4, g5), 200, "深い波乱"]);
+  return rows;
+}
+function jsPlanHonmei(lanes) {          // ⑰③案(1,400円)
+  if (lanes.length < 4) return null;
+  const [g1, g2, g3, g4] = lanes;
+  return [["3連複", _tri(g1, g2, g3), 200, "検証済み"],
+          ["3連複", _tri(g1, g2, g4), 200, "検証済み"],
+          ["3連複", _tri(g1, g3, g4), 100, "検証済み"],
+          ["3連単", `${g3}-${g1}-${g2}`, 200, "検証済み"],
+          ["3連単", `${g4}-${g1}-${g2}`, 200, "検証済み"],
+          ["3連複", _tri(g2, g3, g4), 100, "保険複"],
+          ["3連単", `${g3}-${g2}-${g1}`, 100, "入替"],
+          ["3連単", `${g4}-${g2}-${g1}`, 100, "入替"],
+          ["3連単", `${g4}-${g2}-${g1}`, 200, "入替厚"]];
+}
+function jsPlanKatame(race) {           // 堅め(1,000円)=複トップ2+山田+勝万舟
+  const ranked = race.ranked;
+  if (ranked.length < 4) return null;
+  let tot = 0;
+  ranked.forEach(([l, p]) => { tot += p; });
+  const probs = {}, pw2 = {}, pw3 = {};
+  let s2 = 0, s3 = 0;
+  ranked.forEach(([l, p]) => {
+    probs[l] = p / tot;
+    pw2[l] = Math.pow(probs[l], 0.70); pw3[l] = Math.pow(probs[l], 0.50);
+    s2 += pw2[l]; s3 += pw3[l];
+  });
+  const lanes = ranked.map((x) => x[0]);
+  const trio = {};
+  for (const a of lanes) for (const b of lanes) {
+    if (b === a) continue;
+    for (const c of lanes) {
+      if (c === a || c === b) continue;
+      const d2 = s2 - pw2[a], d3 = s3 - pw3[a] - pw3[b];
+      if (d2 <= 0 || d3 <= 0) continue;
+      const key = _tri(a, b, c);
+      trio[key] = (trio[key] || 0) + probs[a] * (pw2[b] / d2) * (pw3[c] / d3);
+    }
+  }
+  const top = Object.entries(trio).sort((x, y) => y[1] - x[1]).slice(0, 2);
+  const rows = [["3連複", top[0][0], 400, "本線"], ["3連複", top[1][0], 300, "本線"]];
+  if (race.b && race.b.length) rows.push([race.b[0][0], race.b[0][1], 200, "山田"]);
+  const have = new Set(rows.map((r) => r[0] + "|" + r[1]));
+  for (const c of race.c || []) {
+    if (!have.has(c[0] + "|" + c[1])) { rows.push([c[0], c[1], 100, "勝万舟"]); break; }
+  }
+  return rows;
+}
+function _guideFor(rows, lanes) {
+  const srcs = new Set(rows.map((x) => x[3]));
+  if (srcs.has("深い波乱") && lanes.length >= 5) {
+    const [g1, g2, g3, g4, g5] = lanes;
+    return `①3連単BOX [${g1},${g2},${g3}] 各100円 ②3連単BOX [${g1},${g2},${g4}] 各100円 ③3連単 ${g3}-${g1}-${g2} に300円追加 ④3連単 ${g4}-${g1}-${g2} に300円追加 ⑤3連複 ${_tri(g3, g4, g5)} 200円`;
+  }
+  if (srcs.has("保険複") && lanes.length >= 4) {
+    const [g1, g2, g3, g4] = lanes;
+    return `①3連複F ${g1}=${g2}−[${g3},${g4}] 各200円 ②3連複F ${g3}=${g4}−[${g1},${g2}] 各100円 ③3連単F [${g3},${g4}]−${g1}−${g2} 各200円 ④3連単F [${g3},${g4}]−${g2}−${g1} 各100円 ⑤3連単 ${g4}-${g2}-${g1} に200円追加`;
+  }
+  return "";
+}
 function _raceCard(v, rno, race) {
   const lanes = race.ranked.map((x) => x[0]);
   const ranked = race.ranked.map(([l, p]) => `${l}号艇 ${(p * 100).toFixed(0)}%`).join(" → ");
@@ -742,45 +830,55 @@ function _raceCard(v, rno, race) {
     ? `<span style='background:${race.shobusho === "本命" ? "#cf222e" : race.shobusho === "超混戦" ? "#8250df" : "#9a6700"};color:#fff;border-radius:6px;padding:2px 8px'>${race.shobusho}</span>`
     : "<span style='background:#57606a;color:#fff;border-radius:6px;padding:2px 8px'>勝負所外・購入対象外(参考)</span>";
   const oc = _selOddsFor(race.race_id);
-  const oddsMap = [];
-  if (oc && oc.rec.plan_odds) for (const [bt, comb, o] of oc.rec.plan_odds) oddsMap.push([bt, comb, o]);
-  function popOdds(bt, comb) {
-    const i = oddsMap.findIndex((x) => x[0] === bt && x[1] === comb);
-    if (i < 0) return null;
-    return oddsMap.splice(i, 1)[0][2];
+  const oddsIdx = {};
+  if (oc) {
+    for (const [bt, comb, o] of oc.rec.plan_odds || [])
+      if (o && oddsIdx[bt + "|" + comb] === undefined) oddsIdx[bt + "|" + comb] = o;
+    for (const [comb, o] of oc.rec.std_trio_odds || [])
+      if (o && oddsIdx["3連複|" + comb] === undefined) oddsIdx["3連複|" + comb] = o;
   }
-  let total = 0;
-  const rows = race.ken.map(([bt, comb, yen, src]) => {
-    total += yen;
-    const o = popOdds(bt, comb);
-    return `<tr><td>${src}</td><td>${bt}</td><td><b>${comb}</b></td><td style='text-align:right'>${yen}円</td><td style='text-align:right'>${o ? o.toFixed(1) + "倍" : "-"}</td></tr>`;
-  }).join("");
-  let guide = "";
-  const srcs = new Set(race.ken.map((x) => x[3]));
-  const tri = (a, b, c) => [a, b, c].sort().join("=");
-  if (srcs.has("深い波乱") && lanes.length >= 5) {
-    const [g1, g2, g3, g4, g5] = lanes;
-    guide = `①3連単BOX [${g1},${g2},${g3}] 各100円 ②3連単BOX [${g1},${g2},${g4}] 各100円 ③3連単 ${g3}-${g1}-${g2} に300円追加 ④3連単 ${g4}-${g1}-${g2} に300円追加 ⑤3連複 ${tri(g3, g4, g5)} 200円`;
-  } else if (srcs.has("保険複") && lanes.length >= 4) {
-    const [g1, g2, g3, g4] = lanes;
-    guide = `①3連複F ${g1}=${g2}−[${g3},${g4}] 各200円 ②3連複F ${g3}=${g4}−[${g1},${g2}] 各100円 ③3連単F [${g3},${g4}]−${g1}−${g2} 各200円 ④3連単F [${g3},${g4}]−${g2}−${g1} 各100円 ⑤3連単 ${g4}-${g2}-${g1} に200円追加`;
+  function paneHTML(rows) {
+    let total = 0;
+    const trs = rows.map(([bt, comb, yen, src]) => {
+      total += yen;
+      const o = oddsIdx[bt + "|" + comb];
+      return `<tr><td>${src}</td><td>${bt}</td><td><b>${comb}</b></td><td style='text-align:right'>${yen}円</td><td style='text-align:right'>${o ? o.toFixed(1) + "倍" : "-"}</td></tr>`;
+    }).join("");
+    const guide = _guideFor(rows, lanes);
+    return `<div style='overflow-x:auto'><table class='odds-table'>
+      <tr><th></th><th>券種</th><th>買い目</th><th>金額</th><th>最終取得オッズ</th></tr>${trs}
+    </table></div>
+    <div class='note'>計${total.toLocaleString()}円${guide ? " / 📱入力ガイド: " + guide : ""}</div>`;
   }
+  const patterns = [["判定プラン", race.ken]];
+  const kon = jsPlanKonsen(lanes);
+  const hon = jsPlanHonmei(lanes);
+  const kat = jsPlanKatame(race);
+  if (kon) patterns.push(["接戦2,000円", kon]);
+  if (hon) patterns.push(["本命1,400円", hon]);
+  if (kat) patterns.push(["堅め1,000円", kat]);
+  const tabs = patterns.map(([name], i) =>
+    `<button class='plantab${i ? "" : " on"}' data-i='${i}' style='padding:4px 10px;cursor:pointer;border-radius:6px;border:1px solid #d0d7de;${i ? "" : "background:#0969da;color:#fff"}'>${name}</button>`
+  ).join(" ");
+  const panes = patterns.map(([_n, rows], i) =>
+    `<div class='planpane'${i ? " style='display:none'" : ""}>${paneHTML(rows)}</div>`
+  ).join("");
   const valid5 = SEL_T5.includes(v) && race.ranked[0][1] >= 0.30 && race.ranked[0][1] < 0.35;
   const ocLine = oc && oc.rec.check
     ? `一桁オッズ判定(${oc.fetched}時点): 一桁${oc.rec.check.singles}点/${oc.rec.check.n_fuku}点 → ${oc.rec.check.verdict === "chance" ? "○ちょうど2点" : oc.rec.check.verdict === "chaos" ? "△0-1点(混沌)" : "×3点以上(安い)"}${valid5 ? " 🟢検証済み帯" : "(検証外帯・参考)"}`
     : "オッズ未取得(9:00/10:30/12:00の反映後に表示)";
   const jcd = String(v).padStart(2, "0");
   const hd = SEL_DATE.replaceAll("-", "");
-  return `
+  return `<div class='jscard'>
     <div style='margin-bottom:6px'><b>${SEL_VENUES[v]} ${rno}R</b> ${sho}
       <button class='kentobtn' data-v='${v}' data-r='${rno}' style='margin-left:8px;cursor:pointer'>🛒検討に入れる</button></div>
     <div class='note'>モデル予測順位: ${ranked}</div>
     <div class='note'>${ocLine}</div>
-    <div style='overflow-x:auto'><table class='odds-table'>
-      <tr><th></th><th>券種</th><th>買い目</th><th>金額</th><th>最終取得オッズ</th></tr>${rows}
-    </table></div>
-    <div class='note'>計${total.toLocaleString()}円${guide ? " / 📱入力ガイド: " + guide : ""}</div>
-    <div class='note'><a href='https://www.boatrace.jp/owpc/pc/race/odds3t?rno=${rno}&jcd=${jcd}&hd=${hd}' target='_blank'>公式サイトで今のオッズを見る→</a></div>`;
+    <div style='display:flex;gap:6px;flex-wrap:wrap;margin:6px 0'>${tabs}</div>
+    ${panes}
+    <div class='note'>判定プラン以外は他帯の構成をこのレースに当てはめた検討用(購入対象の判定は変わりません)</div>
+    <div class='note'><a href='https://www.boatrace.jp/owpc/pc/race/odds3t?rno=${rno}&jcd=${jcd}&hd=${hd}' target='_blank'>公式サイトで今のオッズを見る→</a></div>
+  </div>`;
 }
 async function selShow() {
   const v = +document.getElementById("selrace-v").value;
