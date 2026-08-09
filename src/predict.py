@@ -707,11 +707,18 @@ let _selPicks = null, _selOdds = null;
   for (let i = 1; i <= 12; i++)
     r.insertAdjacentHTML("beforeend", `<option value='${i}'>${i}R</option>`);
   document.addEventListener("click", (e) => {
+    const btn = e.target.closest("button.kentobtn");
+    if (btn) {                       // 買い目予想取得 → 購入検討タブへ倉庫入れ
+      kentoAdd(+btn.dataset.v, +btn.dataset.r, btn);
+      e.stopPropagation();
+      return;
+    }
     const row = e.target.closest("tr.ocrow");
     if (!row) return;
     v.value = row.dataset.v; r.value = row.dataset.r;
     selShow();
   });
+  kentoRender();                     // 倉庫はlocalStorageに残る(リロード復元)
 })();
 async function _selLoad() {
   if (!_selPicks) {
@@ -728,14 +735,7 @@ function _selOddsFor(rid) {
   }
   return null;
 }
-async function selShow() {
-  const v = +document.getElementById("selrace-v").value;
-  const rno = +document.getElementById("selrace-r").value;
-  const out = document.getElementById("selrace-out");
-  out.innerHTML = "読み込み中…";
-  try { await _selLoad(); } catch (e) { out.innerHTML = "picksの読み込みに失敗しました"; return; }
-  const race = _selPicks.races.find((x) => +x.venue_code === v && +x.race_no === rno);
-  if (!race) { out.innerHTML = `${SEL_VENUES[v]}${rno}Rは本日の対象データにありません(非開催など)`; return; }
+function _raceCard(v, rno, race) {
   const lanes = race.ranked.map((x) => x[0]);
   const ranked = race.ranked.map(([l, p]) => `${l}号艇 ${(p * 100).toFixed(0)}%`).join(" → ");
   const sho = race.shobusho
@@ -771,8 +771,9 @@ async function selShow() {
     : "オッズ未取得(9:00/10:30/12:00の反映後に表示)";
   const jcd = String(v).padStart(2, "0");
   const hd = SEL_DATE.replaceAll("-", "");
-  out.innerHTML = `
-    <div style='margin-bottom:6px'><b>${SEL_VENUES[v]} ${rno}R</b> ${sho}</div>
+  return `
+    <div style='margin-bottom:6px'><b>${SEL_VENUES[v]} ${rno}R</b> ${sho}
+      <button class='kentobtn' data-v='${v}' data-r='${rno}' style='margin-left:8px;cursor:pointer'>🛒検討に入れる</button></div>
     <div class='note'>モデル予測順位: ${ranked}</div>
     <div class='note'>${ocLine}</div>
     <div style='overflow-x:auto'><table class='odds-table'>
@@ -780,9 +781,75 @@ async function selShow() {
     </table></div>
     <div class='note'>計${total.toLocaleString()}円${guide ? " / 📱入力ガイド: " + guide : ""}</div>
     <div class='note'><a href='https://www.boatrace.jp/owpc/pc/race/odds3t?rno=${rno}&jcd=${jcd}&hd=${hd}' target='_blank'>公式サイトで今のオッズを見る→</a></div>`;
+}
+async function selShow() {
+  const v = +document.getElementById("selrace-v").value;
+  const rno = +document.getElementById("selrace-r").value;
+  const out = document.getElementById("selrace-out");
+  out.innerHTML = "読み込み中…";
+  try { await _selLoad(); } catch (e) { out.innerHTML = "picksの読み込みに失敗しました"; return; }
+  const race = _selPicks.races.find((x) => +x.venue_code === v && +x.race_no === rno);
+  if (!race) { out.innerHTML = `${SEL_VENUES[v]}${rno}Rは本日の対象データにありません(非開催など)`; return; }
+  out.innerHTML = _raceCard(v, rno, race);
   document.getElementById("selrace").scrollIntoView({ behavior: "smooth" });
 }
+// ---- 購入検討(倉庫)。localStorageに日付キーで保存しリロード後も残る ----
+function _kentoKey() { return `kento_${SEL_DATE}`; }
+function _kentoList() {
+  try { return JSON.parse(localStorage.getItem(_kentoKey())) || []; }
+  catch (e) { return []; }
+}
+function _kentoSave(list) {
+  try { localStorage.setItem(_kentoKey(), JSON.stringify(list)); } catch (e) {}
+}
+async function kentoAdd(v, rno, btn) {
+  const list = _kentoList();
+  if (!list.some((x) => x[0] === v && x[1] === rno)) {
+    list.push([v, rno]);
+    _kentoSave(list);
+  }
+  if (btn) { btn.textContent = "✓検討中"; btn.disabled = true; }
+  await kentoRender();
+  document.getElementById("kento").scrollIntoView({ behavior: "smooth" });
+}
+async function kentoRemove(v, rno) {
+  _kentoSave(_kentoList().filter((x) => !(x[0] === v && x[1] === rno)));
+  await kentoRender();
+}
+async function kentoClear() { _kentoSave([]); await kentoRender(); }
+async function kentoRender() {
+  const box = document.getElementById("kento-list");
+  const count = document.getElementById("kento-count");
+  if (!box) return;
+  const list = _kentoList();
+  count.textContent = list.length;
+  if (!list.length) {
+    box.innerHTML = "<p class='note'>倉庫は空です。各表の「買い目取得」ボタンでここに追加されます。</p>";
+    return;
+  }
+  try { await _selLoad(); } catch (e) { box.innerHTML = "picksの読み込みに失敗しました"; return; }
+  box.innerHTML = list.map(([v, rno]) => {
+    const race = _selPicks.races.find((x) => +x.venue_code === v && +x.race_no === rno);
+    const inner = race ? _raceCard(v, rno, race)
+      : `<b>${SEL_VENUES[v] || v} ${rno}R</b> データなし`;
+    return `<div style='border:1px solid #d0d7de;border-radius:8px;padding:10px;margin-top:10px'>
+      ${inner}
+      <div style='margin-top:6px'><button onclick='kentoRemove(${v},${rno})' style='cursor:pointer'>倉庫から外す</button></div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#kento-list button.kentobtn").forEach((b) => b.remove());
+}
 </script>"""
+
+
+_KENTO_SHELL = """
+<div class='card' id='kento' style='border:2px solid #9a6700'>
+  <h2 style='margin:0 0 8px'>🛒 購入検討(倉庫: <span id='kento-count'>0</span>件)</h2>
+  <p class='note'>各表の「買い目取得」ボタンで気になるレースをここに貯められます(リロードしても残ります)。
+  購入対象外レースの購入は裁量枠なので、買ったら報告を。</p>
+  <div style='margin-bottom:4px'><button onclick='kentoClear()' style='cursor:pointer'>全部外す</button></div>
+  <div id='kento-list'></div>
+</div>"""
 
 
 def _render_selrace_panel(d: date, races: list[dict]) -> str:
@@ -791,6 +858,59 @@ def _render_selrace_panel(d: date, races: list[dict]) -> str:
             .replace("__DATE__", d.isoformat())
             .replace("__VENUES__", json.dumps(venues, ensure_ascii=False))
             .replace("__T5__", json.dumps(sorted(TARGET_VENUE_CODES))))
+
+
+def _render_oc_target_section(races: list[dict],
+                              records: list[dict] | None) -> str:
+    """要オッズ確認(5場×1位30〜35%)の追っかけ対象一覧(2026-08-09ケンさん要望)。
+
+    朝から常設し「今日どのレースのオッズを追えばよいか」を一目で示す。
+    昼のオッズ反映後は最新の一桁判定を併記。行クリックで選択レースパネルへ。
+    """
+    targets = [r for r in races
+               if r.get("venue_code") in TARGET_VENUE_CODES and r.get("ranked")
+               and 0.30 <= r["ranked"][0]["prob"] < 0.35]
+    head = "🔍 要オッズ確認・オッズ追っかけ対象(5場×1位30〜35%)"
+    if not targets:
+        return (f"<div class='card'><b>{head}</b>"
+                "<p class='note'>本日の対象レースはありません。</p></div>")
+    by_id = {rec["race_id"]: rec for rec in (records or [])}
+    rows = []
+    for r in sorted(targets, key=lambda x: x["deadline"] or "9999"):
+        rec = by_id.get(r["race_id"])
+        oc = rec.get("check") if rec else None
+        if oc:
+            v = oc["verdict"]
+            label = ("🟢 ○購入チャンス(一桁ちょうど2点)" if v == "chance"
+                     else f"△見送り(一桁{oc['singles']}点=混沌)" if v == "chaos"
+                     else f"×見送り(一桁{oc['singles']}点=安い)")
+            label += f" [{rec.get('fetched', '')}時点]"
+            style = ("background:#ddf4e4;font-weight:bold"
+                     if v == "chance" else "")
+        else:
+            label = "判定待ち(オッズ反映は9:00/10:30/12:00ごろ)"
+            style = "color:#57606a"
+        deadline = (r["deadline"] or "")[-8:-3]
+        rows.append(
+            f"<tr class='ocrow' data-v='{int(r['venue_code'])}' "
+            f"data-r='{int(r['race_no'])}' style='cursor:pointer;{style}'>"
+            f"<td>{deadline}</td>"
+            f"<td>{VENUE_NAMES[r['venue_code']]}{r['race_no']}R</td>"
+            f"<td class='num'>{r['ranked'][0]['prob']:.1%}</td>"
+            f"<td>{label}</td>"
+            f"<td><button class='kentobtn' data-v='{int(r['venue_code'])}' "
+            f"data-r='{int(r['race_no'])}' style='cursor:pointer'>"
+            f"買い目取得</button></td></tr>")
+    return f"""
+<div class='card' style='border:2px solid #1a7f37'>
+  <b>{head}</b>
+  <p class='note'>🟢○(3連複の一桁オッズがちょうど2点)が出たら裁量チャンス(検証値129.4%・買ったら報告を)。
+  △/×は見送り。行をクリックすると下の選択レースに買い目候補が出ます。</p>
+  <div style='overflow-x:auto'><table class='odds-table'>
+  <tr><th>締切</th><th>レース</th><th>1位確率</th><th>一桁オッズ判定</th><th>買い目予想</th></tr>
+  {''.join(rows)}
+  </table></div>
+</div>"""
 
 
 def _render_odds_check_section(records: list[dict]) -> str:
@@ -827,7 +947,9 @@ def _render_odds_check_section(records: list[dict]) -> str:
             f"<td>{deadline}</td><td>{venue}</td>"
             f"<td>{rec['race_no']}R</td><td class='num'>{p1_txt}</td>"
             f"<td>{badge}{label}</td><td>{sho}</td>"
-            f"<td class='num'>{rec.get('fetched', '')}</td></tr>")
+            f"<td><button class='kentobtn' data-v='{int(rec['venue_code'])}' "
+            f"data-r='{int(rec['race_no'])}' style='cursor:pointer'>"
+            f"買い目取得</button></td></tr>")
     summary = (f"○{counts['chance']} / △{counts['chaos']} / ×{counts['cheap']}"
                f"(全{len(records)}レース)")
     return f"""
@@ -838,7 +960,7 @@ def _render_odds_check_section(records: list[dict]) -> str:
 それ以外の行は帯別の追検証用の記録で、購入判断には使わない。
 オッズは各レース最後に取得した時点の値。</p>
 <div style='overflow-x:auto'><table class='odds-table'>
-<tr><th>締切</th><th>場</th><th>R</th><th>1位%</th><th>判定</th><th>区分</th><th>取得</th></tr>
+<tr><th>締切</th><th>場</th><th>R</th><th>1位%</th><th>判定</th><th>区分</th><th>買い目予想</th></tr>
 {''.join(rows)}
 </table></div>
 </details>"""
@@ -887,6 +1009,8 @@ def render_shopping_page(d: date, races: list[dict],
 {_nav_html(None, venues_today)}
 {_summary_html(races)}
 {maint}
+{_render_oc_target_section(races, odds_check_records)}
+{_KENTO_SHELL}
 {body}
 {_render_selrace_panel(d, races)}
 {_render_odds_check_section(odds_check_records or [])}

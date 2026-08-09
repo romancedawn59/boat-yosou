@@ -341,6 +341,28 @@ class TestOddsCheckDisplay(unittest.TestCase):
         self.assertIn('SEL_DATE = "2026-08-09"', html)
         self.assertIn("平和島", html)          # 本日の場がセレクトに入る
 
+    def test_oc_target_section_lists_30_35_band_races(self):
+        # 追っかけ対象一覧(2026-08-09): 5場×30〜35%帯を朝から表示・判定待ち表記
+        target = _race([0.32, 0.2, 0.18, 0.15, 0.1, 0.05], race_no=3)   # 対象
+        katame = _race([0.55, 0.15, 0.1, 0.1, 0.05, 0.05], race_no=5)   # 帯外
+        html = predict.render_shopping_page(date(2026, 8, 9), [target, katame])
+        self.assertIn("オッズ追っかけ対象", html)
+        self.assertIn("判定待ち", html)
+        sec = html.split("オッズ追っかけ対象")[1].split("🎯")[0]
+        self.assertIn("平和島3R", sec)
+        self.assertNotIn("平和島5R", sec)
+
+    def test_oc_target_section_shows_latest_verdict(self):
+        target = _race([0.32, 0.2, 0.18, 0.15, 0.1, 0.05], race_no=3)
+        records = [{"race_id": target["race_id"], "venue_code": 4, "race_no": 3,
+                    "shobusho": "要注目", "p1": 0.32,
+                    "deadline": "2026-08-09 12:54:00", "fetched": "12:11",
+                    "check": {"singles": 2, "verdict": "chance", "n_fuku": 4,
+                              "validated": True}}]
+        html = predict.render_shopping_page(
+            date(2026, 8, 9), [target], None, records)
+        self.assertIn("○購入チャンス(一桁ちょうど2点) [12:11時点]", html)
+
     def test_odds_check_rows_are_clickable(self):
         race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
         records = [
@@ -353,6 +375,23 @@ class TestOddsCheckDisplay(unittest.TestCase):
         html = predict.render_shopping_page(
             date(2026, 8, 9), [race], None, records)
         self.assertIn("class='ocrow' data-v='4' data-r='3'", html)
+
+    def test_kento_warehouse_shell_and_buttons(self):
+        # 購入検討(倉庫・2026-08-09): シェル常設+各表に買い目取得ボタン
+        target = _race([0.32, 0.2, 0.18, 0.15, 0.1, 0.05], race_no=3)
+        records = [{"race_id": target["race_id"], "venue_code": 4, "race_no": 3,
+                    "shobusho": None, "p1": 0.32,
+                    "deadline": "2026-08-09 12:54:00", "fetched": "10:32",
+                    "check": {"singles": 2, "verdict": "chance", "n_fuku": 4,
+                              "validated": True}}]
+        html = predict.render_shopping_page(
+            date(2026, 8, 9), [target], None, records)
+        self.assertIn("🛒 購入検討(倉庫", html)
+        self.assertIn("kentoRender", html)
+        # 追っかけ一覧・全レース表の両方に買い目取得ボタン
+        self.assertGreaterEqual(
+            html.count("class='kentobtn' data-v='4' data-r='3'"), 2)
+        self.assertIn("買い目予想", html)   # 旧「取得(時刻)」列の置き換え
 
 
 class TestTabsRendering(unittest.TestCase):
