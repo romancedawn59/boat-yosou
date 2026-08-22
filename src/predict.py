@@ -945,6 +945,12 @@ _KENTO_SHELL = """
   <h2 style='margin:0 0 8px'>🛒 購入検討(倉庫: <span id='kento-count'>0</span>件)</h2>
   <p class='note'>各表の「買い目取得」ボタンで気になるレースをここに貯められます(リロードしても残ります)。
   購入対象外レースの購入は裁量枠なので、買ったら報告を。</p>
+  <p class='note'>📷 購入報告:
+  <a href='https://drive.google.com/drive/folders/1ATNwiSuPHP-bPznWfwWSGm0FscPNPwex'
+     target='_blank'>報告フォルダを開く→</a>
+  投票完了画面のスクショを開催日のフォルダに入れるだけ(どの端末からでもOK・遅れても可)。
+  金額から構成を推定します(2,000円=接戦⑬/1,400円=本命⑰/1,000円=堅め)。
+  アレンジした場合は買い目の行が見える詳細スクショも追加してください。</p>
   <div style='margin-bottom:4px'><button onclick='kentoClear()' style='cursor:pointer'>全部外す</button></div>
   <div id='kento-list'></div>
 </div>"""
