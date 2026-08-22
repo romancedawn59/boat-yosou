@@ -734,6 +734,12 @@ let _selPicks = null, _selOdds = null;
     selShow();
   });
   kentoRender();                     // 倉庫はlocalStorageに残る(リロード復元)
+  // 購入報告リンクを本日の日付フォルダへ直行させる(対応表が無い日は親フォルダのまま)
+  fetch("data/houkoku_folders.json").then((r) => r.json()).then((m) => {
+    const a = document.getElementById("houkoku-link");
+    const fid = m.folders && m.folders[SEL_DATE];
+    if (a && fid) a.href = `https://drive.google.com/drive/folders/${fid}`;
+  }).catch(() => {});
 })();
 async function _selLoad() {
   if (!_selPicks) {
@@ -946,9 +952,10 @@ _KENTO_SHELL = """
   <p class='note'>各表の「買い目取得」ボタンで気になるレースをここに貯められます(リロードしても残ります)。
   購入対象外レースの購入は裁量枠なので、買ったら報告を。</p>
   <p class='note'>📷 購入報告:
-  <a href='https://drive.google.com/drive/folders/1ATNwiSuPHP-bPznWfwWSGm0FscPNPwex'
-     target='_blank'>報告フォルダを開く→</a>
-  投票完了画面のスクショを開催日のフォルダに入れるだけ(どの端末からでもOK・遅れても可)。
+  <a id='houkoku-link'
+     href='https://drive.google.com/drive/folders/1ATNwiSuPHP-bPznWfwWSGm0FscPNPwex'
+     target='_blank' style='font-weight:bold'>本日の報告フォルダを開く→</a>
+  投票完了画面のスクショをそこに入れるだけ(どの端末からでもOK・遅れた報告は開催日のフォルダへ)。
   金額から構成を推定します(2,000円=接戦⑬/1,400円=本命⑰/1,000円=堅め)。
   アレンジした場合は買い目の行が見える詳細スクショも追加してください。</p>
   <div style='margin-bottom:4px'><button onclick='kentoClear()' style='cursor:pointer'>全部外す</button></div>
