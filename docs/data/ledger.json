@@ -119064,5 +119064,4065 @@
    "ken_jun": []
   },
   "gaps": []
+ },
+ {
+  "date": "2026-08-23",
+  "stats": {
+   "a": {
+    "stake": 83000,
+    "ret": 60900,
+    "races": 166,
+    "hits": 101
+   },
+   "b": {
+    "stake": 166000,
+    "ret": 97260,
+    "races": 166,
+    "hits": 64
+   },
+   "c": {
+    "stake": 83000,
+    "ret": 46270,
+    "races": 166,
+    "hits": 7
+   },
+   "ken": {
+    "stake": 176400,
+    "ret": 124460,
+    "races": 166,
+    "hits": 67
+   },
+   "ken_hon": {
+    "stake": 5600,
+    "ret": 2510,
+    "races": 4,
+    "hits": 3
+   },
+   "ken_konsen": {
+    "stake": 0,
+    "ret": 0,
+    "races": 0,
+    "hits": 0
+   },
+   "ken_jissai": {
+    "stake": 5600,
+    "ret": 2510,
+    "races": 4,
+    "hits": 3
+   },
+   "ken_extra": {
+    "stake": 0,
+    "ret": 0,
+    "races": 0,
+    "hits": 0
+   },
+   "ken_jun": {
+    "stake": 5600,
+    "ret": 3910,
+    "races": 4,
+    "hits": 1
+   }
+  },
+  "hits": {
+   "a": [
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 310,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 1830,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 380
+      },
+      {
+       "label": "2連複 1=4",
+       "payout": 1450
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 4,
+     "chaku": "2-3-4",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "2連複 2=3",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 5,
+     "chaku": "4-1-2",
+     "stake": 500,
+     "ret": 830,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 300
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 530
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 7,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 220,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 9,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 270,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 10,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 450,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 240
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 210
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 11,
+     "chaku": "1-3-6",
+     "stake": 500,
+     "ret": 170,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 170
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 3,
+     "chaku": "3-1-5",
+     "stake": 500,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連複 1=3=5",
+       "payout": 270
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 480
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 4,
+     "chaku": "2-1-4",
+     "stake": 500,
+     "ret": 500,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 190
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 5,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 820,
+     "lines": [
+      {
+       "label": "3連複 1=3=5",
+       "payout": 820
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 7,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 510
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 8,
+     "chaku": "2-3-4",
+     "stake": 500,
+     "ret": 1230,
+     "lines": [
+      {
+       "label": "2連複 2=3",
+       "payout": 310
+      },
+      {
+       "label": "3連複 2=3=4",
+       "payout": 920
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 9,
+     "chaku": "1-3-6",
+     "stake": 500,
+     "ret": 250,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 12,
+     "chaku": "1-4-3",
+     "stake": 500,
+     "ret": 1940,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 1040
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 900
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 1,
+     "chaku": "1-3-5",
+     "stake": 500,
+     "ret": 560,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 220
+      },
+      {
+       "label": "3連複 1=3=5",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-5-2",
+     "stake": 500,
+     "ret": 1770,
+     "lines": [
+      {
+       "label": "3連複 1=2=5",
+       "payout": 460
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 1310
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "2-4-5",
+     "stake": 500,
+     "ret": 540,
+     "lines": [
+      {
+       "label": "2連複 2=4",
+       "payout": 540
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 10,
+     "chaku": "2-3-1",
+     "stake": 500,
+     "ret": 1260,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 340
+      },
+      {
+       "label": "2連複 2=3",
+       "payout": 920
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 1,
+     "chaku": "4-1-3",
+     "stake": 500,
+     "ret": 1660,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 1040
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 620
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 2,
+     "chaku": "2-3-6",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "2連複 2=3",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 3,
+     "chaku": "3-2-5",
+     "stake": 500,
+     "ret": 570,
+     "lines": [
+      {
+       "label": "2連複 2=3",
+       "payout": 280
+      },
+      {
+       "label": "3連複 2=3=5",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 4,
+     "chaku": "4-3-1",
+     "stake": 500,
+     "ret": 710,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 710
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 6,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 140
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 560
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 500,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 160
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 1530,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 920
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 610
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 3,
+     "chaku": "4-3-1",
+     "stake": 500,
+     "ret": 1120,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 1120
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 6,
+     "chaku": "1-5-2",
+     "stake": 500,
+     "ret": 380,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 210
+      },
+      {
+       "label": "3連複 1=2=5",
+       "payout": 170
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 7,
+     "chaku": "3-1-2",
+     "stake": 500,
+     "ret": 640,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 280
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 360
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 9,
+     "chaku": "1-4-6",
+     "stake": 500,
+     "ret": 470,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 470
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 11,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 400,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 180
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 560,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 3,
+     "chaku": "5-1-2",
+     "stake": 500,
+     "ret": 2520,
+     "lines": [
+      {
+       "label": "3連複 1=2=5",
+       "payout": 420
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 2100
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 6,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 830,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 310
+      },
+      {
+       "label": "3連複 1=3=5",
+       "payout": 520
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 9,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 520,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 230
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 10,
+     "chaku": "1-3-4",
+     "stake": 500,
+     "ret": 810,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 380
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 430
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 11,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 280,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 280
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 1,
+     "chaku": "1-3-4",
+     "stake": 500,
+     "ret": 440,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 440
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 3,
+     "chaku": "1-4-6",
+     "stake": 500,
+     "ret": 660,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 660
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 230
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 420
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 8,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 290,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 9,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 560,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 560
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 10,
+     "chaku": "4-1-6",
+     "stake": 500,
+     "ret": 390,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 11,
+     "chaku": "1-2-6",
+     "stake": 500,
+     "ret": 170,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 170
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 500,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 240
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 260
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 1,
+     "chaku": "1-2-6",
+     "stake": 500,
+     "ret": 340,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 2,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 150,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 150
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 3,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 220
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 6,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 650
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 440,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 440
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 9,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 10,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      },
+      {
+       "label": "3連複 1=2=5",
+       "payout": 360
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 11,
+     "chaku": "3-4-1",
+     "stake": 500,
+     "ret": 690,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 690
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 12,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 600,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 310
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 530,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 260
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 400,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 170
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 230
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 4,
+     "chaku": "1-6-3",
+     "stake": 500,
+     "ret": 320,
+     "lines": [
+      {
+       "label": "2連複 1=6",
+       "payout": 320
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 6,
+     "chaku": "1-4-6",
+     "stake": 500,
+     "ret": 600,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 250
+      },
+      {
+       "label": "3連複 1=4=6",
+       "payout": 350
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 8,
+     "chaku": "2-1-5",
+     "stake": 500,
+     "ret": 340,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 9,
+     "chaku": "1-4-6",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 650
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 10,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 520,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 230
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 11,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 160,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 160
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 12,
+     "chaku": "2-1-6",
+     "stake": 500,
+     "ret": 360,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 360
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 2,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 840,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 650
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 3,
+     "chaku": "6-4-1",
+     "stake": 500,
+     "ret": 250,
+     "lines": [
+      {
+       "label": "3連複 1=4=6",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 5,
+     "chaku": "4-1-3",
+     "stake": 500,
+     "ret": 200,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 200
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 130
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 170
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 10,
+     "chaku": "4-3-1",
+     "stake": 500,
+     "ret": 340,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 11,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 120
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 580
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 1,
+     "chaku": "3-1-2",
+     "stake": 500,
+     "ret": 580,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 150
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 430
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 870,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 200
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 670
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 4,
+     "chaku": "1-2-6",
+     "stake": 500,
+     "ret": 400,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 400
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 5,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 220,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 6,
+     "chaku": "5-1-6",
+     "stake": 500,
+     "ret": 600,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 600
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 8,
+     "chaku": "4-1-5",
+     "stake": 500,
+     "ret": 270,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 9,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 1740,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 380
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 1360
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 230,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 230
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 12,
+     "chaku": "3-1-6",
+     "stake": 500,
+     "ret": 250,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 580,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 330
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 610,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 610
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 660,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 270
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 7,
+     "chaku": "1-3-4",
+     "stake": 500,
+     "ret": 770,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 340
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 430
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 9,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 430,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 160
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 550
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 440,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 190
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 12,
+     "chaku": "1-2-6",
+     "stake": 500,
+     "ret": 190,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 1,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 520,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 240
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 280
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 2,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 790,
+     "lines": [
+      {
+       "label": "3連複 1=3=5",
+       "payout": 220
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 570
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 740,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 300
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 440
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 4,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 5,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 790,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 280
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 510
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 7,
+     "chaku": "4-1-5",
+     "stake": 500,
+     "ret": 520,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 520
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 8,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 830,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 370
+      },
+      {
+       "label": "3連複 1=3=5",
+       "payout": 460
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 10,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 180
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 11,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 190,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 190,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 3,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 300
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 400
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 4,
+     "chaku": "1-4-6",
+     "stake": 500,
+     "ret": 290,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 5,
+     "chaku": "2-1-5",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 6,
+     "chaku": "1-5-6",
+     "stake": 500,
+     "ret": 310,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 7,
+     "chaku": "2-1-4",
+     "stake": 500,
+     "ret": 1030,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 110
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 920
+      }
+     ]
+    }
+   ],
+   "b": [
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 1100,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 1100
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 2780,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 2780
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 4,
+     "chaku": "2-3-4",
+     "stake": 1000,
+     "ret": 2080,
+     "lines": [
+      {
+       "label": "3連単 2-3-4",
+       "payout": 2080
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 5,
+     "chaku": "4-1-2",
+     "stake": 1000,
+     "ret": 3210,
+     "lines": [
+      {
+       "label": "3連単 4-1-2",
+       "payout": 3210
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 9,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 920
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 10,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1030,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1030
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 11,
+     "chaku": "1-3-6",
+     "stake": 1000,
+     "ret": 2090,
+     "lines": [
+      {
+       "label": "3連単 1-3-6",
+       "payout": 2090
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 3,
+     "chaku": "3-1-5",
+     "stake": 1000,
+     "ret": 1780,
+     "lines": [
+      {
+       "label": "3連単 3-1-5",
+       "payout": 1780
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 4,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 1210,
+     "lines": [
+      {
+       "label": "3連単 2-1-4",
+       "payout": 1210
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 7,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 3810,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 3810
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 8,
+     "chaku": "2-3-4",
+     "stake": 1000,
+     "ret": 1820,
+     "lines": [
+      {
+       "label": "3連単 2-3-4",
+       "payout": 1820
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 9,
+     "chaku": "1-3-6",
+     "stake": 1000,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "3連単 1-3-6",
+       "payout": 550
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 12,
+     "chaku": "1-4-3",
+     "stake": 1000,
+     "ret": 3830,
+     "lines": [
+      {
+       "label": "3連単 1-4-3",
+       "payout": 3830
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 1,
+     "chaku": "1-3-5",
+     "stake": 1000,
+     "ret": 1030,
+     "lines": [
+      {
+       "label": "3連単 1-3-5",
+       "payout": 1030
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 3810,
+     "lines": [
+      {
+       "label": "3連単 1-5-2",
+       "payout": 3810
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 3,
+     "chaku": "3-2-5",
+     "stake": 1000,
+     "ret": 720,
+     "lines": [
+      {
+       "label": "3連単 3-2-5",
+       "payout": 720
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 6,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1290,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 1290
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 700
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 3060,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 3060
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 6,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 530,
+     "lines": [
+      {
+       "label": "3連単 1-5-2",
+       "payout": 530
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 7,
+     "chaku": "3-1-2",
+     "stake": 1000,
+     "ret": 2900,
+     "lines": [
+      {
+       "label": "3連単 3-1-2",
+       "payout": 2900
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 760,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 760
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 6,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 1650,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 1650
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 9,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1140,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1140
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 10,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 990,
+     "lines": [
+      {
+       "label": "3連単 1-3-4",
+       "payout": 990
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 11,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 1120,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 1120
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 1,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 1650,
+     "lines": [
+      {
+       "label": "3連単 1-3-4",
+       "payout": 1650
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 3,
+     "chaku": "1-4-6",
+     "stake": 1000,
+     "ret": 2950,
+     "lines": [
+      {
+       "label": "3連単 1-4-6",
+       "payout": 2950
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 730,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 730
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 9,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1850,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1850
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 11,
+     "chaku": "1-2-6",
+     "stake": 1000,
+     "ret": 1150,
+     "lines": [
+      {
+       "label": "3連単 1-2-6",
+       "payout": 1150
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 560,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 560
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 1,
+     "chaku": "1-2-6",
+     "stake": 1000,
+     "ret": 2560,
+     "lines": [
+      {
+       "label": "3連単 1-2-6",
+       "payout": 2560
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1810,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1810
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 10,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 770,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 770
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 12,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 680,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 680
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 640,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 640
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 750
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 4,
+     "chaku": "1-6-3",
+     "stake": 1000,
+     "ret": 3500,
+     "lines": [
+      {
+       "label": "3連単 1-6-3",
+       "payout": 3500
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 6,
+     "chaku": "1-4-6",
+     "stake": 1000,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連単 1-4-6",
+       "payout": 750
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 10,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 820,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 820
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 11,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 1140,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 1140
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 2,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1100,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1100
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 280,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 280
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1610,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1610
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 4,
+     "chaku": "1-2-6",
+     "stake": 1000,
+     "ret": 1580,
+     "lines": [
+      {
+       "label": "3連単 1-2-6",
+       "payout": 1580
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 9,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 2540,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 2540
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1150,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 1150
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 800,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 800
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 2020,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 2020
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 7,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 1780,
+     "lines": [
+      {
+       "label": "3連単 1-3-4",
+       "payout": 1780
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 9,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 990,
+     "lines": [
+      {
+       "label": "3連単 2-1-3",
+       "payout": 990
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1960,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 1960
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 590,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 590
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 12,
+     "chaku": "1-2-6",
+     "stake": 1000,
+     "ret": 790,
+     "lines": [
+      {
+       "label": "3連単 1-2-6",
+       "payout": 790
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 1,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 620,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 620
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 2,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 1190,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 1190
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 850,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 850
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 8,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 2070,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 2070
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 10,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 730,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 730
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 11,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1760,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 1760
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 650
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 3,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 770,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 770
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 7,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 3210,
+     "lines": [
+      {
+       "label": "3連単 2-1-4",
+       "payout": 3210
+      }
+     ]
+    }
+   ],
+   "c": [
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 1,
+     "chaku": "3-1-6",
+     "stake": 500,
+     "ret": 2600,
+     "lines": [
+      {
+       "label": "3連単 3-1-6",
+       "payout": 2600
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 12,
+     "chaku": "5-2-1",
+     "stake": 500,
+     "ret": 7700,
+     "lines": [
+      {
+       "label": "3連単 5-2-1",
+       "payout": 7700
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 5,
+     "chaku": "2-5-4",
+     "stake": 500,
+     "ret": 2990,
+     "lines": [
+      {
+       "label": "3連単 2-5-4",
+       "payout": 2990
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 5,
+     "chaku": "3-6-1",
+     "stake": 500,
+     "ret": 11800,
+     "lines": [
+      {
+       "label": "3連単 3-6-1",
+       "payout": 11800
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 4,
+     "chaku": "3-4-5",
+     "stake": 500,
+     "ret": 2370,
+     "lines": [
+      {
+       "label": "3連単 3-4-5",
+       "payout": 2370
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 1,
+     "chaku": "3-2-5",
+     "stake": 500,
+     "ret": 7630,
+     "lines": [
+      {
+       "label": "3連単 3-2-5",
+       "payout": 7630
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 10,
+     "chaku": "5-1-3",
+     "stake": 500,
+     "ret": 11180,
+     "lines": [
+      {
+       "label": "3連単 5-1-3",
+       "payout": 11180
+      }
+     ]
+    }
+   ],
+   "ken": [
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 1,
+     "chaku": "3-1-6",
+     "stake": 1000,
+     "ret": 2600,
+     "lines": [
+      {
+       "label": "3連単 3-1-6（100円）",
+       "payout": 2600,
+       "conf": 0.004916,
+       "odds": 26.0,
+       "implied": 152.56305939788444
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 1400,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（100円）",
+       "payout": 510,
+       "conf": 0.089318,
+       "odds": 5.1,
+       "implied": 8.396963657941289
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 1140,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 1140,
+       "conf": 0.264764,
+       "odds": 3.8,
+       "implied": 2.8327113958090977
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 5,
+     "chaku": "4-1-2",
+     "stake": 1000,
+     "ret": 1590,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 1590,
+       "conf": 0.183249,
+       "odds": 5.3,
+       "implied": 4.092791775125649
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "戸田",
+     "race_no": 10,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 2900,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 840,
+       "conf": 0.266096,
+       "odds": 2.1,
+       "implied": 2.8185316577475796
+      },
+      {
+       "label": "3連単 1-2-3（200円）",
+       "payout": 2060,
+       "conf": 0.070433,
+       "odds": 10.3,
+       "implied": 10.648417645137933
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 3,
+     "chaku": "3-1-5",
+     "stake": 1000,
+     "ret": 810,
+     "lines": [
+      {
+       "label": "3連複 1=3=5（300円）",
+       "payout": 810,
+       "conf": 0.181919,
+       "odds": 2.7,
+       "implied": 4.12271395511189
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 4,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 570,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 570,
+       "conf": 0.293303,
+       "odds": 1.9,
+       "implied": 2.5570826074059934
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 7,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 1530,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 1530,
+       "conf": 0.207895,
+       "odds": 5.1,
+       "implied": 3.607590370138772
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 8,
+     "chaku": "2-3-4",
+     "stake": 1400,
+     "ret": 1840,
+     "lines": [
+      {
+       "label": "3連複 2=3=4（200円）",
+       "payout": 1840,
+       "conf": 0.103842,
+       "odds": 9.2,
+       "implied": 7.222511122667129
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "江戸川",
+     "race_no": 12,
+     "chaku": "1-4-3",
+     "stake": 1000,
+     "ret": 3600,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 3600,
+       "conf": 0.166455,
+       "odds": 9.0,
+       "implied": 4.505722267279445
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 1,
+     "chaku": "1-3-5",
+     "stake": 1400,
+     "ret": 680,
+     "lines": [
+      {
+       "label": "3連複 1=3=5（200円）",
+       "payout": 680,
+       "conf": 0.139,
+       "odds": 3.4,
+       "implied": 5.395683453237409
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "3-2-5",
+     "stake": 1400,
+     "ret": 1040,
+     "lines": [
+      {
+       "label": "3連複 2=3=5（100円）",
+       "payout": 1040,
+       "conf": 0.068825,
+       "odds": 10.4,
+       "implied": 10.897203051216854
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-5-2",
+     "stake": 1400,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 920,
+       "conf": 0.169989,
+       "odds": 4.6,
+       "implied": 4.412050191482979
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "2-4-5",
+     "stake": 1400,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "3連複 2=4=5（100円）",
+       "payout": 550,
+       "conf": 0.084708,
+       "odds": 5.5,
+       "implied": 8.853945318033714
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 10,
+     "chaku": "2-3-1",
+     "stake": 1400,
+     "ret": 3910,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 680,
+       "conf": 0.169529,
+       "odds": 3.4,
+       "implied": 4.424021848769237
+      },
+      {
+       "label": "3連単 2-3-1（100円）",
+       "payout": 3230,
+       "conf": 0.021165,
+       "odds": 32.3,
+       "implied": 35.43586109142452
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 1,
+     "chaku": "4-1-3",
+     "stake": 1400,
+     "ret": 13940,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（200円）",
+       "payout": 1240,
+       "conf": 0.132761,
+       "odds": 6.2,
+       "implied": 5.649249403062647
+      },
+      {
+       "label": "3連単 4-1-3（200円）",
+       "payout": 12700,
+       "conf": 0.016218,
+       "odds": 63.5,
+       "implied": 46.24491305956345
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 3,
+     "chaku": "3-2-5",
+     "stake": 1000,
+     "ret": 580,
+     "lines": [
+      {
+       "label": "3連複 2=3=5（200円）",
+       "payout": 580,
+       "conf": 0.142754,
+       "odds": 2.9,
+       "implied": 5.253793238718355
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 4,
+     "chaku": "4-3-1",
+     "stake": 1000,
+     "ret": 2130,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（300円）",
+       "payout": 2130,
+       "conf": 0.162095,
+       "odds": 7.1,
+       "implied": 4.626916314506925
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 6,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1120,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（200円）",
+       "payout": 1120,
+       "conf": 0.196365,
+       "odds": 5.6,
+       "implied": 3.819417920708884
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "浜名湖",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 2760,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1360,
+       "conf": 0.223112,
+       "odds": 3.4,
+       "implied": 3.3615403922693536
+      },
+      {
+       "label": "3連単 1-3-2（200円）",
+       "payout": 1400,
+       "conf": 0.077627,
+       "odds": 7.0,
+       "implied": 9.661586819019156
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1830,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 1830,
+       "conf": 0.168002,
+       "odds": 6.1,
+       "implied": 4.464232568659897
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 3,
+     "chaku": "4-3-1",
+     "stake": 1400,
+     "ret": 1120,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（100円）",
+       "payout": 1120,
+       "conf": 0.143507,
+       "odds": 11.2,
+       "implied": 5.226225898388232
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 6,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 1740,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（400円）",
+       "payout": 680,
+       "conf": 0.421824,
+       "odds": 1.7,
+       "implied": 1.77799271734183
+      },
+      {
+       "label": "3連単 1-5-2（200円）",
+       "payout": 1060,
+       "conf": 0.131543,
+       "odds": 5.3,
+       "implied": 5.70155766555423
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 7,
+     "chaku": "3-1-2",
+     "stake": 1000,
+     "ret": 1440,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1440,
+       "conf": 0.225142,
+       "odds": 3.6,
+       "implied": 3.331230956463032
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "蒲郡",
+     "race_no": 11,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 880,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 880,
+       "conf": 0.222969,
+       "odds": 2.2,
+       "implied": 3.363696298588593
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 2760,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1240,
+       "conf": 0.154636,
+       "odds": 3.1,
+       "implied": 4.850099588711555
+      },
+      {
+       "label": "3連単 1-3-2（200円）",
+       "payout": 1520,
+       "conf": 0.054191,
+       "odds": 7.6,
+       "implied": 13.83993652082449
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 3,
+     "chaku": "5-1-2",
+     "stake": 1000,
+     "ret": 1260,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（300円）",
+       "payout": 1260,
+       "conf": 0.160233,
+       "odds": 4.2,
+       "implied": 4.680683754282826
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 6,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 1560,
+     "lines": [
+      {
+       "label": "3連複 1=3=5（300円）",
+       "payout": 1560,
+       "conf": 0.10003,
+       "odds": 5.2,
+       "implied": 7.497750674797561
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 9,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 3150,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 870,
+       "conf": 0.183861,
+       "odds": 2.9,
+       "implied": 4.079168502292493
+      },
+      {
+       "label": "3連単 1-3-2（200円）",
+       "payout": 2280,
+       "conf": 0.042341,
+       "odds": 11.4,
+       "implied": 17.713327507616732
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "常滑",
+     "race_no": 10,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 1520,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 1520,
+       "conf": 0.232865,
+       "odds": 3.8,
+       "implied": 3.2207502200845983
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 1,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 880,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（200円）",
+       "payout": 880,
+       "conf": 0.190696,
+       "odds": 4.4,
+       "implied": 3.932961362587574
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 5,
+     "chaku": "1-6-3",
+     "stake": 1400,
+     "ret": 1690,
+     "lines": [
+      {
+       "label": "3連複 1=3=6（100円）",
+       "payout": 1690,
+       "conf": 0.062522,
+       "odds": 16.9,
+       "implied": 11.995777486324815
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1680,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1680,
+       "conf": 0.272171,
+       "odds": 4.2,
+       "implied": 2.7556205473764654
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 8,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 1760,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（200円）",
+       "payout": 1760,
+       "conf": 0.126319,
+       "odds": 8.8,
+       "implied": 5.937349092377236
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "児島",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1040,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1040,
+       "conf": 0.209111,
+       "odds": 2.6,
+       "implied": 3.5866118951179042
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 2,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 1770,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（300円）",
+       "payout": 1770,
+       "conf": 0.138148,
+       "odds": 5.9,
+       "implied": 5.4289602455337755
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 3,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 1160,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 1160,
+       "conf": 0.183481,
+       "odds": 2.9,
+       "implied": 4.0876167014568265
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 6,
+     "chaku": "2-1-3",
+     "stake": 1400,
+     "ret": 680,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（100円）",
+       "payout": 680,
+       "conf": 0.105484,
+       "odds": 6.8,
+       "implied": 7.110083045769975
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 10,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 2980,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（400円）",
+       "payout": 1440,
+       "conf": 0.186685,
+       "odds": 3.6,
+       "implied": 4.017462570640384
+      },
+      {
+       "label": "3連単 1-2-5（200円）",
+       "payout": 1540,
+       "conf": 0.065025,
+       "odds": 7.7,
+       "implied": 11.534025374855824
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 11,
+     "chaku": "3-4-1",
+     "stake": 1000,
+     "ret": 2760,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 2760,
+       "conf": 0.204007,
+       "odds": 6.9,
+       "implied": 3.6763444391614013
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "徳山",
+     "race_no": 12,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 2520,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（400円）",
+       "payout": 1160,
+       "conf": 0.178063,
+       "odds": 2.9,
+       "implied": 4.211992384717768
+      },
+      {
+       "label": "3連単 1-2-4（200円）",
+       "payout": 1360,
+       "conf": 0.065436,
+       "odds": 6.8,
+       "implied": 11.461580781221347
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 2090,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 810,
+       "conf": 0.17788,
+       "odds": 2.7,
+       "implied": 4.216325612772655
+      },
+      {
+       "label": "3連単 1-3-2（200円）",
+       "payout": 1280,
+       "conf": 0.062395,
+       "odds": 6.4,
+       "implied": 12.020193925795336
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 920,
+       "conf": 0.225384,
+       "odds": 2.3,
+       "implied": 3.327654136939623
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 6,
+     "chaku": "1-4-6",
+     "stake": 1000,
+     "ret": 2900,
+     "lines": [
+      {
+       "label": "3連複 1=4=6（400円）",
+       "payout": 1400,
+       "conf": 0.22505,
+       "odds": 3.5,
+       "implied": 3.3325927571650746
+      },
+      {
+       "label": "3連単 1-4-6（200円）",
+       "payout": 1500,
+       "conf": 0.094099,
+       "odds": 7.5,
+       "implied": 7.970329121457189
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "下関",
+     "race_no": 10,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 920,
+       "conf": 0.255188,
+       "odds": 2.3,
+       "implied": 2.939009671301158
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 2,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1950,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 1950,
+       "conf": 0.13815,
+       "odds": 6.5,
+       "implied": 5.428881650380022
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 3,
+     "chaku": "6-4-1",
+     "stake": 1000,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連複 1=4=6（300円）",
+       "payout": 750,
+       "conf": 0.156035,
+       "odds": 2.5,
+       "implied": 4.806613900727401
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1240,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 680,
+       "conf": 0.39111,
+       "odds": 1.7,
+       "implied": 1.9176190841451253
+      },
+      {
+       "label": "3連単 1-2-3（200円）",
+       "payout": 560,
+       "conf": 0.130121,
+       "odds": 2.8,
+       "implied": 5.763865940163387
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 10,
+     "chaku": "4-3-1",
+     "stake": 1000,
+     "ret": 1360,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 1360,
+       "conf": 0.191655,
+       "odds": 3.4,
+       "implied": 3.9132816780151836
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "若松",
+     "race_no": 11,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 2320,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 2320,
+       "conf": 0.210606,
+       "odds": 5.8,
+       "implied": 3.5611521039286633
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 1,
+     "chaku": "3-1-2",
+     "stake": 1000,
+     "ret": 1290,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 1290,
+       "conf": 0.179394,
+       "odds": 4.3,
+       "implied": 4.1807418308304625
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 2010,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 2010,
+       "conf": 0.188974,
+       "odds": 6.7,
+       "implied": 3.9687999407325876
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 9,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1140,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 1140,
+       "conf": 0.24931,
+       "odds": 3.8,
+       "implied": 3.0083029160482933
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "芦屋",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1470,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 1470,
+       "conf": 0.140694,
+       "odds": 4.9,
+       "implied": 5.330717727834875
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 1,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1320,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1320,
+       "conf": 0.220856,
+       "odds": 3.3,
+       "implied": 3.395877857065237
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 4,
+     "chaku": "2-5-3",
+     "stake": 1400,
+     "ret": 730,
+     "lines": [
+      {
+       "label": "3連複 2=3=5（100円）",
+       "payout": 730,
+       "conf": 0.054129,
+       "odds": 7.3,
+       "implied": 13.855788948622735
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 4820,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 780,
+       "conf": 0.196985,
+       "odds": 3.9,
+       "implied": 3.8073965022717466
+      },
+      {
+       "label": "3連単 1-2-3（200円）",
+       "payout": 4040,
+       "conf": 0.059483,
+       "odds": 20.2,
+       "implied": 12.608644486660054
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 7,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 1290,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（300円）",
+       "payout": 1290,
+       "conf": 0.143729,
+       "odds": 4.3,
+       "implied": 5.2181536085271585
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 9,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 1080,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1080,
+       "conf": 0.19977,
+       "odds": 2.7,
+       "implied": 3.7543174650848474
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "福岡",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1940,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 760,
+       "conf": 0.229526,
+       "odds": 1.9,
+       "implied": 3.2676036701724422
+      },
+      {
+       "label": "3連単 1-3-2（200円）",
+       "payout": 1180,
+       "conf": 0.080669,
+       "odds": 5.9,
+       "implied": 9.297251732387906
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 1,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1120,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（400円）",
+       "payout": 1120,
+       "conf": 0.183737,
+       "odds": 2.8,
+       "implied": 4.081921442061207
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 2,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 880,
+     "lines": [
+      {
+       "label": "3連複 1=3=5（400円）",
+       "payout": 880,
+       "conf": 0.256571,
+       "odds": 2.2,
+       "implied": 2.923167466315367
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 3460,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（400円）",
+       "payout": 1760,
+       "conf": 0.217462,
+       "odds": 4.4,
+       "implied": 3.448878424736276
+      },
+      {
+       "label": "3連単 1-4-2（200円）",
+       "payout": 1700,
+       "conf": 0.074719,
+       "odds": 8.5,
+       "implied": 10.037607569694456
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 5,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 2040,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（400円）",
+       "payout": 2040,
+       "conf": 0.188903,
+       "odds": 5.1,
+       "implied": 3.970291631154614
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "唐津",
+     "race_no": 8,
+     "chaku": "1-5-3",
+     "stake": 1400,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連複 1=3=5（200円）",
+       "payout": 920,
+       "conf": 0.17145,
+       "odds": 4.6,
+       "implied": 4.374453193350831
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 2,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 840,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（300円）",
+       "payout": 840,
+       "conf": 0.144038,
+       "odds": 2.8,
+       "implied": 5.20695927463586
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "大村",
+     "race_no": 7,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 2760,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 2760,
+       "conf": 0.227564,
+       "odds": 9.2,
+       "implied": 3.295776133307553
+      }
+     ]
+    }
+   ],
+   "ken_hon": [
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "3-2-5",
+     "stake": 1400,
+     "ret": 1040,
+     "lines": [
+      {
+       "label": "3連複 2=3=5（100円）",
+       "payout": 1040,
+       "conf": 0.068825,
+       "odds": 10.4,
+       "implied": 10.897203051216854
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-5-2",
+     "stake": 1400,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 920,
+       "conf": 0.169989,
+       "odds": 4.6,
+       "implied": 4.412050191482979
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "2-4-5",
+     "stake": 1400,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "3連複 2=4=5（100円）",
+       "payout": 550,
+       "conf": 0.084708,
+       "odds": 5.5,
+       "implied": 8.853945318033714
+      }
+     ]
+    }
+   ],
+   "ken_konsen": [],
+   "ken_jissai": [
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "3-2-5",
+     "stake": 1400,
+     "ret": 1040,
+     "lines": [
+      {
+       "label": "3連複 2=3=5（100円）",
+       "payout": 1040,
+       "conf": 0.068825,
+       "odds": 10.4,
+       "implied": 10.897203051216854
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-5-2",
+     "stake": 1400,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 920,
+       "conf": 0.169989,
+       "odds": 4.6,
+       "implied": 4.412050191482979
+      }
+     ]
+    },
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "2-4-5",
+     "stake": 1400,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "3連複 2=4=5（100円）",
+       "payout": 550,
+       "conf": 0.084708,
+       "odds": 5.5,
+       "implied": 8.853945318033714
+      }
+     ]
+    }
+   ],
+   "ken_extra": [],
+   "ken_jun": [
+    {
+     "date": "2026-08-23",
+     "venue": "平和島",
+     "race_no": 10,
+     "chaku": "2-3-1",
+     "stake": 1400,
+     "ret": 3910,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 680,
+       "conf": 0.169529,
+       "odds": 3.4,
+       "implied": 4.424021848769237
+      },
+      {
+       "label": "3連単 2-3-1（100円）",
+       "payout": 3230,
+       "conf": 0.021165,
+       "odds": 32.3,
+       "implied": 35.43586109142452
+      }
+     ]
+    }
+   ]
+  },
+  "gaps": []
  }
 ]
