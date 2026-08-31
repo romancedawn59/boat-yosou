@@ -9,7 +9,14 @@
 5fold中1つが100%割れ)ため特徴量には含めない。ただしOpen-Meteo予報(weather.py)は
 レポート表示用の参考情報としてpredict.py側で別途利用する。
 進入コース等、results由来の当日情報は予測時に代替が効かないため含めない。
+
+v2.2(2026-08-31): EXTRA_COLUMNSの5本を追加。番組表の期別スタッツは級別期替わり
+(1月・7月)直後に走数の薄い不安定な値になり、2026-08の超混戦帯で軸精度が
+統計的異常レベルに崩壊した(本番忠実版sim_clean_rank_2026.pyで8月軸生存4.0%)。
+KR指数(Elo・結果履歴のみから算出)と通算成績は期替わりでリセットされないため
+その構造的な解毒剤になる(同simで8月軸生存+22.1pt・logloss 0.33038→0.32813)。
 """
+import numpy as np
 import pandas as pd
 
 GRADE_ORDER = {"一般": 0, "G3": 1, "G2": 2, "G1": 3, "SG": 4}
@@ -25,6 +32,14 @@ FORM_COLUMNS = [
     "form_days_since_last",   # 前走からの日数
 ]
 
+EXTRA_COLUMNS = [
+    "kr",               # KR指数(Elo・レース前の値。期替わりでリセットされない実力推定)
+    "kr_rank",          # レース内のKR順位(1-6)
+    "nobi_gap",         # 直近90日実測2連対率 - 番組表全国2連率(伸び盛り検出)
+    "n_starts_period",  # 当期(1/1・7/1起点)の出走数=印刷スタッツの信頼度代理
+    "career_top2",      # 通算2連対率(expanding・期に依存しない実力)
+]
+
 FEATURE_COLUMNS = [
     "lane", "venue_code", "race_no", "racer_class_ord", "grade_ord", "distance_m",
     "age", "weight_kg", "flying_count", "late_count", "avg_st",
@@ -32,6 +47,7 @@ FEATURE_COLUMNS = [
     "local_win_rate", "local_2rate", "local_3rate",
     "motor_2rate", "motor_3rate", "boat_2rate", "boat_3rate",
     *FORM_COLUMNS,
+    *EXTRA_COLUMNS,
 ]
 
 # 戸田の企画レース(5R/7R)のようにレース番号で1号艇の信頼度が激変するため、
@@ -98,6 +114,95 @@ def compute_form_features(conn) -> pd.DataFrame:
     return h[["race_id", "lane", *FORM_COLUMNS]]
 
 
+KR_K = 3.0  # Elo更新幅(1レース=最大15対戦なので小さめ)
+
+
+def compute_kr_features(conn) -> pd.DataFrame:
+    """KR指数(Elo)。全entriesに「そのレース直前」のレートを付与する。
+
+    着順確定レースを(日付, レース番号)順に走査し、各レースのentriesへ
+    更新前のレートを記録してから15対戦分の更新を行う。結果未確定の
+    レース(当日朝の予測対象)には最新レートがそのまま付くため、
+    予測時にも安全に使える(リークなし)。
+    """
+    races_key = dict(conn.execute(
+        "SELECT race_id, date || '_' || printf('%02d', race_no) FROM races"))
+    entry_lanes: dict[str, list[int]] = {}
+    lane_racer = {}
+    for rid, lane, reg in conn.execute(
+            "SELECT race_id, lane, reg_no FROM entries"):
+        lane_racer[(rid, lane)] = reg
+        entry_lanes.setdefault(rid, []).append(lane)
+    finish: dict[str, dict[int, int]] = {}
+    for rid, lane, ao in conn.execute(
+            "SELECT race_id, lane, arrival_order FROM results "
+            "WHERE arrival_order IS NOT NULL"):
+        finish.setdefault(rid, {})[lane] = ao
+
+    rating: dict[int, float] = {}
+    rows = []
+    for rid in sorted(entry_lanes, key=lambda r: races_key.get(r, "")):
+        for lane in entry_lanes[rid]:
+            rows.append((rid, lane, rating.get(lane_racer[(rid, lane)], 1500.0)))
+        boats = [(lane, ao) for lane, ao in finish.get(rid, {}).items()
+                 if (rid, lane) in lane_racer]
+        for i in range(len(boats)):
+            for j in range(i + 1, len(boats)):
+                li, ai = boats[i]
+                lj, aj = boats[j]
+                ri, rj = lane_racer[(rid, li)], lane_racer[(rid, lj)]
+                cur_i, cur_j = rating.get(ri, 1500.0), rating.get(rj, 1500.0)
+                e = 1 / (1 + 10 ** ((cur_j - cur_i) / 400))
+                s = 1.0 if ai < aj else 0.0
+                rating[ri] = cur_i + KR_K * (s - e)
+                rating[rj] = cur_j - KR_K * (s - e)
+    return pd.DataFrame(rows, columns=["race_id", "lane", "kr"])
+
+
+def compute_stat_robust_features(conn) -> pd.DataFrame:
+    """期替わりに頑健な履歴特徴量(hist90_top2/career_top2/n_starts_period)。
+
+    compute_form_featuresと同じくshift済み(当該レースより前の出走のみ参照)
+    なので、結果未確定の未来のレース行にも安全に使える。
+    """
+    h = pd.read_sql_query(
+        """
+        SELECT r.race_id, r.date, r.race_no, e.lane, e.reg_no,
+               res.arrival_order
+        FROM entries e
+        JOIN races r ON r.race_id = e.race_id
+        LEFT JOIN results res ON res.race_id = e.race_id AND res.lane = e.lane
+        """,
+        conn,
+    )
+    h = h.sort_values(["reg_no", "date", "race_no"]).reset_index(drop=True)
+    h["dt"] = pd.to_datetime(h["date"])
+    has_result = h["arrival_order"].notna()
+    h["_top2"] = (h["arrival_order"] <= 2).astype(float).where(has_result)
+
+    g_dt = h.set_index("dt").groupby("reg_no", sort=False)
+    h["hist90_top2"] = g_dt["_top2"].transform(
+        lambda s: s.rolling("90D", min_periods=5).mean().shift(1)).values
+    h["career_top2"] = h.groupby("reg_no", sort=False)["_top2"].transform(
+        lambda s: s.shift(1).expanding(min_periods=10).mean())
+    period_start = h["dt"].dt.year.astype(str) + np.where(
+        h["dt"].dt.month >= 7, "-07", "-01")
+    h["_pkey"] = h["reg_no"].astype(str) + period_start
+    h["n_starts_period"] = h.groupby("_pkey", sort=False).cumcount()
+    return h[["race_id", "lane", "hist90_top2", "career_top2",
+              "n_starts_period"]]
+
+
+def _attach_extra_features(df: pd.DataFrame, conn) -> pd.DataFrame:
+    """EXTRA_COLUMNSを付与する(学習・予測の両経路で共通)"""
+    df = df.merge(compute_kr_features(conn), on=["race_id", "lane"], how="left")
+    df = df.merge(compute_stat_robust_features(conn), on=["race_id", "lane"],
+                  how="left")
+    df["nobi_gap"] = df["hist90_top2"] - df["national_2rate"] / 100.0
+    df["kr_rank"] = df.groupby("race_id")["kr"].rank(ascending=False)
+    return df.drop(columns=["hist90_top2"])
+
+
 def build_training_set(conn) -> pd.DataFrame:
     """着順が確定している(results がある)レースのみ、ラベル(is_winner)付きで返す"""
     query = f"""
@@ -113,6 +218,7 @@ def build_training_set(conn) -> pd.DataFrame:
     df = pd.read_sql_query(query, conn)
     df = _encode(df)
     df = df.merge(compute_form_features(conn), on=["race_id", "lane"], how="left")
+    df = _attach_extra_features(df, conn)
     df["is_winner"] = (df["arrival_order"] == 1).astype(int)
     return df
 
@@ -135,4 +241,5 @@ def build_program_features(conn, race_ids: list[str]) -> pd.DataFrame:
     """
     df = pd.read_sql_query(query, conn, params=race_ids)
     df = _encode(df)
-    return df.merge(compute_form_features(conn), on=["race_id", "lane"], how="left")
+    df = df.merge(compute_form_features(conn), on=["race_id", "lane"], how="left")
+    return _attach_extra_features(df, conn)
