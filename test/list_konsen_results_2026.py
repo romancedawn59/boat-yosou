@@ -107,6 +107,7 @@ for m in EVAL_MONTHS:
             ninki = "-"
         vc = int(gs["venue_code"].iloc[0])
         rows.append({
+            "予想(1位→6位)": "-".join(str(l) for l in lanes),
             "日付": gs["date"].iloc[0],
             "場": VENUE.get(vc, str(vc)),
             "R": int(gs["race_no"].iloc[0]),
@@ -124,12 +125,12 @@ with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as f:
     w.writerows(rows)
 print(f"\nCSV書き出し: {OUT_CSV} ({len(rows)}レース)")
 
-print(f"\n{'日付':<11}{'場':<5}{'R':>3} {'結果':<10}{'払戻':>9}{'人気':>4}"
-      f"{'1位勝率':>8} 5場")
+print(f"\n{'予想(1位→6位)':<14}{'日付':<11}{'場':<5}{'R':>3} {'結果':<10}"
+      f"{'払戻':>9}{'人気':>4}{'1位勝率':>8} 5場")
 for r in rows:
-    print(f"{r['日付']:<11}{r['場']:<5}{r['R']:>3} {r['結果(3連単)']:<10}"
-          f"{r['払戻(100円)']:>8,}円{r['人気順']:>4}{r['モデル1位勝率']:>8} "
-          f"{r['対象5場']}")
+    print(f"{r['予想(1位→6位)']:<14}{r['日付']:<11}{r['場']:<5}{r['R']:>3} "
+          f"{r['結果(3連単)']:<10}{r['払戻(100円)']:>8,}円{r['人気順']:>4}"
+          f"{r['モデル1位勝率']:>8} {r['対象5場']}")
 
 amts = sorted(r["払戻(100円)"] for r in rows)
 n = len(amts)
