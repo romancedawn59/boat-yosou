@@ -1190,6 +1190,8 @@ def _picks_json(d: date, races: list[dict]) -> dict:
                 "c": [[bt, comb, p] for bt, comb, p in r["picks_c"]],
                 "ken": [[bt, comb, yen, src] for bt, comb, yen, src in r["bets"]["plan"]],
                 "ken_conf": [round(p, 6) for p in r["bets"].get("conf") or []],
+                # 超混戦専用順位(3着内モデル・2026-09-01)。月次反省レポートの採点用
+                "top3_order": r.get("top3_order"),
             }
             for r in races
         ],
