@@ -1,4 +1,4 @@
-"""場コード・パス・URL設定"""
+﻿"""場コード・パス・URL設定"""
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -13,6 +13,7 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 DATA_RAW_DIR = PROJECT_DIR / "data_raw"
 DB_PATH = PROJECT_DIR / "boat.db"
 MODEL_PATH = PROJECT_DIR / "models" / "lgbm_win.txt"
+MODEL_TOP3_PATH = PROJECT_DIR / "models" / "lgbm_top3.txt"  # 超混戦専用順位(3着内モデル)
 
 # 本命勝負所の対象場(場別ウォークフォワード検証(2026-07)で「最大1発を除いても
 # 回収率100%超・5期間中3期間以上黒字・荒れ注意の出現率が十分」を満たした場。

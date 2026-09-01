@@ -26,7 +26,7 @@ import predictors as P
 import weather
 from config import (
     ATTENTION_CAP, DAILY_BUDGET, DB_PATH, HONMEI_CAP, HONMEI_PROB_MAX, HONMEI_UNIT,
-    KONSEN_PROB_MAX, KONSEN_UNIT, MODEL_PATH, PAGES_URL, PROJECT_DIR,
+    KONSEN_PROB_MAX, KONSEN_UNIT, MODEL_PATH, MODEL_TOP3_PATH, PAGES_URL, PROJECT_DIR,
     TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable, jst_today,
 )
 from downloader import download_day
@@ -181,6 +181,13 @@ def predict_day(d: date) -> list[dict] | None:
     # 日本語を含むパスをLightGBMネイティブに渡せないため、Python側で読み込む
     booster = lgb.Booster(model_str=MODEL_PATH.read_text(encoding="utf-8"))
     df["prob"] = booster.predict(df[FEATURE_COLUMNS])
+    # 3着内モデル(超混戦専用順位の並走表示・2026-09-01)。モデル未配置でも配信は止めない
+    if MODEL_TOP3_PATH.exists():
+        booster_t3 = lgb.Booster(
+            model_str=MODEL_TOP3_PATH.read_text(encoding="utf-8"))
+        df["prob_top3"] = booster_t3.predict(df[FEATURE_COLUMNS])
+    else:
+        df["prob_top3"] = None
 
     races = []
     for race_id, meta in race_meta.items():
@@ -191,6 +198,10 @@ def predict_day(d: date) -> list[dict] | None:
                 "name": row["racer_name"],
                 "racer_class": row["racer_class"],
                 "prob": float(row["prob"]),
+                "prob_top3": (float(row["prob_top3"])
+                              if row["prob_top3"] is not None
+                              and row["prob_top3"] == row["prob_top3"]
+                              else None),
             }
             for _, row in race_df.iterrows()
         ]
@@ -223,6 +234,13 @@ def predict_day(d: date) -> list[dict] | None:
             "bets": {"confidence": confidence, "plan": ken, "conf": ken_conf},
         })
 
+    for r in races:
+        order = top3_order(r["ranked"])
+        if order and r["ranked"][0]["prob"] < KONSEN_PROB_MAX:
+            # 超混戦帯だけ専用順位(3着内モデル)を併記(2026-09-01ケンさん承認・
+            # 紙上並走。表示のみで買い目・選別は不変。9月末に採点して昇格判定)
+            r["top3_order"] = order
+
     P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
                       attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX,
@@ -249,6 +267,18 @@ def predict_day(d: date) -> list[dict] | None:
             r["bets"]["conf"] = [P.combo_prob(bt, comb, probs)
                                  for bt, comb, _y, _s in plan]
     return races
+
+
+def top3_order(ranked: list[dict]) -> list[int] | None:
+    """超混戦専用順位: 3着内モデルの確率降順の枠番リスト。
+
+    全艇にprob_top3がある時だけ返す(モデル未配置・欠損時はNone=表示なし)。
+    根拠: test/sim_konsen_top3_model.py(軸生存34.3%→41.3%・順位別3連対率が
+    71.4>65.3>57.7の単調に割れ、事前登録基準を初クリア)。
+    """
+    if not ranked or any(b.get("prob_top3") is None for b in ranked):
+        return None
+    return [b["lane"] for b in sorted(ranked, key=lambda b: -b["prob_top3"])]
 
 
 def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], int, list[str]]:
@@ -551,6 +581,13 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
         "(市場の値付けが古い可能性。表示のみ・買い目には未反映)</p>"
         if rising else ""
     )
+    t3o = race.get("top3_order")
+    top3_note = (
+        "<p class='rising-note'>🧪専用順位(検証中・3着内モデル): "
+        f"<b>{'-'.join(str(l) for l in t3o)}</b>"
+        "(絡む艇の見極めに特化した並び。表示のみ・買い目には未反映)</p>"
+        if t3o else ""
+    )
     wx = race.get("weather")
     weather_html = (
         f"<div class='weather'>予報: 風速{wx['wind_speed_m']:.1f}m/s({wx['wind_dir']}の風) "
@@ -640,6 +677,7 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
     {weather_html}
     <table>{boat_rows}</table>
     {rising_note}
+    {top3_note}
     {body}
   </details>"""
 
