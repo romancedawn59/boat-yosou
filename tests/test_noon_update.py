@@ -407,7 +407,7 @@ class TestCollapsibleCardsAndPlanTabs(unittest.TestCase):
         race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
         html = predict.render_shopping_page(date(2026, 8, 9), [race])
         for token in ("jsPlanKonsen", "jsPlanHonmei", "jsPlanKatame",
-                      "plantab", "接戦2,000円", "本命1,400円", "堅め1,000円"):
+                      "plantab", "接戦2,000円", "本命1,000円", "堅め1,000円"):
             self.assertIn(token, html)
 
 

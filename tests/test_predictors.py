@@ -85,7 +85,7 @@ class TestKenPortfolio(unittest.TestCase):
 
     def test_areru_swaps_katsu_for_hoken(self):
         plan = self._plans("荒れ注意")
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1400)   # ⑰③案(2026-08-04)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)   # H静的スリム(2026-09-03)
         self.assertEqual(len([x for x in plan if x[3] == "勝万舟"]), 0)
         hoken = [x for x in plan if x[3] == "保険複"]
         self.assertEqual(len(hoken), 1)
@@ -100,10 +100,14 @@ class TestKenPortfolio(unittest.TestCase):
     def test_areru_keeps_validated_core(self):
         plan = self._plans("荒れ注意")
         combos = [(bt, comb) for bt, comb, _, _ in plan]
+        # H静的スリム(2026-09-03): 複は本線1=2=3と保険複2=3=4の2本のみ、
+        # 単はドンピシャ1-2-3・差され3-1-2/4-1-2・入替4-2-1
         self.assertIn(("3連複", "1=2=3"), combos)
-        self.assertIn(("3連複", "1=2=4"), combos)
-        self.assertIn(("3連複", "1=3=4"), combos)
+        self.assertIn(("3連複", "2=3=4"), combos)
+        self.assertNotIn(("3連複", "1=2=4"), combos)
+        self.assertIn(("3連単", "1-2-3"), combos)
         self.assertIn(("3連単", "3-1-2"), combos)
+        self.assertIn(("3連単", "4-2-1"), combos)
 
     def test_no_quinella_in_any_plan(self):
         # 2連複は判断材料であり購入しない(検証⑦で採用)
@@ -144,8 +148,8 @@ class TestFlatProbsRegression(unittest.TestCase):
         # C候補の有無に依存しなくなった)。プランが消えないことが本質
         probs = P.normalize_probs(self.FLAT)
         plan = P.ken_portfolio("荒れ注意", self.FLAT, P.picks_yamada(probs), [])
-        self.assertEqual(len(plan), 9)   # ⑰③案: 6点+入替2行+入替厚1行
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1400)
+        self.assertEqual(len(plan), 6)   # H静的スリム: 複2本+単4本
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
         self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
 
     def test_hyojun_returns_900yen_plan_without_katsu(self):
@@ -159,8 +163,8 @@ class TestFlatProbsRegression(unittest.TestCase):
         c = P.picks_katsu(probs)
         self.assertTrue(c)  # 通常の荒れレースではC候補あり
         plan = P.ken_portfolio("荒れ注意", self.NORMAL, P.picks_yamada(probs), c)
-        self.assertEqual(len(plan), 9)
-        self.assertEqual(sum(y for _, _, y, _ in plan), 1400)
+        self.assertEqual(len(plan), 6)
+        self.assertEqual(sum(y for _, _, y, _ in plan), 1000)
         self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
 
 

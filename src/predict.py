@@ -11,7 +11,7 @@
 - A 石橋渡: 堅い2連複・3連複を5点
 - B 山田三連単: 発生確率上位の3連単を10点
 - C 勝万舟: 万舟圏(発生確率0.5%以下)から確率上位5点
-- 予想屋ken: 本命1,400円/超混戦2,000円のポートフォリオ(2026-08-04予算制)
+- 予想屋ken: 本命1,000円(H静的スリム・2026-09-03)/超混戦2,000円(紙上)のポートフォリオ
 - 勝負所: 荒れ注意=本命(検証済みエッジ)+標準から補充の準、最大10レース/日
 """
 import json
@@ -315,7 +315,7 @@ def build_notify_text(d: date, races: list[dict]) -> str:
     if konsen:
         lines.append(f"超混戦: {'、'.join(konsen)}")
     if honmei or konsen:
-        lines.append(f"購入予算: {budget:,}円(本命1,400円/超混戦2,000円)")
+        lines.append(f"購入予算: {budget:,}円(本命1,000円/超混戦2,000円)")
     else:
         lines.append("本日は購入対象なし(全レース見送り推奨)")
     if blocked:
@@ -465,7 +465,7 @@ def _summary_html(races: list[dict]) -> str:
     if konsen:
         parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満): <b>{'、'.join(konsen)}</b>")
     if honmei or konsen:
-        parts.append(f"購入予算 {budget:,}円(本命1,400円/超混戦2,000円)")
+        parts.append(f"購入予算 {budget:,}円(本命1,000円/超混戦2,000円)")
     else:
         parts.append("本日は購入対象なし(全レース見送り推奨)。")
     if blocked:
@@ -621,13 +621,13 @@ def _render_race_card(race: dict, odds_pane: str | None = None,
                      f"③3連単 {g3}-{g1}-{g2} に300円追加 "
                      f"④3連単 {g4}-{g1}-{g2} に300円追加 "
                      f"⑤3連複 {tri(g3, g4, g5)} 200円(金額編集なしの5操作)")
-        elif "保険複" in srcs and len(lanes6) >= 4:      # 本命(⑰③案・1,400円)
+        elif "保険複" in srcs and len(lanes6) >= 4:      # 本命(H静的スリム・1,000円)
             g1, g2, g3, g4 = lanes6[:4]
-            guide = (f"①3連複F {g1}={g2}−[{g3},{g4}] 各200円 "
-                     f"②3連複F {g3}={g4}−[{g1},{g2}] 各100円 "
-                     f"③3連単F [{g3},{g4}]−{g1}−{g2} 各200円 "
-                     f"④3連単F [{g3},{g4}]−{g2}−{g1} 各100円 "
-                     f"⑤3連単 {g4}-{g2}-{g1} に200円追加(5操作)")
+            guide = (f"①3連複 {g1}={g2}={g3} 200円 "
+                     f"②3連複 {g2}={g3}={g4} 100円 "
+                     f"③3連単 {g1}-{g2}-{g3} 100円 "
+                     f"④3連単F [{g3},{g4}]−{g1}−{g2} 各200円 "
+                     f"⑤3連単 {g4}-{g2}-{g1} 200円(5操作)")
         # 自信ポイントと、そこから逆算した想定配当(オッズを見ない設計の代替指標)
         confs = race["bets"].get("conf") or [0.0] * len(ken_plan)
         ken_rows = "".join(
@@ -708,7 +708,7 @@ def render_venue_page(d: date, venue: int, races: list[dict],
 {_nav_html(venue, venues_today)}
 {_summary_html(races)}
 <p class="note">A/B/Cは3人の予想者の視点(購入額なし・通算成績は「通算成績」ページ)。
-水色枠の予想屋kenが実際の購入プラン(本命1,400円/超混戦2,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
+水色枠の予想屋kenが実際の購入プラン(本命1,000円/超混戦2,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
 確率はモデル予測値。購入は自己責任で。</p>
 {body}
 {_TAB_JS}
@@ -809,18 +809,15 @@ function jsPlanKonsen(lanes) {          // ⑬BOX+差され傾斜(2,000円)
   rows.push(["3連複", _tri(g3, g4, g5), 200, "深い波乱"]);
   return rows;
 }
-function jsPlanHonmei(lanes) {          // ⑰③案(1,400円)
+function jsPlanHonmei(lanes) {          // H静的スリム(1,000円・2026-09-03)
   if (lanes.length < 4) return null;
   const [g1, g2, g3, g4] = lanes;
-  return [["3連複", _tri(g1, g2, g3), 200, "検証済み"],
-          ["3連複", _tri(g1, g2, g4), 200, "検証済み"],
-          ["3連複", _tri(g1, g3, g4), 100, "検証済み"],
-          ["3連単", `${g3}-${g1}-${g2}`, 200, "検証済み"],
-          ["3連単", `${g4}-${g1}-${g2}`, 200, "検証済み"],
+  return [["3連複", _tri(g1, g2, g3), 200, "本線"],
           ["3連複", _tri(g2, g3, g4), 100, "保険複"],
-          ["3連単", `${g3}-${g2}-${g1}`, 100, "入替"],
-          ["3連単", `${g4}-${g2}-${g1}`, 100, "入替"],
-          ["3連単", `${g4}-${g2}-${g1}`, 200, "入替厚"]];
+          ["3連単", `${g1}-${g2}-${g3}`, 100, "ドンピシャ"],
+          ["3連単", `${g3}-${g1}-${g2}`, 200, "差され"],
+          ["3連単", `${g4}-${g1}-${g2}`, 200, "差され"],
+          ["3連単", `${g4}-${g2}-${g1}`, 200, "入替"]];
 }
 function jsPlanKatame(race) {           // 堅め(1,000円)=複トップ2+山田+勝万舟
   const ranked = race.ranked;
@@ -899,7 +896,7 @@ function _raceCard(v, rno, race) {
   const hon = jsPlanHonmei(lanes);
   const kat = jsPlanKatame(race);
   if (kon) patterns.push(["接戦2,000円", kon]);
-  if (hon) patterns.push(["本命1,400円", hon]);
+  if (hon) patterns.push(["本命1,000円", hon]);
   if (kat) patterns.push(["堅め1,000円", kat]);
   const tabs = patterns.map(([name], i) =>
     `<button class='plantab${i ? "" : " on"}' data-i='${i}' style='padding:4px 10px;cursor:pointer;border-radius:6px;border:1px solid #d0d7de;${i ? "" : "background:#0969da;color:#fff"}'>${name}</button>`
@@ -994,7 +991,7 @@ _KENTO_SHELL = """
      href='https://drive.google.com/drive/folders/1ATNwiSuPHP-bPznWfwWSGm0FscPNPwex'
      target='_blank' style='font-weight:bold'>本日の報告フォルダを開く→</a>
   投票完了画面のスクショをそこに入れるだけ(どの端末からでもOK・遅れた報告は開催日のフォルダへ)。
-  金額から構成を推定します(2,000円=接戦⑬/1,400円=本命⑰/1,000円=堅め)。
+  金額から構成を推定します(2,000円=接戦⑬/1,000円=本命H・堅め(レースのラベルで判別))。
   アレンジした場合は買い目の行が見える詳細スクショも追加してください。</p>
   <div style='margin-bottom:4px'><button onclick='kentoClear()' style='cursor:pointer'>全部外す</button></div>
   <div id='kento-list'></div>
