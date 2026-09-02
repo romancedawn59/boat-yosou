@@ -293,13 +293,19 @@ class TestOddsCheckDisplay(unittest.TestCase):
         self.assertIn("○購入チャンス(裁量)", pane)
 
     def test_out_of_band_gets_muted_recording_note(self):
-        # 1位50%超=検証外の帯 → 記録用表示のみ(色付き判定は出さない)
-        race = _race([0.55, 0.15, 0.1, 0.1, 0.05, 0.05])
+        # 標準帯(1位35%超)=検証外の帯 → 記録用表示のみ(色付き判定は出さない)
+        race = _race([0.40, 0.2, 0.15, 0.1, 0.1, 0.05])
         view = build_odds_view(race, _flat_odds(25.0), "10:30")
         self.assertFalse(view["odds_check"]["validated"])
         pane = _render_odds_pane(view)
         self.assertIn("記録用・検証外の帯", pane)
         self.assertNotIn("購入チャンス(裁量)", pane)
+
+    def test_katame_has_no_odds_check(self):
+        # 堅め帯は購入プラン自体を廃止(2026-09-03)したのでオッズ判定も出ない
+        race = _race([0.55, 0.15, 0.1, 0.1, 0.05, 0.05])
+        view = build_odds_view(race, _flat_odds(25.0), "10:30")
+        self.assertIsNone(view["odds_check"])
 
     def test_non_target_venue_is_not_validated(self):
         # 桐生(venue_code=1)は30〜35帯でも検証外
@@ -406,9 +412,11 @@ class TestCollapsibleCardsAndPlanTabs(unittest.TestCase):
     def test_selrace_script_has_three_plan_builders(self):
         race = _race([0.25, 0.2, 0.2, 0.15, 0.1, 0.1])
         html = predict.render_shopping_page(date(2026, 8, 9), [race])
-        for token in ("jsPlanKonsen", "jsPlanHonmei", "jsPlanKatame",
-                      "plantab", "接戦2,000円", "本命1,000円", "堅め1,000円"):
+        for token in ("jsPlanKonsen", "jsPlanHonmei",
+                      "plantab", "接戦2,000円", "本命1,000円"):
             self.assertIn(token, html)
+        for token in ("jsPlanKatame", "堅め1,000円"):   # 堅めは削除(2026-09-03)
+            self.assertNotIn(token, html)
 
 
 class TestTabsRendering(unittest.TestCase):

@@ -74,9 +74,9 @@ class TestKenPortfolio(unittest.TestCase):
         return P.ken_portfolio(confidence, RANKED, b, c)
 
     def test_total_is_1000_and_includes_katsu_100(self):
-        # 堅め・標準はC勝万舟100円。荒れ注意(本命帯)は保険複100円に置換
-        # (2026-07-29判断会・議題B)
-        for conf in ("堅め", "標準"):
+        # 標準はC勝万舟100円。荒れ注意(本命帯)は保険複100円に置換
+        # (2026-07-29判断会・議題B)。堅めは購入プランなし(2026-09-03)
+        for conf in ("標準",):
             plan = self._plans(conf)
             self.assertEqual(sum(y for _, _, y, _ in plan), 1000, conf)
             katsu = [x for x in plan if x[3] == "勝万舟"]
@@ -91,8 +91,12 @@ class TestKenPortfolio(unittest.TestCase):
         self.assertEqual(len(hoken), 1)
         self.assertEqual(hoken[0][:3], ("3連複", "2=3=4", 100))
 
+    def test_katame_has_no_plan(self):
+        # 堅め帯は購入対象外(2026-09-03ケンさん指示)
+        self.assertEqual(self._plans("堅め"), [])
+
     def test_amounts_within_100_400(self):
-        for conf in ("堅め", "標準", "荒れ注意"):
+        for conf in ("標準", "荒れ注意"):
             for _, _, yen, _ in self._plans(conf):
                 self.assertTrue(100 <= yen <= 400)
                 self.assertEqual(yen % 100, 0)
@@ -111,12 +115,12 @@ class TestKenPortfolio(unittest.TestCase):
 
     def test_no_quinella_in_any_plan(self):
         # 2連複は判断材料であり購入しない(検証⑦で採用)
-        for conf in ("堅め", "標準", "荒れ注意"):
+        for conf in ("標準", "荒れ注意"):
             for bt, _, _, _ in self._plans(conf):
                 self.assertNotEqual(bt, "2連複", conf)
 
-    def test_katame_and_hyojun_use_top_trios(self):
-        for conf in ("堅め", "標準"):
+    def test_hyojun_uses_top_trios(self):
+        for conf in ("標準",):
             plan = self._plans(conf)
             trios = [(bt, comb) for bt, comb, _, src in plan if src == "本線"]
             self.assertEqual(trios[0], ("3連複", "1=2=3"), conf)
@@ -153,7 +157,7 @@ class TestFlatProbsRegression(unittest.TestCase):
         self.assertEqual(len([x for x in plan if x[3] == "保険複"]), 1)
 
     def test_hyojun_returns_900yen_plan_without_katsu(self):
-        # 堅め・標準は従来どおりC候補0点なら計900円
+        # 標準は従来どおりC候補0点なら計900円
         probs = P.normalize_probs(self.FLAT)
         plan = P.ken_portfolio("標準", self.FLAT, P.picks_yamada(probs), [])
         self.assertEqual(sum(y for _, _, y, _ in plan), 900)

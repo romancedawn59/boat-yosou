@@ -819,39 +819,6 @@ function jsPlanHonmei(lanes) {          // H静的スリム(1,000円・2026-09-0
           ["3連単", `${g4}-${g1}-${g2}`, 200, "差され"],
           ["3連単", `${g4}-${g2}-${g1}`, 200, "入替"]];
 }
-function jsPlanKatame(race) {           // 堅め(1,000円)=複トップ2+山田+勝万舟
-  const ranked = race.ranked;
-  if (ranked.length < 4) return null;
-  let tot = 0;
-  ranked.forEach(([l, p]) => { tot += p; });
-  const probs = {}, pw2 = {}, pw3 = {};
-  let s2 = 0, s3 = 0;
-  ranked.forEach(([l, p]) => {
-    probs[l] = p / tot;
-    pw2[l] = Math.pow(probs[l], 0.70); pw3[l] = Math.pow(probs[l], 0.50);
-    s2 += pw2[l]; s3 += pw3[l];
-  });
-  const lanes = ranked.map((x) => x[0]);
-  const trio = {};
-  for (const a of lanes) for (const b of lanes) {
-    if (b === a) continue;
-    for (const c of lanes) {
-      if (c === a || c === b) continue;
-      const d2 = s2 - pw2[a], d3 = s3 - pw3[a] - pw3[b];
-      if (d2 <= 0 || d3 <= 0) continue;
-      const key = _tri(a, b, c);
-      trio[key] = (trio[key] || 0) + probs[a] * (pw2[b] / d2) * (pw3[c] / d3);
-    }
-  }
-  const top = Object.entries(trio).sort((x, y) => y[1] - x[1]).slice(0, 2);
-  const rows = [["3連複", top[0][0], 400, "本線"], ["3連複", top[1][0], 300, "本線"]];
-  if (race.b && race.b.length) rows.push([race.b[0][0], race.b[0][1], 200, "山田"]);
-  const have = new Set(rows.map((r) => r[0] + "|" + r[1]));
-  for (const c of race.c || []) {
-    if (!have.has(c[0] + "|" + c[1])) { rows.push([c[0], c[1], 100, "勝万舟"]); break; }
-  }
-  return rows;
-}
 function _guideFor(rows, lanes) {
   const srcs = new Set(rows.map((x) => x[3]));
   if (srcs.has("深い波乱") && lanes.length >= 5) {
@@ -894,10 +861,8 @@ function _raceCard(v, rno, race) {
   const patterns = [["判定プラン", race.ken]];
   const kon = jsPlanKonsen(lanes);
   const hon = jsPlanHonmei(lanes);
-  const kat = jsPlanKatame(race);
   if (kon) patterns.push(["接戦2,000円", kon]);
   if (hon) patterns.push(["本命1,000円", hon]);
-  if (kat) patterns.push(["堅め1,000円", kat]);
   const tabs = patterns.map(([name], i) =>
     `<button class='plantab${i ? "" : " on"}' data-i='${i}' style='padding:4px 10px;cursor:pointer;border-radius:6px;border:1px solid #d0d7de;${i ? "" : "background:#0969da;color:#fff"}'>${name}</button>`
   ).join(" ");
@@ -991,7 +956,7 @@ _KENTO_SHELL = """
      href='https://drive.google.com/drive/folders/1ATNwiSuPHP-bPznWfwWSGm0FscPNPwex'
      target='_blank' style='font-weight:bold'>本日の報告フォルダを開く→</a>
   投票完了画面のスクショをそこに入れるだけ(どの端末からでもOK・遅れた報告は開催日のフォルダへ)。
-  金額から構成を推定します(2,000円=接戦⑬/1,000円=本命H・堅め(レースのラベルで判別))。
+  金額から構成を推定します(2,000円=接戦⑬/1,000円=本命H)。
   アレンジした場合は買い目の行が見える詳細スクショも追加してください。</p>
   <div style='margin-bottom:4px'><button onclick='kentoClear()' style='cursor:pointer'>全部外す</button></div>
   <div id='kento-list'></div>
