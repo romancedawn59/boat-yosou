@@ -320,11 +320,12 @@ class TestShobusho(unittest.TestCase):
         self.assertEqual(races[1]["shobusho"], "要注目")  # 境界0.30は本命に入れない
         self.assertEqual(races[2]["shobusho"], "本命")    # 閾値未満
 
-    def test_target_venue_konsen_shows_as_honmei(self):
-        # 対象場×20%未満は本命枠に入る(購入は1回・表示は本命を優先)
+    def test_target_venue_konsen_stays_konsen(self):
+        # 対象場×20%未満も超混戦(紙上)のまま。本命に見せる上書きは2026-09-06に廃止
+        # (9/1判定: 超混戦帯は実弾0円。本命一覧=H1000だけにする)
         races = [self._race("荒れ注意", 0.15)]
         self._select(races)
-        self.assertEqual(races[0]["shobusho"], "本命")
+        self.assertEqual(races[0]["shobusho"], "超混戦")
 
     def test_attention_fills_from_standards(self):
         races = [self._race("荒れ注意", 0.28), self._race("標準", 0.40),

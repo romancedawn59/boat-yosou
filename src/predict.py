@@ -282,7 +282,7 @@ def top3_order(ranked: list[dict]) -> list[int] | None:
 
 
 def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], int, list[str]]:
-    """(買える本命, 買える超混戦, 要注目, 購入予算円, 購入不可の本命・超混戦)。
+    """(買える本命, 超混戦(紙上・全件), 要注目, 購入予算円(本命のみ), 購入不可の本命)。
 
     理想(システム推奨=本命/超混戦のラベル)は不変のまま、メンテ等で買えないレース
     (buyable=False)は予算と①②のリストから外し、別枠(blocked)で返す。
@@ -295,14 +295,16 @@ def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], i
         return [label(r) for r in races
                 if r.get("shobusho") == mark and (not buyable_only or r.get("buyable", True))]
 
+    # 超混戦は2026-09-01判定で紙上(実弾0円)。一覧には載せるが予算・購入不可判定は
+    # 本命だけで数える(2026-09-06: 対象5場×20%未満の本命上書き廃止と同時に修正)
     blocked = [label(r) for r in races
-               if r.get("shobusho") in ("本命", "超混戦") and not r.get("buyable", True)]
+               if r.get("shobusho") == "本命" and not r.get("buyable", True)]
     budget = sum(
         sum(y for _, _, y, _ in r["bets"]["plan"])
         for r in races
-        if r.get("shobusho") in ("本命", "超混戦") and r.get("buyable", True)
+        if r.get("shobusho") == "本命" and r.get("buyable", True)
     )
-    return names("本命"), names("超混戦"), names("要注目", False), budget, blocked
+    return names("本命"), names("超混戦", False), names("要注目", False), budget, blocked
 
 
 def build_notify_text(d: date, races: list[dict]) -> str:
@@ -313,9 +315,9 @@ def build_notify_text(d: date, races: list[dict]) -> str:
     if honmei:
         lines.append(f"本命: {'、'.join(honmei)}")
     if konsen:
-        lines.append(f"超混戦: {'、'.join(konsen)}")
-    if honmei or konsen:
-        lines.append(f"購入予算: {budget:,}円(本命1,000円/超混戦2,000円)")
+        lines.append(f"超混戦(紙上・買わない): {'、'.join(konsen)}")
+    if honmei:
+        lines.append(f"購入予算: {budget:,}円(本命1,000円のみ)")
     else:
         lines.append("本日は購入対象なし(全レース見送り推奨)")
     if blocked:
@@ -463,9 +465,9 @@ def _summary_html(races: list[dict]) -> str:
     if honmei:
         parts.append(f"🔴本命(5場・上位{HONMEI_CAP}): <b>{'、'.join(honmei)}</b>")
     if konsen:
-        parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満): <b>{'、'.join(konsen)}</b>")
-    if honmei or konsen:
-        parts.append(f"購入予算 {budget:,}円(本命1,000円/超混戦2,000円)")
+        parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満・<b>紙上=買わない</b>・専用順位を検証中): {'、'.join(konsen)}")
+    if honmei:
+        parts.append(f"購入予算 {budget:,}円(本命1,000円のみ)")
     else:
         parts.append("本日は購入対象なし(全レース見送り推奨)。")
     if blocked:
@@ -1095,7 +1097,7 @@ def render_shopping_page(d: date, races: list[dict],
         return f"<h2 class='sec-h'>{title}</h2>{cards}"
 
     body = (section(f"🔴 本命(検証済み5場・上位{HONMEI_CAP})", "本命")
-            + section(f"🟣 超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満)", "超混戦")
+            + section(f"🟣 超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満・紙上=買わない・専用順位を検証中)", "超混戦")
             + section("👀 要注目(観測のみ・購入0点)", "要注目"))
     if not body:
         body = '<div class="card">本日は購入対象なし(全レース見送り推奨)。</div>'

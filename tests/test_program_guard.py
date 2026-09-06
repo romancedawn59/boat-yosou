@@ -248,8 +248,9 @@ class TestOfficialFallback(unittest.TestCase):
 
 
 class TestKonsenBandPlanOverride(unittest.TestCase):
-    """5場で本命表示に吸われた20%未満のレースにも⑬構成が適用されること
-    (2026-08-04・検証⑮の回帰テスト。従来は本命構成1,000円のままの適用漏れ)"""
+    """5場の20%未満レースは超混戦ラベルのまま⑬構成(紙上)が付くこと。
+    2026-08-04(検証⑮)は本命表示に吸って⑬を適用していたが、9/1判定(超混戦は
+    実弾0円)に合わせ2026-09-06に本命上書きを廃止。⑬プランは紙上採点用に残る"""
 
     def setUp(self):
         self.tmpdir = tempfile.TemporaryDirectory()
@@ -282,7 +283,7 @@ class TestKonsenBandPlanOverride(unittest.TestCase):
 
         class FakeBooster:
             def predict(self, X):
-                # 1位生値0.19=超混戦帯。5場なので本命に吸われるケース
+                # 1位生値0.19=超混戦帯(5場)。ラベルは超混戦のまま・⑬は紙上用に付く
                 return [0.19, 0.18, 0.17, 0.16, 0.15, 0.14][: len(X)]
 
         with patch.object(predict, "DB_PATH", self.db_path), \
@@ -299,7 +300,7 @@ class TestKonsenBandPlanOverride(unittest.TestCase):
             races = predict.predict_day(D)
 
         race = races[0]
-        self.assertEqual(race["shobusho"], "本命")   # 表示は本命のまま
+        self.assertEqual(race["shobusho"], "超混戦")   # 本命には見せない(紙上)
         plan = race["bets"]["plan"]
         self.assertEqual(sum(y for _b, _c, y, _s in plan), 2000)   # ⑬構成
         self.assertTrue(any(s == "深い波乱" for _b, _c, _y, s in plan))

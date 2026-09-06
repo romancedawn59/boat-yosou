@@ -54,7 +54,7 @@ class TestShobuSummary(unittest.TestCase):
         self.assertEqual(honmei, ["平和島5R"])
         self.assertEqual(konsen, ["桐生2R"])
         self.assertEqual(attention, ["尼崎3R"])
-        self.assertEqual(budget, 2000)  # 購入=本命+超混戦(テスト fixtureは共にH構成1,000円)
+        self.assertEqual(budget, 1000)  # 購入予算は本命のみ(超混戦は紙上・2026-09-06)
 
     def test_empty(self):
         honmei, konsen, attention, budget, blocked = shobu_summary([_race(KATAME)])
@@ -67,8 +67,8 @@ class TestBuildNotifyText(unittest.TestCase):
                  _race(ARERU, 13, 3, shobusho="要注目")]
         text = build_notify_text(date(2026, 7, 5), races)
         self.assertIn("本命: 平和島5R", text)
-        self.assertIn("超混戦: 桐生2R", text)
-        self.assertIn("購入予算: 2,000円(本命1,000円/超混戦2,000円)", text)  # 要注目は予算外
+        self.assertIn("超混戦(紙上・買わない): 桐生2R", text)
+        self.assertIn("購入予算: 1,000円(本命1,000円のみ)", text)  # 超混戦・要注目は予算外
         self.assertNotIn("要注目", text)  # 要注目は通知しない(ユーザー指示)
         self.assertIn("https://", text)
 
@@ -153,7 +153,7 @@ class TestShoppingPage(unittest.TestCase):
         self.assertIn("venue-tag", html)     # 一覧では場名を表示
         self.assertIn("桐生", html)           # 他19場のレースも載る
         self.assertNotIn("若松1R", html)      # 選外レースは載らない
-        self.assertIn("購入予算 2,000円", html)
+        self.assertIn("購入予算 1,000円", html)
         self.assertNotIn("要注目(観測のみ・購入なし): ", html)  # サマリーには載せない
 
     def test_empty_day(self):
