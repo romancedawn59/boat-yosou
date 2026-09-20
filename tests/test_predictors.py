@@ -320,6 +320,15 @@ class TestShobusho(unittest.TestCase):
         self.assertEqual(races[1]["shobusho"], "要注目")  # 境界0.30は本命に入れない
         self.assertEqual(races[2]["shobusho"], "本命")    # 閾値未満
 
+    def test_band_20_to_225_is_not_reported(self):
+        # 2026-09-21: 20〜22.5%帯は本命にも要注目にも上げない(紙上記録のみ)
+        races = [self._race("荒れ注意", 0.21), self._race("荒れ注意", 0.224),
+                 self._race("荒れ注意", 0.225)]
+        self._select(races)
+        self.assertIsNone(races[0]["shobusho"])
+        self.assertIsNone(races[1]["shobusho"])
+        self.assertEqual(races[2]["shobusho"], "本命")   # 境界22.5%は本命
+
     def test_target_venue_konsen_stays_konsen(self):
         # 対象場×20%未満も超混戦(紙上)のまま。本命に見せる上書きは2026-09-06に廃止
         # (9/1判定: 超混戦帯は実弾0円。本命一覧=H1000だけにする)

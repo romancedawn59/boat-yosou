@@ -255,13 +255,14 @@ def select_shobusho(races: list[dict], honmei_venues: list[int],
                     honmei_cap: int = 4, konsen_max: float = 0.20,
                     attention_cap: int = 4, honmei_prob_max: float = 0.30,
                     daily_budget: int = 10200, konsen_unit: int = 2000,
-                    honmei_unit: int = 1400) -> None:
+                    honmei_unit: int = 1400,
+                    honmei_prob_min: float = 0.225) -> None:
     """v2選別(2026-07-18ケンさん案 → 2026-08-04予算制②改定): shobushoキーを設定。
 
     - 超混戦: 全場で1位勝率(モデル生値)がkonsen_max未満。2026-09-01判定で
       **紙上降格(実弾0円)**。ラベルと⑬プランは紙上採点用に残し、購入対象・
       予算には含めない(対象5場の20%未満も同じ扱い・2026-09-06)
-    - 本命(検証済み5場): 20〜30%帯は1位勝率が低い順に、
+    - 本命(検証済み5場): honmei_prob_min(22.5%)〜30%帯は1位勝率が低い順に、
       **日次予算(daily_budget)から超混戦分を引いた残りで買える範囲**かつ
       honmei_cap件まで(検証⑰: cap4×1,400円=162.3%/+992,100円が現行超え)
     - 要注目: 観測専用・購入なし(30〜35%帯+予算/capからの溢れ+標準の補充)
@@ -287,13 +288,18 @@ def select_shobusho(races: list[dict], honmei_venues: list[int],
     # 9/1判定で超混戦帯は紙上(実弾0円)なので、ラベルは超混戦のままにして
     # 購入対象・予算から外す(⑬プランは紙上採点用に残す)
 
-    # 本命(20〜30%帯): 残予算内で低い順にcapまで
+    # 本命(22.5〜30%帯): 残予算内で低い順にcapまで
     remaining = daily_budget - konsen_unit * konsen_n
     take = min(honmei_cap, max(0, remaining // honmei_unit))
+    # 2026-09-21: 20〜22.5%帯(konsen_max〜honmei_prob_min)は買い目報告に上げない
+    # (ドンピシャ5場0/55回)。picks JSONには全レース残るので紙上記録は続く
+    skipped = [r for r in are
+               if konsen_max <= r["ranked"][0]["prob"] < honmei_prob_min]
     pool = [r for r in are
-            if konsen_max <= r["ranked"][0]["prob"] < honmei_prob_max]
+            if honmei_prob_min <= r["ranked"][0]["prob"] < honmei_prob_max]
     for r in pool[:take]:
         r["shobusho"] = "本命"
+    are = [r for r in are if r not in skipped]
 
     # 要注目(観測専用): 買わない超混戦(プラン不成立等)は購入0点として必ず載せ、
     # 続いて本命に入らなかった対象場の荒れ注意(閾値超の30〜35%帯・capからの溢れ)
