@@ -28,11 +28,13 @@ def _collect_race_odds(conn, race_id: str, venue_code: int, race_no: int, today:
     n = 0
     for bt_name, sep in (("3連単", "-"), ("3連複", "=")):
         for key, val in o[bt_name].items():
-            db.upsert_odds(conn, {
+            row = {
                 "race_id": race_id, "bet_type": bt_name,
                 "combination": sep.join(map(str, key)),
                 "odds": val, "fetched_at": now.isoformat(timespec="seconds"),
-            })
+            }
+            db.upsert_odds(conn, row)
+            db.upsert_odds_snapshot(conn, row)   # 時系列用(上書きされない)
             n += 1
     conn.commit()
     if n:

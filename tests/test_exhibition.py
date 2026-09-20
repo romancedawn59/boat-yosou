@@ -36,8 +36,10 @@ class TestParseExhibitionHtml(unittest.TestCase):
     def test_returns_dicts_with_lane_assigned_in_order(self):
         rows = parse_exhibition_html(SAMPLE_HTML)
         self.assertEqual(rows, [
-            {"lane": 1, "reg_no": 3973, "weight_kg": 53.8, "exhibition_time": 6.88, "tilt": -0.5},
-            {"lane": 2, "reg_no": 5077, "weight_kg": 51.5, "exhibition_time": 6.87, "tilt": 0.0},
+            {"lane": 1, "reg_no": 3973, "weight_kg": 53.8, "exhibition_time": 6.88, "tilt": -0.5,
+             "ex_course": None, "ex_st": None, "stabilizer": 0},
+            {"lane": 2, "reg_no": 5077, "weight_kg": 51.5, "exhibition_time": 6.87, "tilt": 0.0,
+             "ex_course": None, "ex_st": None, "stabilizer": 0},
         ])
 
     def test_empty_html_returns_empty_list(self):

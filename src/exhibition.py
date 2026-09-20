@@ -1,4 +1,4 @@
-"""直前情報(展示タイム・チルト)の取得
+"""直前情報(展示タイム・チルト・スタート展示の進入とST・安定板)の取得
 
 BOATRACE公式サイト(boatrace.jp)の直前情報ページをスクレイピングする。
 展示は締切の約20分前に実施されるため、その時間にならないとデータは存在しない。
@@ -23,8 +23,35 @@ _ROW_PATTERN = re.compile(
 )
 
 
+# スタート展示: コース1〜6の順に1行ずつ並び、is-type{枠番}とST(".12" / "F.01" / "L")が入る
+_START_PATTERN = re.compile(
+    r'table1_boatImage1Number is-type(\d)">.*?table1_boatImage1Time[^"]*">([^<]*)</span>',
+    re.S,
+)
+_ST_PATTERN = re.compile(r"^(F)?\.?(\d+)$")
+
+
+def parse_start_exhibition(html: str) -> dict[int, dict]:
+    """スタート展示の {枠番: {"ex_course": 進入コース, "ex_st": ST}} を返す。
+
+    STはフライングなら負値。出遅れ("L")など数字が無い場合はNone。
+    """
+    out = {}
+    for course, (lane, st_text) in enumerate(_START_PATTERN.findall(html), 1):
+        m = _ST_PATTERN.match(st_text.strip())
+        st = None
+        if m:
+            st = float("0." + m.group(2))
+            if m.group(1):
+                st = -st
+        out[int(lane)] = {"ex_course": course, "ex_st": st}
+    return out
+
+
 def parse_exhibition_html(html: str) -> list[dict]:
     """直前情報ページのHTMLから艇ごとの展示データを抽出する(枠番1〜6の順)"""
+    start = parse_start_exhibition(html)
+    stabilizer = int("安定板使用" in html)
     return [
         {
             "lane": lane,
@@ -32,6 +59,9 @@ def parse_exhibition_html(html: str) -> list[dict]:
             "weight_kg": float(weight),
             "exhibition_time": float(ex_time),
             "tilt": float(tilt),
+            "ex_course": start.get(lane, {}).get("ex_course"),
+            "ex_st": start.get(lane, {}).get("ex_st"),
+            "stabilizer": stabilizer,
         }
         for lane, (reg_no, weight, ex_time, tilt) in enumerate(_ROW_PATTERN.findall(html), 1)
     ]

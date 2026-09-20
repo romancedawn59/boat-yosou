@@ -2,8 +2,13 @@
 """確定最終オッズの遡及取得CLI(市場分析基盤・約束①用)
 
     py -X utf8 test/collect_final_odds.py
+    py -X utf8 test/collect_final_odds.py --all --from 2026-09-01 --to 2026-09-20 [--limit 500]
 
-対象: 「15分前スナップショット(oddsテーブル、fetched_at≠'final-backfill')があり、
+--all を付けると、15分前スナップショットの有無に関係なく期間内の全レースを対象にする
+(2026-09-21: 公式サイトは2025-10の過去日でも全120通り+3連複20通りの確定オッズを返すと確認。
+ 市場分析の網羅性はこれで確保できる。1レース2リクエスト・間隔はREQUEST_INTERVAL_SEC)。
+
+既定の対象: 「15分前スナップショット(oddsテーブル、fetched_at≠'final-backfill')があり、
 かつ odds_final にまだ無い」過去日のレースのみ。
 公式サイトの過去日付オッズページは最終オッズを表示し続ける(HANDOVERの裏技)ため、
 既存 odds.fetch_odds() をそのまま過去日付で呼べば確定最終オッズが取れる。
@@ -76,9 +81,34 @@ def collect(conn, targets: list[tuple[str, int, int, str]]) -> int:
     return ok
 
 
+def pick_all_targets(conn, today: date, date_from: str, date_to: str,
+                     limit: int | None = None) -> list[tuple[str, int, int, str]]:
+    """期間内で結果が確定していて odds_final に無い全レース(新しい日付から)"""
+    rows = conn.execute(
+        """
+        SELECT r.race_id, r.venue_code, r.race_no, r.date
+        FROM races r
+        WHERE r.date >= ? AND r.date <= ? AND r.date < ?
+          AND EXISTS (SELECT 1 FROM payouts p WHERE p.race_id = r.race_id)
+          AND NOT EXISTS (SELECT 1 FROM odds_final f WHERE f.race_id = r.race_id)
+        ORDER BY r.date DESC, r.venue_code, r.race_no
+        """,
+        (date_from, date_to, today.isoformat()),
+    ).fetchall()
+    return rows[:limit] if limit else rows
+
+
 if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--all", action="store_true")
+    ap.add_argument("--from", dest="date_from", default="2025-07-15")
+    ap.add_argument("--to", dest="date_to", default="2099-12-31")
+    ap.add_argument("--limit", type=int, default=None)
+    args = ap.parse_args()
     conn = db.connect(DB_PATH)
-    targets = pick_targets(conn, jst_today())
+    targets = (pick_all_targets(conn, jst_today(), args.date_from, args.date_to, args.limit)
+               if args.all else pick_targets(conn, jst_today()))
     print(f"取得対象: {len(targets)}レース")
     done = collect(conn, targets)
     conn.close()

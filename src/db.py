@@ -110,7 +110,21 @@ CREATE TABLE IF NOT EXISTS exhibition (
     weight_kg        REAL,    -- 当日計量後の体重(番組表時点の体重と差が出ることがある)
     exhibition_time  REAL,    -- 周回展示タイム(秒)
     tilt             REAL,    -- チルト角度
+    ex_course        INTEGER, -- スタート展示の進入コース(1〜6)。前づけの有無がここで分かる
+    ex_st            REAL,    -- スタート展示のST(負値=フライング)
+    stabilizer       INTEGER, -- 安定板使用なら1(レース単位の値を各艇の行に持たせる)
     PRIMARY KEY (race_id, lane)
+);
+
+-- オッズの時系列(2026-09-21〜)。oddsテーブルは1レース1時点の上書き設計のまま残し、
+-- 取得のたびにこちらへも追記する(取得回数は増やさない。回数を増やせば時系列になる)。
+CREATE TABLE IF NOT EXISTS odds_snapshots (
+    race_id      TEXT NOT NULL REFERENCES races(race_id),
+    bet_type     TEXT NOT NULL,
+    combination  TEXT NOT NULL,
+    fetched_at   TEXT NOT NULL,
+    odds         REAL,
+    PRIMARY KEY (race_id, bet_type, combination, fetched_at)
 );
 
 CREATE INDEX IF NOT EXISTS idx_races_venue_date ON races(venue_code, date);
@@ -125,6 +139,7 @@ _PK_COLS = {
     "exhibition": ("race_id", "lane"),
     "odds": ("race_id", "bet_type", "combination"),
     "odds_final": ("race_id", "bet_type", "combination"),
+    "odds_snapshots": ("race_id", "bet_type", "combination", "fetched_at"),
     "tide": ("station", "datetime"),
 }
 
@@ -139,7 +154,24 @@ def connect(db_path: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript(SCHEMA)
+    _migrate(conn)
     return conn
+
+
+# 既存DBへ後から足した列(CREATE TABLE IF NOT EXISTSでは増えないためALTERで追加する)
+_ADDED_COLUMNS = (
+    ("exhibition", "ex_course", "INTEGER"),
+    ("exhibition", "ex_st", "REAL"),
+    ("exhibition", "stabilizer", "INTEGER"),
+)
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    for table, col, typ in _ADDED_COLUMNS:
+        cols = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        if col not in cols:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+    conn.commit()
 
 
 def _upsert(conn: sqlite3.Connection, table: str, row: dict):
@@ -187,6 +219,10 @@ def upsert_odds(conn, odds_row: dict):
 
 def upsert_odds_final(conn, odds_row: dict):
     _upsert(conn, "odds_final", odds_row)
+
+
+def upsert_odds_snapshot(conn, odds_row: dict):
+    _upsert(conn, "odds_snapshots", odds_row)
 
 
 def upsert_tide(conn, tide_row: dict):
