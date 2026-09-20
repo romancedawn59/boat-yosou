@@ -35,6 +35,7 @@ MONTHS = ["2025-10", "2025-11", "2025-12"] + [f"2026-{m:02d}" for m in range(1, 
 PARAMS = {"objective": "binary", "metric": "auc", "verbosity": -1,
           "learning_rate": 0.05, "num_leaves": 31}
 YEN = 500
+WF_LEDGER = r"Y:\マイドライブ\boat\data_raw\wf_ledger_all_202510_202609.csv"
 PERIODS = [("25/10〜26/01", "2025-10", "2026-01"), ("26/02〜05", "2026-02", "2026-05"),
            ("26/06〜09", "2026-06", "2026-09")]
 BANDS = [("〜22.5%", 0, .225), ("22.5〜30%", .225, .30), ("30〜40%", .30, .40),
@@ -69,6 +70,7 @@ for rid, lane, ao, st in conn.execute(
 conn.close()
 
 rows = []   # (month, venue, p1, 払戻円(500円買い)) 返還は500
+dump = []   # 全レースの予想順位を保存(他の買い方の試算に再利用)
 for m in MONTHS:
     tr_df = train_all[train_all["date"] < f"{m}-01"].sort_values("date")
     ev = eval_df[eval_df["date"].str.startswith(m)]
@@ -98,6 +100,9 @@ for m in MONTHS:
         else:
             got = amt * YEN // 100 if comb == "-".join(map(str, top)) else 0
         rows.append((m, int(g["venue_code"].iloc[0]), float(gs["p"].iloc[0]), got))
+        dump.append((rid, m, int(g["venue_code"].iloc[0]), float(gs["p"].iloc[0]),
+                     "-".join(str(int(x)) for x in gs["lane"]),
+                     "-".join(map(str, sorted(refund)))))
 
 for path in sorted(glob.glob(r"Y:\マイドライブ\boat\docs\data\picks_2026-09-*.json")):
     pk = json.load(open(path, encoding="utf-8"))
@@ -115,7 +120,12 @@ for path in sorted(glob.glob(r"Y:\マイドライブ\boat\docs\data\picks_2026-0
         else:
             got = amt * YEN // 100 if comb == "-".join(map(str, top)) else 0
         rows.append(("2026-09", r["venue_code"], r["ranked"][0][1], got))
+        dump.append((rid, "2026-09", r["venue_code"], r["ranked"][0][1],
+                     "-".join(str(x[0]) for x in r["ranked"]),
+                     "-".join(map(str, sorted(refund)))))
 
+pd.DataFrame(dump, columns=["race_id", "month", "venue", "p1", "pred", "refund"]).to_csv(
+    WF_LEDGER, index=False, encoding="utf-8-sig")
 D = pd.DataFrame(rows, columns=["month", "venue", "p1", "got"])
 D["hit"] = D["got"] > YEN
 print(f"\n対象: {len(D):,}R(2025-10〜2026-09・全24場・全帯)")
