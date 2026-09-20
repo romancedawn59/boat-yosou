@@ -26,6 +26,7 @@ import predictors as P
 import weather
 from config import (
     ATTENTION_CAP, DAILY_BUDGET, DB_PATH, HONMEI_CAP, HONMEI_PROB_MAX, HONMEI_UNIT,
+    HONMEI_VENUE_CODES,
     KONSEN_PROB_MAX, KONSEN_UNIT, MODEL_PATH, MODEL_TOP3_PATH, PAGES_URL, PROJECT_DIR,
     TARGET_VENUE_CODES, VENUE_COORDS, VENUE_NAMES, is_buyable, jst_today,
 )
@@ -241,7 +242,7 @@ def predict_day(d: date) -> list[dict] | None:
             # 紙上並走。表示のみで買い目・選別は不変。9月末に採点して昇格判定)
             r["top3_order"] = order
 
-    P.select_shobusho(races, honmei_venues=TARGET_VENUE_CODES,
+    P.select_shobusho(races, honmei_venues=HONMEI_VENUE_CODES,
                       honmei_cap=HONMEI_CAP, konsen_max=KONSEN_PROB_MAX,
                       attention_cap=ATTENTION_CAP, honmei_prob_max=HONMEI_PROB_MAX,
                       daily_budget=DAILY_BUDGET, konsen_unit=KONSEN_UNIT,
@@ -463,7 +464,7 @@ def _summary_html(races: list[dict]) -> str:
     honmei, konsen, attention, budget, blocked = shobu_summary(races)
     parts = []
     if honmei:
-        parts.append(f"🔴本命(5場・上位{HONMEI_CAP}): <b>{'、'.join(honmei)}</b>")
+        parts.append(f"🔴本命(全場・上位{HONMEI_CAP}): <b>{'、'.join(honmei)}</b>")
     if konsen:
         parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満・<b>紙上=買わない</b>・専用順位を検証中): {'、'.join(konsen)}")
     if honmei:
@@ -1096,7 +1097,7 @@ def render_shopping_page(d: date, races: list[dict],
             for r in rs)
         return f"<h2 class='sec-h'>{title}</h2>{cards}"
 
-    body = (section(f"🔴 本命(検証済み5場・上位{HONMEI_CAP})", "本命")
+    body = (section(f"🔴 本命(全24場・上位{HONMEI_CAP})", "本命")
             + section(f"🟣 超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満・紙上=買わない・専用順位を検証中)", "超混戦")
             + section("👀 要注目(観測のみ・購入0点)", "要注目"))
     if not body:

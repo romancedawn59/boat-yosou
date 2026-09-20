@@ -329,6 +329,14 @@ class TestShobusho(unittest.TestCase):
         self.assertIsNone(races[1]["shobusho"])
         self.assertEqual(races[2]["shobusho"], "本命")   # 境界22.5%は本命
 
+    def test_honmei_is_selected_from_all_24_venues(self):
+        # 2026-09-21: 「現行5場」の絞りを廃止。配信の本命は全24場から選ぶ
+        from config import HONMEI_VENUE_CODES
+        self.assertEqual(sorted(HONMEI_VENUE_CODES), list(range(1, 25)))
+        races = [self._race("荒れ注意", 0.25, venue=15)]   # 丸亀(旧5場の外)
+        P.select_shobusho(races, honmei_venues=HONMEI_VENUE_CODES)
+        self.assertEqual(races[0]["shobusho"], "本命")
+
     def test_target_venue_konsen_stays_konsen(self):
         # 対象場×20%未満も超混戦(紙上)のまま。本命に見せる上書きは2026-09-06に廃止
         # (9/1判定: 超混戦帯は実弾0円。本命一覧=H1000だけにする)
