@@ -52,6 +52,7 @@ def pick_targets(conn, today: date) -> list[tuple[str, int, int, str]]:
     ).fetchall()
 
 
+MIN_INTERVAL_SEC = 2.0     # 2本同時実行でも合計1秒1リクエスト以下にするための下限
 COMMIT_EVERY = 20          # 同期ドライブ上のDBはコミットが遅いのでまとめて書く
 STOP_STATUS = (403, 429)   # 拒否・過負荷の応答が来たら即中止する(サイト側の意思表示を尊重)
 MAX_CONSECUTIVE_FAIL = 5
@@ -108,10 +109,12 @@ def collect(conn, targets: list[tuple[str, int, int, str]], tri_only: bool = Fal
             conn.commit()
             el = time.time() - started
             print(f"{i:,}/{len(targets):,} 完了{ok:,} 直近{race_id} "
-                  f"経過{el / 3600:.1f}時間 残り見込み{el / i * (len(targets) - i) / 3600:.0f}時間",
+                  f"{i / el * 3600:.0f}レース/時 経過{el / 3600:.1f}時間 残り見込み{el / i * (len(targets) - i) / 3600:.0f}時間",
                   flush=True)
-        if time.time() - t0 < REQUEST_INTERVAL_SEC * 2:
-            time.sleep(REQUEST_INTERVAL_SEC)
+        # 1リクエストあたり MIN_INTERVAL_SEC 以上あける(展示の遡及と同時に走らせるための取り決め)
+        wait = MIN_INTERVAL_SEC * (1 if tri_only else 2) - (time.time() - t0)
+        if wait > 0:
+            time.sleep(wait)
     conn.commit()
     return ok
 

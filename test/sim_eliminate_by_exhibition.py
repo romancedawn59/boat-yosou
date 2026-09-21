@@ -48,6 +48,7 @@ def bottom(vals: dict[int, float]):
 axes = {"軸1 展示ST最遅": {}, "軸2 展示タイム最遅": {}, "軸3 展示進入が最も外": {},
         "軸4 モデル1着確率ボトム": {}}
 n_f_excluded = 0
+f_boats = []   # 展示でフライングを切った艇(参考集計用)
 for rid, e in exh.items():
     if len(e) < 6 or rid not in model_bot or len(arr.get(rid, {})) < 6:
         continue
@@ -58,8 +59,11 @@ for rid, e in exh.items():
     if len(times) == 6:
         axes["軸2 展示タイム最遅"][rid] = bottom(times)
         axes["軸4 モデル1着確率ボトム"][rid] = model_bot[rid]
-    if len(sts) == 6:
+    if len(sts) >= 5:                       # F・空を除いた残りで最遅を決める(有効5艇以上)
         axes["軸1 展示ST最遅"][rid] = bottom(sts)
+    for l, v in e.items():
+        if v[1] is not None and v[1] < 0:
+            f_boats.append((rid, l))
     if len(courses) == 6:
         axes["軸3 展示進入が最も外"][rid] = bottom(courses)
 
@@ -92,6 +96,17 @@ for r, l in d2.items():
 for m, v in sorted(by_m.items()):
     print(f"  {m}: {len(v):,}R 展示タイム最遅 1着{sum(x[0] == 1 for x in v) / len(v):.1%}・3着以内{sum(x[0] <= 3 for x in v) / len(v):.1%}"
           f" / モデルボトム 1着{sum(x[1] == 1 for x in v) / len(v):.1%}・3着以内{sum(x[1] <= 3 for x in v) / len(v):.1%}")
+if f_boats:
+    a = [arr[r].get(l) for r, l in f_boats]
+    n = len(a)
+    print(f"― 参考: 展示でフライングを切った艇 {n:,}艇の本番の着順 ― 1着{sum(x == 1 for x in a) / n:.1%} / "
+          f"2着{sum(x == 2 for x in a) / n:.1%} / 3着{sum(x == 3 for x in a) / n:.1%} / "
+          f"3着以内{sum((x or 9) <= 3 for x in a) / n:.1%}(全艇平均は1着16.7%・3着以内50.0%)")
+    by_lane = {}
+    for (r, l), x in zip(f_boats, a):
+        by_lane.setdefault(l, []).append(x)
+    print("   枠別: " + " / ".join(f"{l}号艇 {len(v)}艇・1着{sum(x == 1 for x in v) / len(v):.0%}・3着以内{sum((x or 9) <= 3 for x in v) / len(v):.0%}"
+                                 for l, v in sorted(by_lane.items())))
 print(f"(展示STが負値=フライングだった艇は{n_f_excluded}艇。軸1では別扱いとして最遅の判定から外した。空=出遅れ等も除外)")
 
 if "--stage2" not in sys.argv:
