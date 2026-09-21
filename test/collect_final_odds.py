@@ -52,32 +52,67 @@ def pick_targets(conn, today: date) -> list[tuple[str, int, int, str]]:
     ).fetchall()
 
 
-def collect(conn, targets: list[tuple[str, int, int, str]]) -> int:
-    ok = 0
+COMMIT_EVERY = 20          # 同期ドライブ上のDBはコミットが遅いのでまとめて書く
+STOP_STATUS = (403, 429)   # 拒否・過負荷の応答が来たら即中止する(サイト側の意思表示を尊重)
+MAX_CONSECUTIVE_FAIL = 5
+
+
+def collect(conn, targets: list[tuple[str, int, int, str]], tri_only: bool = False) -> int:
+    """1本の接続で順番に取得する(並列化しない)。
+
+    2026-09-21の実測で公式サイトは1リクエストあたり約8〜10秒かけて応答する(接続は0.04秒で
+    サーバー側の待ち)。これはサイト側のペース指定とみなし、応答が速い場合だけ
+    REQUEST_INTERVAL_SEC の待機を足す。tri_only=True は3連単だけ(リクエスト半分)。
+    """
+    import urllib.error
+    ok = fails = 0
+    started = time.time()
     fetched_at = datetime.now(JST).isoformat(timespec="seconds")
-    for race_id, venue_code, race_no, d_str in targets:
+    for i, (race_id, venue_code, race_no, d_str) in enumerate(targets, 1):
+        t0 = time.time()
         try:
-            o = odds_mod.fetch_odds(venue_code, race_no, date.fromisoformat(d_str))
+            d = date.fromisoformat(d_str)
+            if tri_only:
+                ymd = d.strftime("%Y%m%d")
+                o = {"3連単": odds_mod.parse_odds3t(odds_mod._fetch(
+                    odds_mod._URL_3T.format(rno=race_no, jcd=venue_code, ymd=ymd))), "3連複": {}}
+            else:
+                o = odds_mod.fetch_odds(venue_code, race_no, d)
+            fails = 0
+        except urllib.error.HTTPError as e:
+            print(f"{race_id}: HTTP {e.code}", flush=True)
+            if e.code in STOP_STATUS:
+                print("拒否または過負荷の応答のため中止します", flush=True)
+                break
+            fails += 1
+            o = None
         except Exception as e:
-            print(f"{race_id}: 取得失敗 ({e})")
-            time.sleep(REQUEST_INTERVAL_SEC)
-            continue
+            print(f"{race_id}: 取得失敗 ({e})", flush=True)
+            fails += 1
+            o = None
+        if fails >= MAX_CONSECUTIVE_FAIL:
+            print(f"{MAX_CONSECUTIVE_FAIL}回連続で失敗したため中止します", flush=True)
+            break
         n = 0
-        for bt_name, sep in (("3連単", "-"), ("3連複", "=")):
-            for key, val in o[bt_name].items():
-                db.upsert_odds_final(conn, {
-                    "race_id": race_id, "bet_type": bt_name,
-                    "combination": sep.join(map(str, key)),
-                    "odds": val, "fetched_at": fetched_at,
-                })
-                n += 1
-        conn.commit()
-        if n:
-            ok += 1
-            print(f"{race_id}: 最終オッズ保存 ({n}件)")
-        else:
-            print(f"{race_id}: オッズページが空(中止等の可能性)")
-        time.sleep(REQUEST_INTERVAL_SEC)
+        if o:
+            for bt_name, sep in (("3連単", "-"), ("3連複", "=")):
+                for key, val in o[bt_name].items():
+                    db.upsert_odds_final(conn, {
+                        "race_id": race_id, "bet_type": bt_name,
+                        "combination": sep.join(map(str, key)),
+                        "odds": val, "fetched_at": fetched_at,
+                    })
+                    n += 1
+            ok += n > 0
+        if i % COMMIT_EVERY == 0:
+            conn.commit()
+            el = time.time() - started
+            print(f"{i:,}/{len(targets):,} 完了{ok:,} 直近{race_id} "
+                  f"経過{el / 3600:.1f}時間 残り見込み{el / i * (len(targets) - i) / 3600:.0f}時間",
+                  flush=True)
+        if time.time() - t0 < REQUEST_INTERVAL_SEC * 2:
+            time.sleep(REQUEST_INTERVAL_SEC)
+    conn.commit()
     return ok
 
 
@@ -105,11 +140,12 @@ if __name__ == "__main__":
     ap.add_argument("--from", dest="date_from", default="2025-07-15")
     ap.add_argument("--to", dest="date_to", default="2099-12-31")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--tri-only", action="store_true", help="3連単だけ取る(リクエスト半分)")
     args = ap.parse_args()
     conn = db.connect(DB_PATH)
     targets = (pick_all_targets(conn, jst_today(), args.date_from, args.date_to, args.limit)
                if args.all else pick_targets(conn, jst_today()))
     print(f"取得対象: {len(targets)}レース")
-    done = collect(conn, targets)
+    done = collect(conn, targets, tri_only=args.tri_only)
     conn.close()
     print(f"完了: {done}/{len(targets)}レース")
