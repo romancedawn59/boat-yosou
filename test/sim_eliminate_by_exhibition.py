@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """展示データによる消去が機能するか(2026-09-21ケンさん依頼・条件は依頼文のまま固定)
 
-    py -X utf8 test/sim_eliminate_by_exhibition.py [--stage2]
+    py -X utf8 test/sim_eliminate_by_exhibition.py [--stage2] [--use-backfill]
+    --use-backfill: 統合前でも data_raw/exhibition_backfill.db の ex_st / ex_course を読み取り専用で重ねて集計する
 
 第1段階(オッズ不要): 各軸の「6艇中ボトムの艇」の実際の着順分布。
   軸1 ex_st(展示STが最も遅い艇。負値=フライングは別扱い、空=出遅れ等は除外)
   軸2 exhibition_time(周回展示タイムが最も遅い艇)
   軸3 ex_course(展示進入が最も外の艇)
+  軸3' 押し出された艇(ex_course > 枠番。複数いればずれ幅最大、同幅なら枠番の大きい方。枠なりのレースは対象外)
+  参考 前づけした艇(ex_course < 枠番。消去軸ではなく着順分布の参考)
   軸4 モデルの1着確率ボトム(月次walk-forward台帳 wf_ledger_pos)
   同じ値で並んだ場合は枠番の大きい方をボトムとする(レース前に決まる規則)。
 第2段階(--stage2): 帯A/W/C × E0消去なし/E1モデルボトムを1着位置から/E2展示ボトムを全位置から/E3併用。
@@ -29,6 +32,12 @@ exh = defaultdict(dict)
 for rid, lane, t, st, course in conn.execute(
         "SELECT race_id, lane, exhibition_time, ex_st, ex_course FROM exhibition"):
     exh[rid][lane] = (t, st, course)
+if "--use-backfill" in sys.argv:          # 統合前の途中経過を見るための読み取り専用の重ね合わせ
+    bf = sqlite3.connect(r"file:Y:\マイドライブ\boat\data_raw\exhibition_backfill.db?mode=ro", uri=True, timeout=60)
+    for rid, lane, st, course in bf.execute("SELECT race_id, lane, ex_st, ex_course FROM exhibition"):
+        if rid in exh and lane in exh[rid] and exh[rid][lane][2] is None:
+            exh[rid][lane] = (exh[rid][lane][0], st, course)
+    bf.close()
 arr = defaultdict(dict)
 for rid, lane, ao in conn.execute(
         "SELECT res.race_id, res.lane, res.arrival_order FROM results res "
@@ -46,7 +55,10 @@ def bottom(vals: dict[int, float]):
 
 
 axes = {"軸1 展示ST最遅": {}, "軸2 展示タイム最遅": {}, "軸3 展示進入が最も外": {},
-        "軸4 モデル1着確率ボトム": {}}
+        "軸3' 押し出された艇": {}, "軸4 モデル1着確率ボトム": {}}
+pushed_all, maezuke_all = [], []   # (race_id, 枠番, ずれ幅) 進入がずれた艇すべて
+lane_base = defaultdict(list)      # 展示進入データのあるレースでの枠番別の着順(比較の基準)
+n_course_races = 0
 n_f_excluded = 0
 f_boats = []   # 展示でフライングを切った艇(参考集計用)
 for rid, e in exh.items():
@@ -66,6 +78,16 @@ for rid, e in exh.items():
             f_boats.append((rid, l))
     if len(courses) == 6:
         axes["軸3 展示進入が最も外"][rid] = bottom(courses)
+        n_course_races += 1
+        for l, c in courses.items():
+            lane_base[l].append(arr[rid].get(l) or 9)
+            if c > l:
+                pushed_all.append((rid, l, c - l))
+            elif c < l:
+                maezuke_all.append((rid, l, l - c))
+        out = {l: c - l for l, c in courses.items() if c > l}
+        if out:                             # ずれ幅最大、同幅なら枠番の大きい方
+            axes["軸3' 押し出された艇"][rid] = max(out, key=lambda l: (out[l], l))
 
 print("===== 第1段階: ボトム艇の実際の着順(全艇平均は 1着16.7% / 3着以内50.0%) =====")
 print(f"{'軸':<20}{'R数':>7}{'1着率':>8}{'2着率':>8}{'3着率':>8}{'3着以内率':>10}{'平均との差':>10}{'軸4と同じ艇':>12}")
@@ -80,6 +102,39 @@ for name, d in axes.items():
     note = "  ※母数が少なく判断不能" if n < 300 else ""
     print(f"{name:<20}{n:>7,}{r1:>8.1%}{r2:>8.1%}{r3:>8.1%}{r1 + r2 + r3:>10.1%}{(r1 + r2 + r3 - 0.5) * 100:>+9.1f}pt"
           f"{same:>12.1%}{note}")
+
+# ---- 進入のずれ(軸3'と参考) ----
+n_broken = len(axes["軸3' 押し出された艇"])
+print(f"\n― 進入のずれ ― 展示進入データのあるレース {n_course_races:,}R のうち、進入が崩れた(押し出された艇がいる)レース "
+      f"{n_broken:,}R({n_broken / max(1, n_course_races):.1%})" + ("  ※母数が少なく判断不能" if n_broken < 300 else ""))
+if maezuke_all:
+    a = [arr[r].get(l) or 9 for r, l, _d in maezuke_all]
+    n = len(a)
+    same = sum(1 for r, l, _d in maezuke_all if model_bot[r] == l) / n
+    t3 = sum(x <= 3 for x in a) / n
+    print(f"{'参考 前づけした艇(全艇)':<20}{n:>7,}{sum(x == 1 for x in a) / n:>8.1%}{sum(x == 2 for x in a) / n:>8.1%}"
+          f"{sum(x == 3 for x in a) / n:>8.1%}{t3:>10.1%}{(t3 - 0.5) * 100:>+9.1f}pt{same:>12.1%}")
+if pushed_all:
+    print("押し出された艇(該当する全艇)の枠番別: 艇数 / 3着以内率 / 同じ枠番の全艇平均 / 差 / 1着率(同じ枠番の平均)")
+    for lane in range(1, 7):
+        v = [arr[r].get(l) or 9 for r, l, _d in pushed_all if l == lane]
+        base = lane_base[lane]
+        if not v:
+            continue
+        t3, b3 = sum(x <= 3 for x in v) / len(v), sum(x <= 3 for x in base) / len(base)
+        print(f"  {lane}号艇: {len(v):>5,}艇 / {t3:>6.1%} / {b3:>6.1%} / {(t3 - b3) * 100:>+6.1f}pt / "
+              f"{sum(x == 1 for x in v) / len(v):.1%}({sum(x == 1 for x in base) / len(base):.1%})"
+              + ("  ※少数" if len(v) < 100 else ""))
+    v = [(arr[r].get(l) or 9, l) for r, l, _d in pushed_all]
+    exp3 = sum(sum(x <= 3 for x in lane_base[l]) / len(lane_base[l]) for _a, l in v) / len(v)
+    act3 = sum(a <= 3 for a, _l in v) / len(v)
+    print(f"  全体: {len(v):,}艇 3着以内率{act3:.1%} / 枠番の構成から期待される率{exp3:.1%} / "
+          f"押し出されたこと自体の効果 {(act3 - exp3) * 100:+.1f}pt")
+    by_shift = defaultdict(list)
+    for r, l, d in pushed_all:
+        by_shift[d].append(arr[r].get(l) or 9)
+    print("  ずれ幅別: " + " / ".join(f"{d}コース外へ {len(x):,}艇・3着以内{sum(y <= 3 for y in x) / len(x):.1%}"
+                                 for d, x in sorted(by_shift.items())))
 
 d2, d4 = axes["軸2 展示タイム最遅"], axes["軸4 モデル1着確率ボトム"]
 print("\n― 軸2と軸4の関係(同じレース) ―")
