@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026-10-20 尼崎 買い目予想</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 8px; background: #f6f8fa; }
+  h1 { font-size: 1.15rem; margin: 8px 4px; }
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 10px; }
+  .nav a { text-decoration: none; font-size: .82rem; padding: 5px 10px; border-radius: 14px;
+           background: #fff; color: #0969da; border: 1px solid #d0d7de; }
+  .nav a.active { background: #0969da; color: #fff; border-color: #0969da; }
+  .note { font-size: .75rem; color: #57606a; margin: 0 4px 12px; }
+  .card { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .rno { font-size: 1.3rem; font-weight: bold; }
+  .deadline { color: #57606a; font-size: .85rem; }
+  .conf { margin-left: auto; color: #fff; font-size: .75rem; padding: 3px 10px;
+          border-radius: 12px; }
+  .sho { font-size: .75rem; padding: 3px 10px; border-radius: 12px; color: #fff; font-weight: bold; }
+  .sho.hon { background: #cf222e; }
+  .sho.kon { background: #6f42c1; }
+  .sho.att { background: #6e7781; }
+  .sho.blk { background: #8250df; border: 2px solid #fff; }
+  .sec-h { font-size: .95rem; margin: 14px 4px 8px; }
+  .venue-tag { font-size: .8rem; color: #57606a; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  td { padding: 4px 6px; border-bottom: 1px solid #eee; }
+  .lane { width: 2em; text-align: center; font-weight: bold; border-radius: 4px; }
+  .l1 { background: #fff; border: 1px solid #ccc; } .l2 { background: #222; color: #fff; }
+  .l3 { background: #d32f2f; color: #fff; } .l4 { background: #1565c0; color: #fff; }
+  .l5 { background: #fbc02d; } .l6 { background: #2e7d32; color: #fff; }
+  .prob { text-align: right; font-weight: bold; }
+  .weather { font-size: .78rem; color: #57606a; background: #f0f6ff; border-radius: 6px;
+             padding: 5px 8px; margin-bottom: 8px; }
+  .wx-note { display: block; font-size: .68rem; color: #8c959f; }
+  .summary { background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 8px;
+             padding: 10px 12px; margin: 0 0 12px; font-size: .9rem; }
+  .picks { margin-top: 8px; border-radius: 8px; padding: 8px 10px; background: #f6f8fa; }
+  .picks h3 { margin: 0 0 4px; font-size: .8rem; }
+  .picks .items { font-size: .88rem; line-height: 1.8; }
+  .picks .p { color: #57606a; font-size: .75rem; }
+  .ken { margin-top: 8px; background: #d6efff; border: 1px solid #54aeff88;
+         border-radius: 8px; padding: 8px 10px; }
+  .ken h3 { margin: 0 0 6px; font-size: .85rem; }
+  .ken-table td { border: none; padding: 2px 6px; font-size: .95rem; }
+  .ken-table .src { font-size: .7rem; color: #57606a; width: 5em; }
+  .ken-table .bt { font-size: .8rem; color: #57606a; width: 4em; }
+  .ken-table .yen { text-align: right; font-weight: bold; }
+  .ken-table .cf { text-align: right; font-size: .8rem; color: #0969da; width: 3.5em; }
+  .ken-table .io { text-align: right; font-size: .8rem; color: #57606a; width: 5em; }
+  .ken-table th { font-size: .68rem; color: #8c959f; font-weight: normal; padding: 0 6px; }
+  .ken-note { font-size: .68rem; color: #57606a; margin: 6px 0 0; }
+  .rising { color: #bf5b04; font-size: .72rem; font-weight: bold; }
+  .rising-note { font-size: .68rem; color: #8c959f; margin: 4px 0 0; }
+  .tabs { display: flex; gap: 6px; margin-top: 10px; }
+  .tabbtn { font-size: .8rem; padding: 5px 12px; border-radius: 14px 14px 0 0;
+            border: 1px solid #d0d7de; border-bottom: none; background: #eef1f4;
+            color: #57606a; cursor: pointer; }
+  .tabbtn.active { background: #fff; color: #0969da; font-weight: bold;
+                   border-color: #0969da; }
+  .pane { display: none; }
+  .pane.active { display: block; }
+  .odds-view { margin-top: 6px; background: #fff8f0; border: 1px solid #bc4c0044;
+               border-radius: 8px; padding: 8px 10px; }
+  .odds-meta { font-size: .72rem; color: #bc4c00; margin: 0 0 6px; }
+  .odds-table th { font-size: .72rem; background: #fff3e8; padding: 3px 6px; }
+  .odds-table td { font-size: .88rem; padding: 3px 6px; border-bottom: 1px solid #f0e0d0; }
+  .odds-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .odds-note { font-size: .68rem; color: #8c959f; margin: 6px 0 0; }
+</style>
+</head>
+<body>
+<h1>2026-10-20 尼崎 買い目予想</h1>
+<div class="nav"><a href="index.html">本日の買い目</a><a href="heiwajima.html">平和島・休</a><a href="edogawa.html">江戸川</a><a href="tokoname.html">常滑</a><a href="amagasaki.html" class="active">尼崎</a><a href="wakamatsu.html">若松・休</a><a href="stats.html">通算成績</a><a href="status.html">🔄更新チェック</a></div>
+<div class="summary">🔴本命(全場・上位4): <b>住之江8R、徳山7R</b><br>購入予算 2,000円(本命1,000円のみ)</div>
+<p class="note">A/B/Cは3人の予想者の視点(購入額なし・通算成績は「通算成績」ページ)。
+水色枠の予想屋kenが実際の購入プラン(本命1,000円/超混戦2,000円)。「本命勝負所」だけ買うのが検証済みの推奨運用。
+確率はモデル予測値。購入は自己責任で。</p>
+
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">1R</span>
+      <span class="deadline">締切 10:36</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速0.9m/s(北東の風) 波高目安0.0cm 気温22℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>山本 浩次</td><td>B1</td><td class='prob'>51%</td></tr><tr><td class='lane l3'>3</td><td>高岡 竜也</td><td>A1</td><td class='prob'>34%</td></tr><tr><td class='lane l6'>6</td><td>小川 竜太朗</td><td>B1</td><td class='prob'>6%</td></tr><tr><td class='lane l2'>2</td><td>平瀬 城啓</td><td>B1</td><td class='prob'>4%</td></tr><tr><td class='lane l4'>4</td><td>近藤 来希</td><td>B2</td><td class='prob'>2%</td></tr><tr><td class='lane l5'>5</td><td>吉田 光</td><td>B1</td><td class='prob'>2%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=3<span class='p'>(48.641%)</span> / 3連複1=3=6<span class='p'>(24.967%)</span> / 3連複1=2=3<span class='p'>(20.929%)</span> / 3連複1=3=4<span class='p'>(14.576%)</span> / 3連複1=3=5<span class='p'>(13.814%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-3-6<span class='p'>(8.851%)</span> / 3連単1-3-2<span class='p'>(7.719%)</span> / 3連単3-1-6<span class='p'>(6.612%)</span> / 3連単3-1-2<span class='p'>(5.766%)</span> / 3連単1-3-4<span class='p'>(5.762%)</span> / 3連単1-3-5<span class='p'>(5.510%)</span> / 3連単3-1-4<span class='p'>(4.304%)</span> / 3連単1-6-3<span class='p'>(4.287%)</span> / 3連単3-1-5<span class='p'>(4.117%)</span> / 3連単1-2-3<span class='p'>(3.442%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単5-1-3<span class='p'>(0.485%)</span> / 3連単3-2-4<span class='p'>(0.464%)</span> / 3連単3-4-6<span class='p'>(0.454%)</span> / 3連単3-2-5<span class='p'>(0.443%)</span> / 3連単4-3-1<span class='p'>(0.443%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">2R</span>
+      <span class="deadline">締切 11:00</span>
+      
+      <span class="conf" style="background:#9a6700">標準</span>
+    </summary>
+    <div class='weather'>予報: 風速0.8m/s(東南東の風) 波高目安0.0cm 気温23℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>岩橋 裕馬</td><td>B1</td><td class='prob'>48%</td></tr><tr><td class='lane l2'>2</td><td>柘植 政浩</td><td>A2</td><td class='prob'>21%</td></tr><tr><td class='lane l5'>5</td><td>山田 亮太</td><td>A1</td><td class='prob'>18%</td></tr><tr><td class='lane l3'>3</td><td>小黒 竜吾</td><td>B1</td><td class='prob'>6%</td></tr><tr><td class='lane l4'>4</td><td>庄島 潤成</td><td>B1</td><td class='prob'>2%</td></tr><tr><td class='lane l6'>6</td><td>直江 健成</td><td>B2</td><td class='prob'>0%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>3連複1=2=5<span class='p'>(36.612%)</span> / 2連複1=2<span class='p'>(31.608%)</span> / 2連複1=5<span class='p'>(27.263%)</span> / 3連複1=2=3<span class='p'>(16.605%)</span> / 3連複1=3=5<span class='p'>(14.174%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-2-5<span class='p'>(9.735%)</span> / 3連単1-5-2<span class='p'>(9.025%)</span> / 3連単2-1-5<span class='p'>(5.846%)</span> / 3連単1-2-3<span class='p'>(5.772%)</span> / 3連単5-1-2<span class='p'>(4.987%)</span> / 3連単1-5-3<span class='p'>(4.920%)</span> / 3連単2-5-1<span class='p'>(3.655%)</span> / 3連単1-3-2<span class='p'>(3.641%)</span> / 3連単2-1-3<span class='p'>(3.467%)</span> / 3連単5-2-1<span class='p'>(3.363%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単5-1-6<span class='p'>(0.494%)</span> / 3連単5-4-1<span class='p'>(0.488%)</span> / 3連単3-1-4<span class='p'>(0.391%)</span> / 3連単2-4-5<span class='p'>(0.374%)</span> / 3連単1-3-6<span class='p'>(0.361%)</span></div></div><div class='ken'><h3>予想屋ken のポートフォリオ(計1,000円)</h3><table class='ken-table'><tr><th></th><th></th><th></th><th class='yen'>金額</th><th class='cf'>自信</th><th class='io'>想定配当</th></tr><tr><td class='src'>本線</td><td class='bt'>3連複</td><td>1=2=5</td><td class='yen'>300円</td><td class='cf'>36.6%</td><td class='io'>約2倍</td></tr><tr><td class='src'>本線</td><td class='bt'>3連複</td><td>1=2=3</td><td class='yen'>200円</td><td class='cf'>16.6%</td><td class='io'>約5倍</td></tr><tr><td class='src'>山田</td><td class='bt'>3連単</td><td>1-2-5</td><td class='yen'>200円</td><td class='cf'>9.7%</td><td class='io'>約8倍</td></tr><tr><td class='src'>山田</td><td class='bt'>3連単</td><td>1-5-2</td><td class='yen'>200円</td><td class='cf'>9.0%</td><td class='io'>約8倍</td></tr><tr><td class='src'>勝万舟</td><td class='bt'>3連単</td><td>5-1-6</td><td class='yen'>100円</td><td class='cf'>0.5%</td><td class='io'>約152倍</td></tr></table><p class='ken-note'>自信=モデルが見た的中確率。想定配当=自信から逆算(オッズは見ない設計)。実際の配当は市場しだいで前後します</p></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">3R</span>
+      <span class="deadline">締切 11:25</span>
+      
+      <span class="conf" style="background:#9a6700">標準</span>
+    </summary>
+    <div class='weather'>予報: 風速0.8m/s(東南東の風) 波高目安0.0cm 気温23℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l2'>2</td><td>高倉 和士</td><td>A1</td><td class='prob'>49%</td></tr><tr><td class='lane l1'>1</td><td>新出 浩司</td><td>B1</td><td class='prob'>33%</td></tr><tr><td class='lane l3'>3</td><td>向所 浩二</td><td>B1</td><td class='prob'>7%</td></tr><tr><td class='lane l5'>5</td><td>長尾 章平</td><td>A1</td><td class='prob'>6%</td></tr><tr><td class='lane l6'>6</td><td>小原 聡将</td><td>A2</td><td class='prob'>5%</td></tr><tr><td class='lane l4'>4</td><td>高村 諒</td><td>B2</td><td class='prob'>3%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=2<span class='p'>(42.117%)</span> / 3連複1=2=3<span class='p'>(21.046%)</span> / 3連複1=2=5<span class='p'>(18.807%)</span> / 3連複1=2=6<span class='p'>(16.787%)</span> / 3連複1=2=4<span class='p'>(11.637%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単2-1-3<span class='p'>(7.037%)</span> / 3連単2-1-5<span class='p'>(6.463%)</span> / 3連単2-1-6<span class='p'>(5.922%)</span> / 3連単1-2-3<span class='p'>(5.394%)</span> / 3連単1-2-5<span class='p'>(4.955%)</span> / 3連単1-2-6<span class='p'>(4.540%)</span> / 3連単2-1-4<span class='p'>(4.419%)</span> / 3連単2-3-1<span class='p'>(3.726%)</span> / 3連単1-2-4<span class='p'>(3.388%)</span> / 3連単2-5-1<span class='p'>(3.251%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単5-2-3<span class='p'>(0.499%)</span> / 3連単1-5-4<span class='p'>(0.478%)</span> / 3連単4-2-1<span class='p'>(0.474%)</span> / 3連単1-4-3<span class='p'>(0.424%)</span> / 3連単5-2-6<span class='p'>(0.420%)</span></div></div><div class='ken'><h3>予想屋ken のポートフォリオ(計1,000円)</h3><table class='ken-table'><tr><th></th><th></th><th></th><th class='yen'>金額</th><th class='cf'>自信</th><th class='io'>想定配当</th></tr><tr><td class='src'>本線</td><td class='bt'>3連複</td><td>1=2=3</td><td class='yen'>300円</td><td class='cf'>21.0%</td><td class='io'>約4倍</td></tr><tr><td class='src'>本線</td><td class='bt'>3連複</td><td>1=2=5</td><td class='yen'>200円</td><td class='cf'>18.8%</td><td class='io'>約4倍</td></tr><tr><td class='src'>山田</td><td class='bt'>3連単</td><td>2-1-3</td><td class='yen'>200円</td><td class='cf'>7.0%</td><td class='io'>約11倍</td></tr><tr><td class='src'>山田</td><td class='bt'>3連単</td><td>2-1-5</td><td class='yen'>200円</td><td class='cf'>6.5%</td><td class='io'>約12倍</td></tr><tr><td class='src'>勝万舟</td><td class='bt'>3連単</td><td>5-2-3</td><td class='yen'>100円</td><td class='cf'>0.5%</td><td class='io'>約150倍</td></tr></table><p class='ken-note'>自信=モデルが見た的中確率。想定配当=自信から逆算(オッズは見ない設計)。実際の配当は市場しだいで前後します</p></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">4R</span>
+      <span class="deadline">締切 11:50</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速0.8m/s(東南東の風) 波高目安0.0cm 気温23℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>古川 健</td><td>B1</td><td class='prob'>51%</td></tr><tr><td class='lane l5'>5</td><td>石田 貴洋</td><td>A1</td><td class='prob'>20%</td></tr><tr><td class='lane l3'>3</td><td>篠原 飛翔</td><td>A2</td><td class='prob'>19%</td></tr><tr><td class='lane l2'>2</td><td>前沢 丈史</td><td>A1</td><td class='prob'>17%</td></tr><tr><td class='lane l4'>4</td><td>金子 順一</td><td>B1</td><td class='prob'>3%</td></tr><tr><td class='lane l6'>6</td><td>早川 理稀</td><td>B2</td><td class='prob'>0%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=5<span class='p'>(23.334%)</span> / 3連複1=3=5<span class='p'>(22.637%)</span> / 2連複1=3<span class='p'>(21.521%)</span> / 3連複1=2=5<span class='p'>(20.934%)</span> / 2連複1=2<span class='p'>(19.832%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-5-3<span class='p'>(5.876%)</span> / 3連単1-3-5<span class='p'>(5.660%)</span> / 3連単1-5-2<span class='p'>(5.604%)</span> / 3連単1-2-5<span class='p'>(5.202%)</span> / 3連単1-3-2<span class='p'>(5.153%)</span> / 3連単1-2-3<span class='p'>(4.966%)</span> / 3連単5-1-3<span class='p'>(3.479%)</span> / 3連単5-1-2<span class='p'>(3.318%)</span> / 3連単3-1-5<span class='p'>(3.209%)</span> / 3連単3-1-2<span class='p'>(2.921%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単2-5-4<span class='p'>(0.490%)</span> / 3連単3-2-4<span class='p'>(0.472%)</span> / 3連単2-3-4<span class='p'>(0.453%)</span> / 3連単2-4-1<span class='p'>(0.451%)</span> / 3連単4-1-5<span class='p'>(0.407%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">5R</span>
+      <span class="deadline">締切 12:20</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速1.3m/s(南南東の風) 波高目安0.0cm 気温24℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>宇佐見 淳</td><td>A2</td><td class='prob'>64%</td></tr><tr><td class='lane l4'>4</td><td>渡辺 浩司</td><td>A1</td><td class='prob'>24%</td></tr><tr><td class='lane l2'>2</td><td>笹木 香吾</td><td>A2</td><td class='prob'>16%</td></tr><tr><td class='lane l3'>3</td><td>堤 啓輔</td><td>B1</td><td class='prob'>10%</td></tr><tr><td class='lane l5'>5</td><td>藤田 康生</td><td>B1</td><td class='prob'>2%</td></tr><tr><td class='lane l6'>6</td><td>山下 智己</td><td>B2</td><td class='prob'>1%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=4<span class='p'>(32.997%)</span> / 3連複1=2=4<span class='p'>(30.221%)</span> / 2連複1=2<span class='p'>(23.798%)</span> / 3連複1=3=4<span class='p'>(20.354%)</span> / 2連複1=3<span class='p'>(15.418%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-4-2<span class='p'>(9.207%)</span> / 3連単1-2-4<span class='p'>(7.822%)</span> / 3連単1-4-3<span class='p'>(7.062%)</span> / 3連単1-2-3<span class='p'>(4.953%)</span> / 3連単1-3-4<span class='p'>(4.944%)</span> / 3連単4-1-2<span class='p'>(4.905%)</span> / 3連単1-3-2<span class='p'>(4.082%)</span> / 3連単4-1-3<span class='p'>(3.762%)</span> / 3連単2-1-4<span class='p'>(3.485%)</span> / 3連単1-4-5<span class='p'>(3.250%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単3-2-4<span class='p'>(0.497%)</span> / 3連単4-2-5<span class='p'>(0.464%)</span> / 3連単1-6-3<span class='p'>(0.450%)</span> / 3連単2-4-5<span class='p'>(0.388%)</span> / 3連単3-1-6<span class='p'>(0.318%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">6R</span>
+      <span class="deadline">締切 12:50</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速1.3m/s(南南東の風) 波高目安0.0cm 気温24℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>重木 輝彦</td><td>A1</td><td class='prob'>75%</td></tr><tr><td class='lane l4'>4</td><td>内堀 学</td><td>A1</td><td class='prob'>15%</td></tr><tr><td class='lane l3'>3</td><td>鈴木 峻佑</td><td>B1</td><td class='prob'>5%</td></tr><tr><td class='lane l5'>5</td><td>金子 貴志</td><td>B1</td><td class='prob'>3%</td></tr><tr><td class='lane l2'>2</td><td>庄島 潤成</td><td>B1</td><td class='prob'>3%</td></tr><tr><td class='lane l6'>6</td><td>桑原 啓</td><td>B1</td><td class='prob'>1%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=4<span class='p'>(43.102%)</span> / 3連複1=3=4<span class='p'>(25.409%)</span> / 2連複1=3<span class='p'>(18.791%)</span> / 3連複1=4=5<span class='p'>(18.570%)</span> / 3連複1=2=4<span class='p'>(16.300%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-4-3<span class='p'>(11.187%)</span> / 3連単1-4-5<span class='p'>(8.794%)</span> / 3連単1-4-2<span class='p'>(7.928%)</span> / 3連単1-3-4<span class='p'>(7.304%)</span> / 3連単1-5-4<span class='p'>(4.923%)</span> / 3連単1-4-6<span class='p'>(4.690%)</span> / 3連単1-2-4<span class='p'>(4.174%)</span> / 3連単4-1-3<span class='p'>(3.604%)</span> / 3連単1-3-5<span class='p'>(3.383%)</span> / 3連単1-3-2<span class='p'>(3.049%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単5-4-1<span class='p'>(0.407%)</span> / 3連単2-1-3<span class='p'>(0.403%)</span> / 3連単3-1-6<span class='p'>(0.377%)</span> / 3連単5-1-2<span class='p'>(0.362%)</span> / 3連単2-4-1<span class='p'>(0.324%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">7R</span>
+      <span class="deadline">締切 13:32</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速1.1m/s(南の風) 波高目安0.0cm 気温24℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>小林 京平</td><td>B1</td><td class='prob'>63%</td></tr><tr><td class='lane l4'>4</td><td>石野 貴之</td><td>A1</td><td class='prob'>26%</td></tr><tr><td class='lane l2'>2</td><td>若林 義人</td><td>A1</td><td class='prob'>25%</td></tr><tr><td class='lane l3'>3</td><td>近藤 来希</td><td>B2</td><td class='prob'>3%</td></tr><tr><td class='lane l6'>6</td><td>牧 宏次</td><td>A2</td><td class='prob'>2%</td></tr><tr><td class='lane l5'>5</td><td>山下 心一</td><td>B1</td><td class='prob'>2%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>3連複1=2=4<span class='p'>(42.237%)</span> / 2連複1=4<span class='p'>(32.586%)</span> / 2連複1=2<span class='p'>(31.721%)</span> / 2連複2=4<span class='p'>(12.457%)</span> / 3連複1=3=4<span class='p'>(9.001%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-4-2<span class='p'>(10.993%)</span> / 3連単1-2-4<span class='p'>(10.838%)</span> / 3連単4-1-2<span class='p'>(6.303%)</span> / 3連単2-1-4<span class='p'>(6.119%)</span> / 3連単4-2-1<span class='p'>(4.022%)</span> / 3連単2-4-1<span class='p'>(3.960%)</span> / 3連単1-4-3<span class='p'>(3.711%)</span> / 3連単1-2-3<span class='p'>(3.604%)</span> / 3連単1-4-6<span class='p'>(3.047%)</span> / 3連単1-4-5<span class='p'>(2.959%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単2-6-1<span class='p'>(0.495%)</span> / 3連単4-5-1<span class='p'>(0.494%)</span> / 3連単1-3-6<span class='p'>(0.480%)</span> / 3連単2-5-1<span class='p'>(0.474%)</span> / 3連単1-3-5<span class='p'>(0.466%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">8R</span>
+      <span class="deadline">締切 14:06</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速1.0m/s(南の風) 波高目安0.0cm 気温25℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>渡邉 睦広</td><td>A2</td><td class='prob'>61%</td></tr><tr><td class='lane l5'>5</td><td>小坂 尚哉</td><td>A1</td><td class='prob'>16%</td></tr><tr><td class='lane l3'>3</td><td>高井 雄基</td><td>A2</td><td class='prob'>11%</td></tr><tr><td class='lane l4'>4</td><td>古川 健</td><td>B1</td><td class='prob'>8%</td></tr><tr><td class='lane l2'>2</td><td>高村 諒</td><td>B2</td><td class='prob'>4%</td></tr><tr><td class='lane l6'>6</td><td>平瀬 城啓</td><td>B1</td><td class='prob'>1%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=5<span class='p'>(29.719%)</span> / 3連複1=3=5<span class='p'>(23.368%)</span> / 2連複1=3<span class='p'>(22.614%)</span> / 3連複1=4=5<span class='p'>(18.562%)</span> / 2連複1=4<span class='p'>(17.597%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-5-3<span class='p'>(7.713%)</span> / 3連単1-3-5<span class='p'>(6.766%)</span> / 3連単1-5-4<span class='p'>(6.601%)</span> / 3連単1-4-5<span class='p'>(5.180%)</span> / 3連単1-3-4<span class='p'>(4.907%)</span> / 3連単1-4-3<span class='p'>(4.390%)</span> / 3連単1-5-2<span class='p'>(4.376%)</span> / 3連単5-1-3<span class='p'>(3.348%)</span> / 3連単1-3-2<span class='p'>(3.253%)</span> / 3連単5-1-4<span class='p'>(2.865%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単2-1-4<span class='p'>(0.472%)</span> / 3連単3-2-1<span class='p'>(0.433%)</span> / 3連単3-4-5<span class='p'>(0.419%)</span> / 3連単4-5-3<span class='p'>(0.411%)</span> / 3連単1-6-2<span class='p'>(0.400%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">9R</span>
+      <span class="deadline">締切 14:39</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速1.0m/s(南の風) 波高目安0.0cm 気温25℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>長岡 良也</td><td>A2</td><td class='prob'>64%</td></tr><tr><td class='lane l2'>2</td><td>山田 亮太</td><td>A1</td><td class='prob'>26%</td></tr><tr><td class='lane l3'>3</td><td>久富 政弘</td><td>A2</td><td class='prob'>8%</td></tr><tr><td class='lane l4'>4</td><td>山本 浩次</td><td>B1</td><td class='prob'>4%</td></tr><tr><td class='lane l6'>6</td><td>笹木 香吾</td><td>A2</td><td class='prob'>3%</td></tr><tr><td class='lane l5'>5</td><td>新出 浩司</td><td>B1</td><td class='prob'>2%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=2<span class='p'>(45.454%)</span> / 3連複1=2=3<span class='p'>(28.993%)</span> / 3連複1=2=4<span class='p'>(18.610%)</span> / 2連複1=3<span class='p'>(16.769%)</span> / 3連複1=2=6<span class='p'>(13.989%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-2-3<span class='p'>(10.847%)</span> / 3連単1-2-4<span class='p'>(7.741%)</span> / 3連単1-3-2<span class='p'>(6.556%)</span> / 3連単1-2-6<span class='p'>(6.149%)</span> / 3連単2-1-3<span class='p'>(5.863%)</span> / 3連単1-2-5<span class='p'>(4.769%)</span> / 3連単2-1-4<span class='p'>(4.184%)</span> / 3連単1-4-2<span class='p'>(3.782%)</span> / 3連単2-1-6<span class='p'>(3.323%)</span> / 3連単1-6-2<span class='p'>(2.639%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単3-1-5<span class='p'>(0.499%)</span> / 3連単2-4-3<span class='p'>(0.479%)</span> / 3連単2-3-6<span class='p'>(0.463%)</span> / 3連単6-2-1<span class='p'>(0.370%)</span> / 3連単2-3-5<span class='p'>(0.359%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">10R</span>
+      <span class="deadline">締切 15:12</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速0.9m/s(南の風) 波高目安0.0cm 気温25℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>高岡 竜也</td><td>A1</td><td class='prob'>74%</td></tr><tr><td class='lane l3'>3</td><td>石田 貴洋</td><td>A1</td><td class='prob'>22%</td></tr><tr><td class='lane l2'>2</td><td>小原 聡将</td><td>A2</td><td class='prob'>9%</td></tr><tr><td class='lane l5'>5</td><td>柘植 政浩</td><td>A2</td><td class='prob'>5%</td></tr><tr><td class='lane l4'>4</td><td>鈴木 峻佑</td><td>B1</td><td class='prob'>3%</td></tr><tr><td class='lane l6'>6</td><td>堤 啓輔</td><td>B1</td><td class='prob'>1%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=3<span class='p'>(40.227%)</span> / 3連複1=2=3<span class='p'>(27.788%)</span> / 2連複1=2<span class='p'>(20.256%)</span> / 3連複1=3=5<span class='p'>(18.459%)</span> / 3連複1=3=4<span class='p'>(13.531%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-3-2<span class='p'>(10.495%)</span> / 3連単1-3-5<span class='p'>(7.761%)</span> / 3連単1-2-3<span class='p'>(7.419%)</span> / 3連単1-3-4<span class='p'>(6.080%)</span> / 3連単3-1-2<span class='p'>(4.576%)</span> / 3連単1-5-3<span class='p'>(4.496%)</span> / 3連単1-3-6<span class='p'>(3.677%)</span> / 3連単1-2-5<span class='p'>(3.604%)</span> / 3連単3-1-5<span class='p'>(3.384%)</span> / 3連単1-4-3<span class='p'>(3.053%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単3-2-5<span class='p'>(0.475%)</span> / 3連単5-1-4<span class='p'>(0.412%)</span> / 3連単4-1-2<span class='p'>(0.407%)</span> / 3連単3-5-2<span class='p'>(0.398%)</span> / 3連単2-5-1<span class='p'>(0.387%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">11R</span>
+      <span class="deadline">締切 15:45</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速0.9m/s(南の風) 波高目安0.0cm 気温25℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>長尾 章平</td><td>A1</td><td class='prob'>63%</td></tr><tr><td class='lane l2'>2</td><td>内堀 学</td><td>A1</td><td class='prob'>10%</td></tr><tr><td class='lane l3'>3</td><td>小川 竜太朗</td><td>B1</td><td class='prob'>8%</td></tr><tr><td class='lane l4'>4</td><td>篠原 飛翔</td><td>A2</td><td class='prob'>7%</td></tr><tr><td class='lane l6'>6</td><td>若林 義人</td><td>A1</td><td class='prob'>6%</td></tr><tr><td class='lane l5'>5</td><td>宇佐見 淳</td><td>A2</td><td class='prob'>3%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=2<span class='p'>(22.964%)</span> / 2連複1=3<span class='p'>(19.542%)</span> / 2連複1=4<span class='p'>(16.710%)</span> / 2連複1=6<span class='p'>(15.325%)</span> / 3連複1=2=3<span class='p'>(14.370%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-2-3<span class='p'>(5.045%)</span> / 3連単1-3-2<span class='p'>(4.698%)</span> / 3連単1-2-4<span class='p'>(4.569%)</span> / 3連単1-2-6<span class='p'>(4.323%)</span> / 3連単1-4-2<span class='p'>(3.982%)</span> / 3連単1-3-4<span class='p'>(3.846%)</span> / 3連単1-3-6<span class='p'>(3.639%)</span> / 3連単1-6-2<span class='p'>(3.636%)</span> / 3連単1-4-3<span class='p'>(3.599%)</span> / 3連単1-6-3<span class='p'>(3.287%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単6-2-1<span class='p'>(0.481%)</span> / 3連単4-3-1<span class='p'>(0.465%)</span> / 3連単3-6-1<span class='p'>(0.461%)</span> / 3連単5-1-3<span class='p'>(0.457%)</span> / 3連単5-1-4<span class='p'>(0.414%)</span></div></div>
+  </details>
+  <details class="card">
+    <summary class="head" style="cursor:pointer">
+      <span class="rno">12R</span>
+      <span class="deadline">締切 16:20</span>
+      
+      <span class="conf" style="background:#1a7f37">堅め</span>
+    </summary>
+    <div class='weather'>予報: 風速0.7m/s(南の風) 波高目安0.0cm 気温25℃<span class='wx-note'>※参考情報・予測には未使用</span></div>
+    <table><tr><td class='lane l1'>1</td><td>石野 貴之</td><td>A1</td><td class='prob'>69%</td></tr><tr><td class='lane l4'>4</td><td>高倉 和士</td><td>A1</td><td class='prob'>13%</td></tr><tr><td class='lane l3'>3</td><td>小坂 尚哉</td><td>A1</td><td class='prob'>12%</td></tr><tr><td class='lane l2'>2</td><td>渡辺 浩司</td><td>A1</td><td class='prob'>6%</td></tr><tr><td class='lane l5'>5</td><td>重木 輝彦</td><td>A1</td><td class='prob'>3%</td></tr><tr><td class='lane l6'>6</td><td>前沢 丈史</td><td>A1</td><td class='prob'>1%</td></tr></table>
+    
+    
+    <div class='picks'><h3>A 石橋渡(堅実・2連複/3連複)</h3><div class='items'>2連複1=4<span class='p'>(29.533%)</span> / 2連複1=3<span class='p'>(28.041%)</span> / 3連複1=3=4<span class='p'>(26.702%)</span> / 2連複1=2<span class='p'>(16.577%)</span> / 3連複1=2=4<span class='p'>(16.401%)</span></div></div><div class='picks'><h3>B 山田三連単(のびのび3連単)</h3><div class='items'>3連単1-4-3<span class='p'>(8.936%)</span> / 3連単1-3-4<span class='p'>(8.707%)</span> / 3連単1-4-2<span class='p'>(6.415%)</span> / 3連単1-3-2<span class='p'>(6.054%)</span> / 3連単1-2-4<span class='p'>(4.913%)</span> / 3連単1-2-3<span class='p'>(4.759%)</span> / 3連単1-4-5<span class='p'>(4.115%)</span> / 3連単1-3-5<span class='p'>(3.883%)</span> / 3連単4-1-3<span class='p'>(3.179%)</span> / 3連単3-1-4<span class='p'>(3.013%)</span></div></div><div class='picks'><h3>C 勝万舟(万舟圏・発生率順)</h3><div class='items'>3連単5-1-4<span class='p'>(0.468%)</span> / 3連単5-1-3<span class='p'>(0.453%)</span> / 3連単1-6-5<span class='p'>(0.452%)</span> / 3連単4-3-2<span class='p'>(0.444%)</span> / 3連単3-4-2<span class='p'>(0.432%)</span></div></div>
+  </details>
+
+<script>
+function swTab(btn, paneId) {
+  const card = btn.closest('.card');
+  card.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+  card.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+</script>
+
+
+<script>
+(function() {
+  const pageDate = "2026-10-20";
+  const now = new Date(Date.now() + 9 * 3600 * 1000);
+  const today = now.getUTCFullYear() + "-" +
+    String(now.getUTCMonth() + 1).padStart(2, "0") + "-" +
+    String(now.getUTCDate()).padStart(2, "0");
+  if (pageDate === today) return;
+  fetch("data/picks_" + today + ".json?_=" + Date.now(), {cache: "no-store"})
+    .then(r => {
+      if (r.ok && sessionStorage.getItem("reloaded-" + today) !== "1") {
+        sessionStorage.setItem("reloaded-" + today, "1");
+        location.reload();
+        return;
+      }
+      const div = document.createElement("div");
+      div.style.cssText = "position:sticky;top:0;z-index:99;background:#fff8c5;" +
+        "border-bottom:2px solid #d4a72c;padding:10px 14px;font-size:.9rem;";
+      div.innerHTML = r.ok
+        ? "⚠️ この予想は" + pageDate + "のものです。<a href=''>タップで最新(" + today + ")に更新</a>"
+        : "⚠️ この予想は" + pageDate + "のものです。本日分は未配信 " +
+          "<a href='status.html'>🔄配信状況を確認</a>";
+      document.body.prepend(div);
+    }).catch(() => {});
+})();
+</script>
+
+</body>
+</html>
