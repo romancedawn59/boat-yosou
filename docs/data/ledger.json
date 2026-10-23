@@ -307658,5 +307658,3525 @@
    ]
   },
   "gaps": []
+ },
+ {
+  "date": "2026-10-23",
+  "stats": {
+   "a": {
+    "stake": 81000,
+    "ret": 65200,
+    "races": 162,
+    "hits": 112
+   },
+   "b": {
+    "stake": 162000,
+    "ret": 118410,
+    "races": 162,
+    "hits": 81
+   },
+   "c": {
+    "stake": 81000,
+    "ret": 28400,
+    "races": 162,
+    "hits": 2
+   },
+   "ken": {
+    "stake": 61000,
+    "ret": 30740,
+    "races": 61,
+    "hits": 22
+   },
+   "ken_hon": {
+    "stake": 4000,
+    "ret": 540,
+    "races": 4,
+    "hits": 1
+   },
+   "ken_konsen": {
+    "stake": 0,
+    "ret": 0,
+    "races": 0,
+    "hits": 0
+   },
+   "ken_jissai": {
+    "stake": 4000,
+    "ret": 540,
+    "races": 4,
+    "hits": 1
+   },
+   "ken_extra": {
+    "stake": 0,
+    "ret": 0,
+    "races": 0,
+    "hits": 0
+   },
+   "ken_jun": {
+    "stake": 4000,
+    "ret": 660,
+    "races": 4,
+    "hits": 1
+   }
+  },
+  "hits": {
+   "a": [
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "1-5-2",
+     "stake": 500,
+     "ret": 710,
+     "lines": [
+      {
+       "label": "3連複 1=2=5",
+       "payout": 270
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 440
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 550
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 4,
+     "chaku": "2-4-3",
+     "stake": 500,
+     "ret": 730,
+     "lines": [
+      {
+       "label": "2連複 2=4",
+       "payout": 730
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 5,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 450,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 230
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "3-2-1",
+     "stake": 500,
+     "ret": 580,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 360
+      },
+      {
+       "label": "2連複 2=3",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 8,
+     "chaku": "4-5-1",
+     "stake": 500,
+     "ret": 610,
+     "lines": [
+      {
+       "label": "3連複 1=4=5",
+       "payout": 610
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 9,
+     "chaku": "1-2-6",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 10,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 220,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 11,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 820,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 330
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 490
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 12,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 530,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 140
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 1,
+     "chaku": "3-1-2",
+     "stake": 500,
+     "ret": 400,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 150
+      },
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 5,
+     "chaku": "3-4-5",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "2連複 3=4",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 6,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 680,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 240
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 440
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 410,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 410
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 8,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 210,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 210
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 220,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 12,
+     "chaku": "1-3-4",
+     "stake": 500,
+     "ret": 1130,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 270
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 860
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 2,
+     "chaku": "4-1-6",
+     "stake": 500,
+     "ret": 570,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 570
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 3,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 600,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 600
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 5,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 700
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 6,
+     "chaku": "1-5-4",
+     "stake": 500,
+     "ret": 1050,
+     "lines": [
+      {
+       "label": "3連複 1=4=5",
+       "payout": 590
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 460
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 7,
+     "chaku": "5-2-3",
+     "stake": 500,
+     "ret": 320,
+     "lines": [
+      {
+       "label": "2連複 2=5",
+       "payout": 320
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 9,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 580,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 270
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 1,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 500,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 170
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 5,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 530,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 530
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 6,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 1200,
+     "lines": [
+      {
+       "label": "3連複 1=3=5",
+       "payout": 300
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 900
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 7,
+     "chaku": "2-4-3",
+     "stake": 500,
+     "ret": 160,
+     "lines": [
+      {
+       "label": "2連複 2=4",
+       "payout": 160
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 8,
+     "chaku": "4-5-1",
+     "stake": 500,
+     "ret": 420,
+     "lines": [
+      {
+       "label": "3連複 1=4=5",
+       "payout": 420
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 9,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 1230,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 750
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 480
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 10,
+     "chaku": "1-2-6",
+     "stake": 500,
+     "ret": 1150,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 1150
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 740,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 140
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 600
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 530,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 530
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 1,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 720,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 200
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 520
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 4,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 500,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 150
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 350
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 5,
+     "chaku": "1-6-2",
+     "stake": 500,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "2連複 1=6",
+       "payout": 400
+      },
+      {
+       "label": "3連複 1=2=6",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 6,
+     "chaku": "1-6-3",
+     "stake": 500,
+     "ret": 280,
+     "lines": [
+      {
+       "label": "2連複 1=6",
+       "payout": 280
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 8,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 630,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      },
+      {
+       "label": "3連複 1=2=5",
+       "payout": 440
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 9,
+     "chaku": "2-4-1",
+     "stake": 500,
+     "ret": 380,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 380
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 10,
+     "chaku": "2-1-5",
+     "stake": 500,
+     "ret": 220,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 11,
+     "chaku": "2-1-5",
+     "stake": 500,
+     "ret": 170,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 170
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 700,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 310
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 3,
+     "chaku": "5-1-2",
+     "stake": 500,
+     "ret": 930,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 440
+      },
+      {
+       "label": "3連複 1=2=5",
+       "payout": 490
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 4,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 100
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 200
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 5,
+     "chaku": "1-4-3",
+     "stake": 500,
+     "ret": 560,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 350
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 210
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 6,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 390,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 180
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 210
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 440,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 200
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 240
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 390,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 9,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 340,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 140
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 200
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 11,
+     "chaku": "1-4-3",
+     "stake": 500,
+     "ret": 680,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 260
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 420
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 380,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 200
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 180
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 1,
+     "chaku": "3-1-2",
+     "stake": 500,
+     "ret": 460,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 190
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 3,
+     "chaku": "2-1-5",
+     "stake": 500,
+     "ret": 100,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 100
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 5,
+     "chaku": "1-4-5",
+     "stake": 500,
+     "ret": 430,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 430
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 6,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 470,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 180
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 9,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 660,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 320
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 830,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 320
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 510
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 530,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 280
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 3,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 220
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 4,
+     "chaku": "4-1-5",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 220
+      },
+      {
+       "label": "3連複 1=4=5",
+       "payout": 430
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 5,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 470,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 470
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 6,
+     "chaku": "1-3-5",
+     "stake": 500,
+     "ret": 290,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 7,
+     "chaku": "2-1-4",
+     "stake": 500,
+     "ret": 430,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 170
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 260
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 8,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 880,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 510
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 370
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 9,
+     "chaku": "2-1-4",
+     "stake": 500,
+     "ret": 1140,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 420
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 720
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 10,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 390,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 180
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 210
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 11,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 650
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 12,
+     "chaku": "3-1-2",
+     "stake": 500,
+     "ret": 1200,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 220
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 980
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 1,
+     "chaku": "3-1-5",
+     "stake": 500,
+     "ret": 440,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 170
+      },
+      {
+       "label": "3連複 1=3=5",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 2,
+     "chaku": "1-4-6",
+     "stake": 500,
+     "ret": 290,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 290
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 310,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 4,
+     "chaku": "1-5-3",
+     "stake": 500,
+     "ret": 1200,
+     "lines": [
+      {
+       "label": "3連複 1=3=5",
+       "payout": 710
+      },
+      {
+       "label": "2連複 1=5",
+       "payout": 490
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 230,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 230
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 8,
+     "chaku": "1-3-5",
+     "stake": 500,
+     "ret": 400,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 400
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 460,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 160
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 1,
+     "chaku": "2-1-6",
+     "stake": 500,
+     "ret": 1090,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 320
+      },
+      {
+       "label": "3連複 1=2=6",
+       "payout": 770
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 2,
+     "chaku": "5-1-3",
+     "stake": 500,
+     "ret": 1440,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 1440
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 3,
+     "chaku": "3-2-1",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 4,
+     "chaku": "2-5-4",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 2=5",
+       "payout": 320
+      },
+      {
+       "label": "3連複 2=4=5",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 5,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 160
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 140
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 1,
+     "chaku": "2-1-4",
+     "stake": 500,
+     "ret": 1780,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 760
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 1020
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 2,
+     "chaku": "4-5-1",
+     "stake": 500,
+     "ret": 250,
+     "lines": [
+      {
+       "label": "3連複 1=4=5",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 4,
+     "chaku": "4-1-6",
+     "stake": 500,
+     "ret": 270,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 730,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 170
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 560
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 340,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 170
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 170
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 10,
+     "chaku": "1-3-5",
+     "stake": 500,
+     "ret": 330,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 12,
+     "chaku": "1-5-6",
+     "stake": 500,
+     "ret": 660,
+     "lines": [
+      {
+       "label": "2連複 1=5",
+       "payout": 660
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 1,
+     "chaku": "1-3-4",
+     "stake": 500,
+     "ret": 250,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 2,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 270,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 3,
+     "chaku": "3-1-6",
+     "stake": 500,
+     "ret": 220,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 7,
+     "chaku": "2-4-6",
+     "stake": 500,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "2連複 2=4",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 1040,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 540
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 500
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 9,
+     "chaku": "3-1-4",
+     "stake": 500,
+     "ret": 460,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 220
+      },
+      {
+       "label": "3連複 1=3=4",
+       "payout": 240
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 500,
+     "ret": 490,
+     "lines": [
+      {
+       "label": "3連複 1=2=4",
+       "payout": 240
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 250
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 630,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 330
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 1,
+     "chaku": "3-2-1",
+     "stake": 500,
+     "ret": 390,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 600,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 230
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 370
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 470,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 130
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 340
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 4,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 650,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 260
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 390
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 5,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 670,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 400
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 270
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 6,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 870,
+     "lines": [
+      {
+       "label": "3連複 1=2=3",
+       "payout": 350
+      },
+      {
+       "label": "2連複 1=2",
+       "payout": 520
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 7,
+     "chaku": "1-3-5",
+     "stake": 500,
+     "ret": 200,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 200
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 9,
+     "chaku": "1-4-5",
+     "stake": 500,
+     "ret": 400,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 400
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 10,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 1210,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 680
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 530
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 11,
+     "chaku": "1-4-2",
+     "stake": 500,
+     "ret": 1450,
+     "lines": [
+      {
+       "label": "2連複 1=4",
+       "payout": 830
+      },
+      {
+       "label": "3連複 1=2=4",
+       "payout": 620
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 2,
+     "chaku": "2-1-3",
+     "stake": 500,
+     "ret": 850,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 850
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 3,
+     "chaku": "1-2-5",
+     "stake": 500,
+     "ret": 1160,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 530
+      },
+      {
+       "label": "3連複 1=2=5",
+       "payout": 630
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 4,
+     "chaku": "1-3-2",
+     "stake": 500,
+     "ret": 830,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 130
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 700
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 5,
+     "chaku": "3-5-1",
+     "stake": 500,
+     "ret": 550,
+     "lines": [
+      {
+       "label": "3連複 1=3=5",
+       "payout": 550
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 7,
+     "chaku": "4-3-1",
+     "stake": 500,
+     "ret": 240,
+     "lines": [
+      {
+       "label": "3連複 1=3=4",
+       "payout": 240
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 10,
+     "chaku": "1-3-5",
+     "stake": 500,
+     "ret": 540,
+     "lines": [
+      {
+       "label": "2連複 1=3",
+       "payout": 240
+      },
+      {
+       "label": "3連複 1=3=5",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 11,
+     "chaku": "1-2-3",
+     "stake": 500,
+     "ret": 670,
+     "lines": [
+      {
+       "label": "2連複 1=2",
+       "payout": 190
+      },
+      {
+       "label": "3連複 1=2=3",
+       "payout": 480
+      }
+     ]
+    }
+   ],
+   "b": [
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 1970,
+     "lines": [
+      {
+       "label": "3連単 1-5-2",
+       "payout": 1970
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 3,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 4280,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 4280
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 5,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 670,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 670
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "3-2-1",
+     "stake": 1000,
+     "ret": 2220,
+     "lines": [
+      {
+       "label": "3連単 3-2-1",
+       "payout": 2220
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 10,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 1120,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 1120
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 11,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1060,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1060
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 12,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 610,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 610
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 1,
+     "chaku": "3-1-2",
+     "stake": 1000,
+     "ret": 3260,
+     "lines": [
+      {
+       "label": "3連単 3-1-2",
+       "payout": 3260
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 6,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 2190,
+     "lines": [
+      {
+       "label": "3連単 3-1-4",
+       "payout": 2190
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1950,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1950
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 8,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 880,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 880
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1280,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 1280
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 12,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 990,
+     "lines": [
+      {
+       "label": "3連単 1-3-4",
+       "payout": 990
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 5,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 2550,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 2550
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 6,
+     "chaku": "1-5-4",
+     "stake": 1000,
+     "ret": 2540,
+     "lines": [
+      {
+       "label": "3連単 1-5-4",
+       "payout": 2540
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 9,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 760,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 760
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1420,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1420
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 6,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 2230,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 2230
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 7,
+     "chaku": "2-4-3",
+     "stake": 1000,
+     "ret": 960,
+     "lines": [
+      {
+       "label": "3連単 2-4-3",
+       "payout": 960
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 8,
+     "chaku": "4-5-1",
+     "stake": 1000,
+     "ret": 1050,
+     "lines": [
+      {
+       "label": "3連単 4-5-1",
+       "payout": 1050
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 9,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 3250,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 3250
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1070,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1070
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1920,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1920
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 1,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 1030,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 1030
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 4,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 750
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 5,
+     "chaku": "1-6-2",
+     "stake": 1000,
+     "ret": 860,
+     "lines": [
+      {
+       "label": "3連単 1-6-2",
+       "payout": 860
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 6,
+     "chaku": "1-6-3",
+     "stake": 1000,
+     "ret": 1360,
+     "lines": [
+      {
+       "label": "3連単 1-6-3",
+       "payout": 1360
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 8,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 770,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 770
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 770,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 770
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 3,
+     "chaku": "5-1-2",
+     "stake": 1000,
+     "ret": 4370,
+     "lines": [
+      {
+       "label": "3連単 5-1-2",
+       "payout": 4370
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 4,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 2280,
+     "lines": [
+      {
+       "label": "3連単 2-1-3",
+       "payout": 2280
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 5,
+     "chaku": "1-4-3",
+     "stake": 1000,
+     "ret": 580,
+     "lines": [
+      {
+       "label": "3連単 1-4-3",
+       "payout": 580
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 6,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 490,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 490
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 7,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 500,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 500
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1160,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1160
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 9,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 310,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 310
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 11,
+     "chaku": "1-4-3",
+     "stake": 1000,
+     "ret": 1520,
+     "lines": [
+      {
+       "label": "3連単 1-4-3",
+       "payout": 1520
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "尼崎",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 540,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 540
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 3,
+     "chaku": "2-1-5",
+     "stake": 1000,
+     "ret": 300,
+     "lines": [
+      {
+       "label": "3連単 2-1-5",
+       "payout": 300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 6,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 560,
+     "lines": [
+      {
+       "label": "3連単 2-1-3",
+       "payout": 560
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 9,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 2340,
+     "lines": [
+      {
+       "label": "3連単 2-1-3",
+       "payout": 2340
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 12,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1210,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1210
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 410,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 410
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 3,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 1160,
+     "lines": [
+      {
+       "label": "3連単 2-1-3",
+       "payout": 1160
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 4,
+     "chaku": "4-1-5",
+     "stake": 1000,
+     "ret": 1510,
+     "lines": [
+      {
+       "label": "3連単 4-1-5",
+       "payout": 1510
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 5,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1300,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 7,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 830,
+     "lines": [
+      {
+       "label": "3連単 2-1-4",
+       "payout": 830
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 8,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 670,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 670
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 9,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 5660,
+     "lines": [
+      {
+       "label": "3連単 2-1-4",
+       "payout": 5660
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 10,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 2070,
+     "lines": [
+      {
+       "label": "3連単 3-1-4",
+       "payout": 2070
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 2,
+     "chaku": "1-4-6",
+     "stake": 1000,
+     "ret": 840,
+     "lines": [
+      {
+       "label": "3連単 1-4-6",
+       "payout": 840
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1160,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1160
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 4,
+     "chaku": "1-5-3",
+     "stake": 1000,
+     "ret": 2020,
+     "lines": [
+      {
+       "label": "3連単 1-5-3",
+       "payout": 2020
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1330,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 11,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1320,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1320
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "徳山",
+     "race_no": 12,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 410,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 410
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 4,
+     "chaku": "2-5-4",
+     "stake": 1000,
+     "ret": 1300,
+     "lines": [
+      {
+       "label": "3連単 2-5-4",
+       "payout": 1300
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 5,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 360,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 360
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 5,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 860,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 860
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 510
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 10,
+     "chaku": "1-3-5",
+     "stake": 1000,
+     "ret": 2310,
+     "lines": [
+      {
+       "label": "3連単 1-3-5",
+       "payout": 2310
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 12,
+     "chaku": "1-5-6",
+     "stake": 1000,
+     "ret": 4670,
+     "lines": [
+      {
+       "label": "3連単 1-5-6",
+       "payout": 4670
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 1,
+     "chaku": "1-3-4",
+     "stake": 1000,
+     "ret": 920,
+     "lines": [
+      {
+       "label": "3連単 1-3-4",
+       "payout": 920
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 3,
+     "chaku": "3-1-6",
+     "stake": 1000,
+     "ret": 2030,
+     "lines": [
+      {
+       "label": "3連単 3-1-6",
+       "payout": 2030
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1180,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1180
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 9,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 1260,
+     "lines": [
+      {
+       "label": "3連単 3-1-4",
+       "payout": 1260
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 10,
+     "chaku": "1-2-4",
+     "stake": 1000,
+     "ret": 620,
+     "lines": [
+      {
+       "label": "3連単 1-2-4",
+       "payout": 620
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "福岡",
+     "race_no": 11,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 910,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 910
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 2,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 750
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 910,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 910
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 4,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 820,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 820
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 5,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 890,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 890
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 6,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1030,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 1030
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 7,
+     "chaku": "1-3-5",
+     "stake": 1000,
+     "ret": 1160,
+     "lines": [
+      {
+       "label": "3連単 1-3-5",
+       "payout": 1160
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 9,
+     "chaku": "1-4-5",
+     "stake": 1000,
+     "ret": 2580,
+     "lines": [
+      {
+       "label": "3連単 1-4-5",
+       "payout": 2580
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 10,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 2000,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 2000
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "唐津",
+     "race_no": 11,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 2450,
+     "lines": [
+      {
+       "label": "3連単 1-4-2",
+       "payout": 2450
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 3,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 3330,
+     "lines": [
+      {
+       "label": "3連単 1-2-5",
+       "payout": 3330
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 4,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 1650,
+     "lines": [
+      {
+       "label": "3連単 1-3-2",
+       "payout": 1650
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 10,
+     "chaku": "1-3-5",
+     "stake": 1000,
+     "ret": 610,
+     "lines": [
+      {
+       "label": "3連単 1-3-5",
+       "payout": 610
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 11,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 680,
+     "lines": [
+      {
+       "label": "3連単 1-2-3",
+       "payout": 680
+      }
+     ]
+    }
+   ],
+   "c": [
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 11,
+     "chaku": "6-4-1",
+     "stake": 500,
+     "ret": 15990,
+     "lines": [
+      {
+       "label": "3連単 6-4-1",
+       "payout": 15990
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 3,
+     "chaku": "3-4-2",
+     "stake": 500,
+     "ret": 12410,
+     "lines": [
+      {
+       "label": "3連単 3-4-2",
+       "payout": 12410
+      }
+     ]
+    }
+   ],
+   "ken": [
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 540,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 540,
+       "conf": 0.196483,
+       "odds": 2.7,
+       "implied": 3.817124127787137
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 6,
+     "chaku": "3-2-1",
+     "stake": 1000,
+     "ret": 720,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 720,
+       "conf": 0.189987,
+       "odds": 3.6,
+       "implied": 3.9476385226357595
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "多摩川",
+     "race_no": 6,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 1320,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（300円）",
+       "payout": 1320,
+       "conf": 0.219468,
+       "odds": 4.4,
+       "implied": 3.4173546940784076
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "浜名湖",
+     "race_no": 6,
+     "chaku": "1-5-4",
+     "stake": 1000,
+     "ret": 1180,
+     "lines": [
+      {
+       "label": "3連複 1=4=5（200円）",
+       "payout": 1180,
+       "conf": 0.193443,
+       "odds": 5.9,
+       "implied": 3.877111086986864
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 3,
+     "chaku": "1-3-2",
+     "stake": 1000,
+     "ret": 3500,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 660,
+       "conf": 0.179817,
+       "odds": 3.3,
+       "implied": 4.1709070888736886
+      },
+      {
+       "label": "3連単 1-3-2（200円）",
+       "payout": 2840,
+       "conf": 0.054111,
+       "odds": 14.2,
+       "implied": 13.86039807063259
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 8,
+     "chaku": "4-5-1",
+     "stake": 1000,
+     "ret": 840,
+     "lines": [
+      {
+       "label": "3連複 1=4=5（200円）",
+       "payout": 840,
+       "conf": 0.233811,
+       "odds": 4.2,
+       "implied": 3.2077190551342754
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "びわこ",
+     "race_no": 9,
+     "chaku": "1-4-2",
+     "stake": 1000,
+     "ret": 960,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（200円）",
+       "payout": 960,
+       "conf": 0.229418,
+       "odds": 4.8,
+       "implied": 3.2691419156299855
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "住之江",
+     "race_no": 8,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 2860,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（300円）",
+       "payout": 1320,
+       "conf": 0.211355,
+       "odds": 4.4,
+       "implied": 3.548532090558539
+      },
+      {
+       "label": "3連単 1-2-5（200円）",
+       "payout": 1540,
+       "conf": 0.059549,
+       "odds": 7.7,
+       "implied": 12.59466993568322
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 6,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 1660,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 540,
+       "conf": 0.342621,
+       "odds": 1.8,
+       "implied": 2.189007679038938
+      },
+      {
+       "label": "3連単 2-1-3（200円）",
+       "payout": 1120,
+       "conf": 0.068693,
+       "odds": 5.6,
+       "implied": 10.918143042231376
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 9,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 960,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 960,
+       "conf": 0.328788,
+       "odds": 3.2,
+       "implied": 2.281105149822986
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "鳴門",
+     "race_no": 10,
+     "chaku": "2-5-4",
+     "stake": 1000,
+     "ret": 2360,
+     "lines": [
+      {
+       "label": "3連複 2=4=5（100円）",
+       "payout": 2360,
+       "conf": 0.047039,
+       "odds": 23.6,
+       "implied": 15.944216501201131
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 3,
+     "chaku": "2-1-3",
+     "stake": 1000,
+     "ret": 440,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 440,
+       "conf": 0.244888,
+       "odds": 2.2,
+       "implied": 3.062624546731567
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 4,
+     "chaku": "4-1-5",
+     "stake": 1000,
+     "ret": 860,
+     "lines": [
+      {
+       "label": "3連複 1=4=5（200円）",
+       "payout": 860,
+       "conf": 0.149976,
+       "odds": 4.3,
+       "implied": 5.000800128020483
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 7,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 510,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（300円）",
+       "payout": 510,
+       "conf": 0.389464,
+       "odds": 1.7,
+       "implied": 1.9257235585317258
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 9,
+     "chaku": "2-1-4",
+     "stake": 1000,
+     "ret": 1440,
+     "lines": [
+      {
+       "label": "3連複 1=2=4（200円）",
+       "payout": 1440,
+       "conf": 0.187561,
+       "odds": 7.2,
+       "implied": 3.9986990898960872
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "宮島",
+     "race_no": 10,
+     "chaku": "3-1-4",
+     "stake": 1000,
+     "ret": 420,
+     "lines": [
+      {
+       "label": "3連複 1=3=4（200円）",
+       "payout": 420,
+       "conf": 0.180865,
+       "odds": 2.1,
+       "implied": 4.146739280678959
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 1,
+     "chaku": "2-1-6",
+     "stake": 1000,
+     "ret": 1540,
+     "lines": [
+      {
+       "label": "3連複 1=2=6（200円）",
+       "payout": 1540,
+       "conf": 0.153779,
+       "odds": 7.7,
+       "implied": 4.877128866750336
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 3,
+     "chaku": "3-2-1",
+     "stake": 1000,
+     "ret": 660,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 660,
+       "conf": 0.145339,
+       "odds": 3.3,
+       "implied": 5.160349252437405
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 2,
+     "chaku": "4-5-1",
+     "stake": 1000,
+     "ret": 750,
+     "lines": [
+      {
+       "label": "3連複 1=4=5（300円）",
+       "payout": 750,
+       "conf": 0.242372,
+       "odds": 2.5,
+       "implied": 3.094416846830492
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "芦屋",
+     "race_no": 8,
+     "chaku": "1-2-3",
+     "stake": 1000,
+     "ret": 1530,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（300円）",
+       "payout": 510,
+       "conf": 0.278645,
+       "odds": 1.7,
+       "implied": 2.6915968346821226
+      },
+      {
+       "label": "3連単 1-2-3（200円）",
+       "payout": 1020,
+       "conf": 0.101298,
+       "odds": 5.1,
+       "implied": 7.403897411597465
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 3,
+     "chaku": "1-2-5",
+     "stake": 1000,
+     "ret": 4590,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 1260,
+       "conf": 0.17083,
+       "odds": 6.3,
+       "implied": 4.390329567406193
+      },
+      {
+       "label": "3連単 1-2-5（100円）",
+       "payout": 3330,
+       "conf": 0.039081,
+       "odds": 33.3,
+       "implied": 19.19091118446304
+      }
+     ]
+    },
+    {
+     "date": "2026-10-23",
+     "venue": "大村",
+     "race_no": 5,
+     "chaku": "3-5-1",
+     "stake": 1000,
+     "ret": 1100,
+     "lines": [
+      {
+       "label": "3連複 1=3=5（200円）",
+       "payout": 1100,
+       "conf": 0.182494,
+       "odds": 5.5,
+       "implied": 4.109724155314695
+      }
+     ]
+    }
+   ],
+   "ken_hon": [
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 540,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 540,
+       "conf": 0.196483,
+       "odds": 2.7,
+       "implied": 3.817124127787137
+      }
+     ]
+    }
+   ],
+   "ken_konsen": [],
+   "ken_jissai": [
+    {
+     "date": "2026-10-23",
+     "venue": "平和島",
+     "race_no": 2,
+     "chaku": "1-5-2",
+     "stake": 1000,
+     "ret": 540,
+     "lines": [
+      {
+       "label": "3連複 1=2=5（200円）",
+       "payout": 540,
+       "conf": 0.196483,
+       "odds": 2.7,
+       "implied": 3.817124127787137
+      }
+     ]
+    }
+   ],
+   "ken_extra": [],
+   "ken_jun": [
+    {
+     "date": "2026-10-23",
+     "venue": "若松",
+     "race_no": 3,
+     "chaku": "3-2-1",
+     "stake": 1000,
+     "ret": 660,
+     "lines": [
+      {
+       "label": "3連複 1=2=3（200円）",
+       "payout": 660,
+       "conf": 0.145339,
+       "odds": 3.3,
+       "implied": 5.160349252437405
+      }
+     ]
+    }
+   ]
+  },
+  "gaps": []
  }
 ]
