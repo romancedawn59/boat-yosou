@@ -303,12 +303,21 @@ class TestShobusho(unittest.TestCase):
         self.assertIsNone(races[1]["shobusho"])
 
     def test_honmei_cap_and_priority(self):
-        # 対象場の荒れ注意×閾値30%未満の7レース: 1位勝率が低い順にcap=6が本命、溢れは要注目
+        # 対象場の荒れ注意×閾値30%未満の7レース: 1位勝率が低い順にcap=4が本命、溢れは要注目
         races = [self._race("荒れ注意", 0.29 - i * 0.01) for i in range(7)]
-        self._select(races)
+        self._select(races, honmei_cap=4)
         marks = [r["shobusho"] for r in races]
         self.assertEqual(marks.count("本命"), 4)   # ⑰: cap4×1,400円
         self.assertEqual(races[0]["shobusho"], "要注目")  # 最も高い0.29が溢れる
+
+    def test_honmei_no_cap_takes_whole_band(self):
+        # 2026-10-28: honmei_cap=None(配信の既定)は件数・予算の制限なしで帯の全レースを本命にする
+        races = [self._race("荒れ注意", 0.29 - i * 0.01) for i in range(7)]
+        races += [self._race("荒れ注意", 0.18)]   # 超混戦(予算を食っても本命は減らない)
+        self._select(races, honmei_cap=None, daily_budget=3000)
+        marks = [r["shobusho"] for r in races]
+        self.assertEqual(marks.count("本命"), 7)
+        self.assertEqual(races[7]["shobusho"], "超混戦")
 
     def test_honmei_threshold_30_band_goes_to_attention(self):
         # 30〜35%帯は荒れ注意ラベルのまま本命にせず要注目で前向き観測

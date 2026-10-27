@@ -289,11 +289,13 @@ def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], i
     (buyable=False)は予算と①②のリストから外し、別枠(blocked)で返す。
     「理想と実際の分離」: 採点側は理想全体と実際(買えた分)を両方記録する。
     """
-    def label(r):
-        return f"{r['venue_name']}{r['race_no']}R"
+    def label(r, with_lane=False):
+        # 本命はモデル1位の枠番を添える(2026-10-28: 複勝r1の紙上採点に使うため)
+        lane = f"({r['ranked'][0]['lane']}号艇)" if with_lane and r.get("ranked") else ""
+        return f"{r['venue_name']}{r['race_no']}R{lane}"
 
     def names(mark, buyable_only=True):
-        return [label(r) for r in races
+        return [label(r, with_lane=(mark == "本命")) for r in races
                 if r.get("shobusho") == mark and (not buyable_only or r.get("buyable", True))]
 
     # 超混戦は2026-09-01判定で紙上(実弾0円)。一覧には載せるが予算・購入不可判定は
@@ -309,12 +311,12 @@ def shobu_summary(races: list[dict]) -> tuple[list[str], list[str], list[str], i
 
 
 def build_notify_text(d: date, races: list[dict]) -> str:
-    """LINE通知(v2): ①本命 ②超混戦 ③購入予算。メンテ等で買えないレースがある日だけ
-    「購入不可」行を追加して知らせる(買い間違い防止)"""
+    """LINE通知(v2): ①本命(モデル1位×帯22.5〜30%の全レース・1位の枠番つき) ②超混戦
+    ③購入予算。メンテ等で買えないレースがある日だけ「購入不可」行を追加して知らせる"""
     honmei, konsen, attention, budget, blocked = shobu_summary(races)
     lines = [f"【競艇予想】{d}"]
     if honmei:
-        lines.append(f"本命: {'、'.join(honmei)}")
+        lines.append(f"本命(1位勝率22.5〜30%・{len(honmei)}件・カッコ内は1位の艇): {'、'.join(honmei)}")
     if konsen:
         lines.append(f"超混戦(紙上・買わない): {'、'.join(konsen)}")
     if honmei:
@@ -464,7 +466,7 @@ def _summary_html(races: list[dict]) -> str:
     honmei, konsen, attention, budget, blocked = shobu_summary(races)
     parts = []
     if honmei:
-        parts.append(f"🔴本命(全場・上位{HONMEI_CAP}): <b>{'、'.join(honmei)}</b>")
+        parts.append(f"🔴本命(全場・1位勝率22.5〜30%・{len(honmei)}件): <b>{'、'.join(honmei)}</b>")
     if konsen:
         parts.append(f"🟣超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満・<b>紙上=買わない</b>・専用順位を検証中): {'、'.join(konsen)}")
     if honmei:
@@ -1097,7 +1099,7 @@ def render_shopping_page(d: date, races: list[dict],
             for r in rs)
         return f"<h2 class='sec-h'>{title}</h2>{cards}"
 
-    body = (section(f"🔴 本命(全24場・上位{HONMEI_CAP})", "本命")
+    body = (section("🔴 本命(全24場・1位勝率22.5〜30%)", "本命")
             + section(f"🟣 超混戦(全場・1位勝率{KONSEN_PROB_MAX:.0%}未満・紙上=買わない・専用順位を検証中)", "超混戦")
             + section("👀 要注目(観測のみ・購入0点)", "要注目"))
     if not body:

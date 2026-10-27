@@ -51,7 +51,7 @@ class TestShobuSummary(unittest.TestCase):
         ]
         honmei, konsen, attention, budget, blocked = shobu_summary(races)
         self.assertEqual(blocked, [])
-        self.assertEqual(honmei, ["平和島5R"])
+        self.assertEqual(honmei, ["平和島5R(1号艇)"])   # 本命はモデル1位の枠番つき(2026-10-28)
         self.assertEqual(konsen, ["桐生2R"])
         self.assertEqual(attention, ["尼崎3R"])
         self.assertEqual(budget, 1000)  # 購入予算は本命のみ(超混戦は紙上・2026-09-06)
@@ -66,7 +66,7 @@ class TestBuildNotifyText(unittest.TestCase):
         races = [_race(ARERU, 4, 5, shobusho="本命"), _race(ARERU, 1, 2, shobusho="超混戦"),
                  _race(ARERU, 13, 3, shobusho="要注目")]
         text = build_notify_text(date(2026, 7, 5), races)
-        self.assertIn("本命: 平和島5R", text)
+        self.assertIn("本命(1位勝率22.5〜30%・1件・カッコ内は1位の艇): 平和島5R(1号艇)", text)
         self.assertIn("超混戦(紙上・買わない): 桐生2R", text)
         self.assertIn("購入予算: 1,000円(本命1,000円のみ)", text)  # 超混戦・要注目は予算外
         self.assertNotIn("要注目", text)  # 要注目は通知しない(ユーザー指示)
@@ -119,7 +119,7 @@ class TestBlackout(unittest.TestCase):
         blocked_race["buyable"] = False
         races = [_race(ARERU, 4, 5, shobusho="本命"), blocked_race]
         honmei, konsen, attention, budget, blocked = shobu_summary(races)
-        self.assertEqual(honmei, ["平和島5R"])          # 買える本命だけ
+        self.assertEqual(honmei, ["平和島5R(1号艇)"])   # 買える本命だけ
         self.assertEqual(blocked, ["平和島2R"])
         self.assertEqual(budget, 1000)                  # 買えない分は予算外
         text = build_notify_text(date(2026, 7, 20), races)
